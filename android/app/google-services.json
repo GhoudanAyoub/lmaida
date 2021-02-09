@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "837867310679",
+    "project_id": "lmaida-23326",
+    "storage_bucket": "lmaida-23326.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:837867310679:android:d7d04a184a7d0626691d12",
+        "android_client_info": {
+          "package_name": "com.ghoudan.lmaida"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "837867310679-remoog2i0vn8v1571cf2aepuvemtqgct.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALQ-ZhPMr5kS89_zEDHa3Z3QQPWSNtvDs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "837867310679-remoog2i0vn8v1571cf2aepuvemtqgct.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
