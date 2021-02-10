@@ -1,5 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 import 'package:lmaida/utils/firebase.dart';
 
 class AuthService {
@@ -19,7 +21,7 @@ class AuthService {
       password: '$password',
     );
     if (res.user != null) {
-      await saveUserToFirestore(name, res.user, email, country);
+      await saveUserToFirestore(name, res.user, email, country, password);
       return true;
     } else {
       return false;
@@ -27,17 +29,25 @@ class AuthService {
   }
 
   saveUserToFirestore(
-      String name, User user, String email, String country) async {
+      String name, User user, String email, String country, password) async {
     await usersRef.doc(user.uid).set({
       'username': name,
       'email': email,
-      'time': Timestamp.now(),
       'id': user.uid,
-      'bio': "",
-      'country': country,
+      'contact': country,
       'photoUrl': user.photoURL ?? '',
-      'msgToAll': true
     });
+    String UrL = "http://localhost/lmaida/api/register";
+    var res = await http.post(Uri.encodeFull(UrL), headers: {
+      "Accept": "application/json"
+    }, body: {
+      "name": name,
+      "email": email,
+      "phone_number": country,
+      "password": password
+    });
+    var resBody = json.decode(res.body);
+    print(resBody);
   }
 
   Future<bool> loginUser({String email, String password}) async {

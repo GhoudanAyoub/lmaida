@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'SizeConfig.dart';
 
+const tabLinkStyle = TextStyle(fontWeight: FontWeight.w500);
+const Color primaryColor = Color(0xffBA002E);
+const mainColor = Color(0xff2470c7);
 const appBgColor = Color(0xFF000000);
 const primary = Color(0xFFFC2D55);
 const secondary = Color(0xFF19D5F1);

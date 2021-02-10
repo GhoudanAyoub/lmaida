@@ -11,11 +11,8 @@ class UserService extends Service {
     return firebaseAuth.currentUser.uid;
   }
 
-  updateProfile({
-    File image,
-    String username,
-    String contact,
-  }) async {
+  updateProfile(
+      {File image, String username, String contact, String email}) async {
     DocumentSnapshot doc = await usersRef.doc(currentUid()).get();
     var users = UserModel.fromJson(doc.data());
     users?.username = username;
@@ -26,6 +23,7 @@ class UserService extends Service {
     await usersRef.doc(currentUid()).update({
       'username': username,
       'contact': contact,
+      'email': email,
       "photoUrl": users?.photoUrl ?? '',
     });
 

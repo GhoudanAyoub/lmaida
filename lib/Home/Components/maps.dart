@@ -1,0 +1,264 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
+import 'package:lmaida/components/indicators.dart';
+import 'package:lmaida/models/restau_model.dart';
+import 'package:lmaida/utils/StringConst.dart';
+
+class Maps extends StatefulWidget with NavigationStates {
+  @override
+  _MapsState createState() => _MapsState();
+}
+
+class _MapsState extends State<Maps> {
+  Completer<GoogleMapController> _controller = Completer();
+  Set<Marker> markerlist = {};
+  final String apiUrl2 = StringConst.URI_RESTAU + 'all';
+  RestoModel restoModel;
+
+  Future<List<dynamic>> fetResto() async {
+    var result = await http.get(apiUrl2);
+    return json.decode(result.body);
+  }
+
+  @override
+  void initState() {
+    if (restoModel == null) {
+      markerlist.add(Marker(
+        markerId: MarkerId('gramercy'),
+        position: LatLng(31.517176, -9.756727),
+        infoWindow: InfoWindow(title: 'Gramercy Tavern'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueViolet,
+        ),
+      ));
+    } else {
+      markerlist.add(Marker(
+        markerId: MarkerId('gramercy'),
+        position: LatLng(31.517176, -9.756727),
+        infoWindow: InfoWindow(title: restoModel.name),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueViolet,
+        ),
+      ));
+    }
+  }
+
+  double zoomVal = 5.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          _buildGoogleMap(context),
+          _buildContainer(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContainer() {
+    return Align(
+      alignment: Alignment.bottomLeft,
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 20.0),
+        height: 150.0,
+        child: FutureBuilder<List<dynamic>>(
+          future: fetResto(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasData) {
+              return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.all(5),
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    restoModel = RestoModel.fromJson(snapshot.data[index]);
+                    return Container(
+                      margin: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: _boxes(
+                          restoModel.pictures == null
+                              ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
+                              : restoModel.pictures,
+                          double.parse(restoModel.address_lat),
+                          double.parse(restoModel.address_lon),
+                          restoModel),
+                    );
+                  });
+            } else {
+              return Center(child: circularProgress(context));
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _boxes(
+      String _image, double lat, double long, RestoModel restaurantName) {
+    return GestureDetector(
+      onTap: () {
+        _gotoLocation(lat, long);
+      },
+      child: Container(
+        child: new FittedBox(
+          child: Material(
+              color: Colors.white,
+              elevation: 14.0,
+              borderRadius: BorderRadius.circular(24.0),
+              shadowColor: Color(0x802196F3),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    width: 180,
+                    height: 200,
+                    child: ClipRRect(
+                      borderRadius: new BorderRadius.circular(24.0),
+                      child: Image(
+                        fit: BoxFit.fill,
+                        image: NetworkImage(_image),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: myDetailsContainer1(restaurantName),
+                    ),
+                  ),
+                ],
+              )),
+        ),
+      ),
+    );
+  }
+
+  Widget myDetailsContainer1(RestoModel restaurantName) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Container(
+              child: Text(
+            restaurantName.name,
+            style: TextStyle(
+                color: Color(0xff6200ee),
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold),
+          )),
+        ),
+        SizedBox(height: 5.0),
+        Container(
+            child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Container(
+                child: Text(
+              "4.1",
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: 18.0,
+              ),
+            )),
+            Container(
+              child: Icon(
+                FontAwesomeIcons.solidStar,
+                color: Colors.amber,
+                size: 15.0,
+              ),
+            ),
+            Container(
+              child: Icon(
+                FontAwesomeIcons.solidStar,
+                color: Colors.amber,
+                size: 15.0,
+              ),
+            ),
+            Container(
+              child: Icon(
+                FontAwesomeIcons.solidStar,
+                color: Colors.amber,
+                size: 15.0,
+              ),
+            ),
+            Container(
+              child: Icon(
+                FontAwesomeIcons.solidStar,
+                color: Colors.amber,
+                size: 15.0,
+              ),
+            ),
+            Container(
+              child: Icon(
+                FontAwesomeIcons.solidStarHalf,
+                color: Colors.amber,
+                size: 15.0,
+              ),
+            ),
+            Container(
+                child: Text(
+              "(946)",
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: 18.0,
+              ),
+            )),
+          ],
+        )),
+        SizedBox(height: 5.0),
+        Container(
+            child: Text(
+          restaurantName.address + "re \u00B7 \u0024\u0024 \u00B7 1.6 mi",
+          style: TextStyle(
+            color: Colors.black54,
+            fontSize: 18.0,
+          ),
+        )),
+        SizedBox(height: 5.0),
+        Container(
+            child: Text(
+          restaurantName.status +
+              " \u00B7 Opens at" +
+              restaurantName.opening_hours_from,
+          style: TextStyle(
+              color: Colors.black54,
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold),
+        )),
+      ],
+    );
+  }
+
+  Widget _buildGoogleMap(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      child: GoogleMap(
+        mapType: MapType.normal,
+        initialCameraPosition:
+            CameraPosition(target: LatLng(31.630311, -8.0167889), zoom: 10),
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
+        },
+        markers: markerlist,
+      ),
+    );
+  }
+
+  Future<void> _gotoLocation(double lat, double long) async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: LatLng(lat, long),
+      zoom: 15,
+      tilt: 50.0,
+      bearing: 45.0,
+    )));
+  }
+}

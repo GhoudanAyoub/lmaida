@@ -21,6 +21,7 @@ class CustomSurffixIcon extends StatelessWidget {
       ),
       child: SvgPicture.asset(
         svgIcon,
+        color: Colors.white,
         height: getProportionateScreenWidth(18),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lmaida/Home/HomePage.dart';
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/form_error.dart';
@@ -135,9 +136,8 @@ class _SignFormState extends State<SignForm> {
                   );
                   print(success);
                   if (success) {
-                    /*
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()));*/
+                        MaterialPageRoute(builder: (context) => HomePage()));
                     Scaffold.of(context)
                         .showSnackBar(SnackBar(content: Text('Welcome Back')));
                   } else {

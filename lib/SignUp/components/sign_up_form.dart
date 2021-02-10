@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lmaida/Home/HomePage.dart';
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
-import 'package:lmaida/components/form_error.dart';
+import 'package:lmaida/components/form_error2.dart';
 import 'package:lmaida/service/auth_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
@@ -49,6 +50,9 @@ class _SignUpFormState extends State<SignUpForm> {
       child: Column(
         children: [
           Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
               elevation: 10.0,
               child: Padding(
                   padding: EdgeInsets.all(20.0),
@@ -63,7 +67,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       buildPasswordFormField(),
                       SizedBox(height: getProportionateScreenHeight(30)),
                       buildConformPassFormField(),
-                      FormError(errors: errors),
+                      FormError2(errors: errors),
                       SizedBox(height: getProportionateScreenHeight(40)),
                     ],
                   ))),
@@ -83,9 +87,8 @@ class _SignUpFormState extends State<SignUpForm> {
                   );
                   print(success);
                   if (success) {
-                    /*
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()));*/
+                        MaterialPageRoute(builder: (context) => HomePage()));
                     Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text('Congratulation Your Account Created')));
                   }
