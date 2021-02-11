@@ -106,7 +106,6 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   void showInSnackBar(String value) {
-    scaffoldKey.currentState.removeCurrentSnackBar();
     scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));
   }
 

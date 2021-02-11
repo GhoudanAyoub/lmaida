@@ -9,7 +9,7 @@ import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
 
-import 'componant/RestaurantDetailsScreen.dart';
+import 'componant/new_resto_details.dart';
 
 List<RestoModel> _restau = new List<RestoModel>();
 
@@ -41,13 +41,68 @@ class _RestaurantState extends State<RestaurantPage> {
                 decoration: BoxDecoration(
                   color: Colors.red[900],
                   borderRadius: BorderRadius.only(
-                    bottomLeft: const Radius.circular(200),
-                    bottomRight: const Radius.circular(200),
+                    bottomLeft: const Radius.circular(150),
+                    bottomRight: const Radius.circular(150),
                   ),
                 ),
               ),
             ),
             Container(
+              margin: EdgeInsets.fromLTRB(10, 30, 10, 20),
+              height: 60.0,
+              child: Center(
+                  child: Text(
+                "All restaurants",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 24.0,
+                  color: Colors.white,
+                ),
+              )),
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(10, 100, 10, 20),
+              height: 60.0,
+              child: Align(
+                alignment: Alignment.center,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: FlatButton(
+                    padding: EdgeInsets.all(10),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    color: Color(0xFFF5F6F9),
+                    onPressed: () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        buildCount("18 Jun", Icons.calendar_today_sharp),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 5.0),
+                          child: Container(
+                            height: 30.0,
+                            width: 0.5,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        buildCount("20:03", Icons.watch_later_outlined),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 5.0),
+                          child: Container(
+                            height: 30.0,
+                            width: 0.5,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        buildCount("2 pers", Icons.person_outline),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(0, 170, 0, 20),
               child: FutureBuilder<List<dynamic>>(
                 future: fetResto(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -63,8 +118,7 @@ class _RestaurantState extends State<RestaurantPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        RestaurantDetailsScreen(
+                                    builder: (context) => NewRestoDetails(
                                           restoModel: restoModel,
                                         )),
                               )
@@ -95,6 +149,27 @@ class _RestaurantState extends State<RestaurantPage> {
           ],
         ),
       ),
+    );
+  }
+
+  buildCount(String label, final icons) {
+    return Row(
+      children: <Widget>[
+        Icon(
+          icons,
+          color: Colors.red[900],
+          size: 20,
+        ),
+        SizedBox(width: 5.0),
+        Text(
+          label,
+          style: TextStyle(
+              fontSize: 14,
+              color: Colors.red[900],
+              fontWeight: FontWeight.normal,
+              fontFamily: 'Ubuntu-Regular'),
+        )
+      ],
     );
   }
 }

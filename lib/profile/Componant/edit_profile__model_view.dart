@@ -60,16 +60,13 @@ class EditProfileViewModel extends ChangeNotifier {
         loading = true;
         notifyListeners();
         bool success = await userService.updateProfile(
-          //  user: user,
           contact: contact,
           image: image,
-          username: username,
           email: email,
         );
         print(success);
         if (success) {
-          clear();
-          Navigator.pop(context);
+          showInSnackBar('Update Done');
         }
       } catch (e) {
         loading = false;

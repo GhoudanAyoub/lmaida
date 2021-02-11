@@ -7,6 +7,13 @@ class Validations {
     return null;
   }
 
+  static String validatephone(String value) {
+    if (value.isEmpty) return 'phone Number is Required.';
+    if (value.length < 13)
+      return 'Please enter a valid phone number {+212...}.';
+    return null;
+  }
+
   static String validateEmail(String value, [bool isRequried = true]) {
     if (value.isEmpty && isRequried) return 'Email is required.';
     final RegExp nameExp = new RegExp(
@@ -20,5 +27,4 @@ class Validations {
       return 'Please enter a valid password.';
     return null;
   }
-
 }

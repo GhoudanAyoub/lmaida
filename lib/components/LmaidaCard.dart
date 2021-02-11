@@ -92,8 +92,8 @@ class LmaidaCard extends StatelessWidget {
                                 cardTitle,
                                 textAlign: TextAlign.left,
                                 style: Styles.customTitleTextStyle(
-                                  color: AppColors.headingText,
-                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
                                   fontSize: 18,
                                 ),
                               ),
@@ -145,8 +145,8 @@ class LmaidaCard extends StatelessWidget {
                                     address,
                                     textAlign: TextAlign.left,
                                     style: Styles.customNormalTextStyle(
-                                      color: AppColors.accentText,
-                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
                                     ),
                                   ),
                                 ),
@@ -163,7 +163,7 @@ class LmaidaCard extends StatelessWidget {
                                     time,
                                     textAlign: TextAlign.left,
                                     style: Styles.customNormalTextStyle(
-                                      color: AppColors.accentText,
+                                      color: Colors.black,
                                       fontSize: 14,
                                     ),
                                   ),
@@ -174,71 +174,6 @@ class LmaidaCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Positioned(
-                left: 16.0,
-                right: 16.0,
-                top: 8.0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    isThereStatus
-                        ? Card(
-                            elevation: ratingsAndStatusCardElevation,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: Sizes.WIDTH_12,
-                                  vertical: Sizes.HEIGHT_8),
-                              child: Text(
-                                status,
-                                style: status.toLowerCase() ==
-                                        StringConst.STATUS_OPEN.toLowerCase()
-                                    ? Styles.customNormalTextStyle(
-                                        color: AppColors.klmaidaGreen,
-                                        fontSize: Sizes.TEXT_SIZE_10,
-                                        fontWeight: FontWeight.w700,
-                                      )
-                                    : Styles.customNormalTextStyle(
-                                        color: Colors.red,
-                                        fontSize: Sizes.TEXT_SIZE_10,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                              ),
-                            ),
-                          )
-                        : Container(),
-                    isThereRatings
-                        ? Card(
-                            elevation: ratingsAndStatusCardElevation,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: Sizes.WIDTH_8,
-                                vertical: Sizes.WIDTH_4,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: <Widget>[
-                                  Image.asset(
-                                    ImagePath.starIcon,
-                                    height: Sizes.WIDTH_14,
-                                    width: Sizes.WIDTH_14,
-                                  ),
-                                  SizedBox(width: Sizes.WIDTH_4),
-                                  Text(
-                                    rating,
-                                    style: Styles.customTitleTextStyle(
-                                      color: AppColors.headingText,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: Sizes.TEXT_SIZE_14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        : Container(),
                   ],
                 ),
               ),
@@ -288,23 +223,4 @@ class LmaidaCard extends StatelessWidget {
       ),
     );
   }
-//  Widget cardTags({String title, BoxDecoration decoration}) {
-//    return Opacity(
-//      opacity: 0.8,
-//      child: Container(
-//        width: 40,
-//        height: 14,
-//        decoration: decoration,
-//        child: Center(
-//          child: Text(
-//            title,
-//            textAlign: TextAlign.center,
-//            style: Styles.customNormalTextStyle(
-//              fontSize: Sizes.TEXT_SIZE_10,
-//            ),
-//          ),
-//        ),
-//      ),
-//    );
-//  }
 }

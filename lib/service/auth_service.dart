@@ -37,17 +37,23 @@ class AuthService {
       'contact': country,
       'photoUrl': user.photoURL ?? '',
     });
-    String UrL = "http://localhost/lmaida/api/register";
-    var res = await http.post(Uri.encodeFull(UrL), headers: {
-      "Accept": "application/json"
-    }, body: {
+    String UrL = "https://lmaida.com/api/register";
+
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+    final msg = jsonEncode({
       "name": name,
       "email": email,
       "phone_number": country,
       "password": password
     });
+    var res = await http.post(
+      Uri.encodeFull(UrL),
+      headers: headers,
+      body: msg,
+    );
+
     var resBody = json.decode(res.body);
-    print(resBody);
+    print("Response ==" + resBody);
   }
 
   Future<bool> loginUser({String email, String password}) async {
