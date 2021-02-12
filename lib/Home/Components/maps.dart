@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:lmaida/Resto/componant/new_resto_details.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/restau_model.dart';
@@ -26,30 +27,29 @@ class _MapsState extends State<Maps> {
     return json.decode(result.body);
   }
 
+  double zoomVal = 5.0;
   @override
   void initState() {
-    if (restoModel == null) {
-      markerlist.add(Marker(
-        markerId: MarkerId('gramercy'),
-        position: LatLng(31.517176, -9.756727),
-        infoWindow: InfoWindow(title: 'Gramercy Tavern'),
-        icon: BitmapDescriptor.defaultMarkerWithHue(
-          BitmapDescriptor.hueViolet,
-        ),
-      ));
-    } else {
-      markerlist.add(Marker(
-        markerId: MarkerId('gramercy'),
-        position: LatLng(31.517176, -9.756727),
-        infoWindow: InfoWindow(title: restoModel.name),
-        icon: BitmapDescriptor.defaultMarkerWithHue(
-          BitmapDescriptor.hueViolet,
-        ),
-      ));
+    // TODO: implement initState
+    if (restoModel != null) {
+      if (restoModel.address_lat != null || restoModel.address_lon != null) {
+        markerlist.add(Marker(
+          markerId: MarkerId(restoModel.name),
+          position: LatLng(double.tryParse(restoModel.address_lat),
+              double.tryParse(restoModel.address_lon)),
+          infoWindow: InfoWindow(title: restoModel.name),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueViolet,
+          ),
+        ));
+      }
     }
-  }
+    Timer.periodic(Duration(seconds: 2), (_) {
+      reloadData(restoModel);
+    });
 
-  double zoomVal = 5.0;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,16 +79,23 @@ class _MapsState extends State<Maps> {
                   itemCount: snapshot.data.length,
                   itemBuilder: (BuildContext context, int index) {
                     restoModel = RestoModel.fromJson(snapshot.data[index]);
-                    return Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: _boxes(
-                          restoModel.pictures == null
-                              ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
-                              : restoModel.pictures,
-                          double.parse(restoModel.address_lat),
-                          double.parse(restoModel.address_lon),
-                          restoModel),
-                    );
+
+                    if (restoModel.address_lat != null ||
+                        restoModel.address_lon != null) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 10.0),
+                        child: _boxes(
+                            restoModel.pictures == null
+                                ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
+                                : restoModel.pictures,
+                            double.tryParse(restoModel.address_lat),
+                            double.tryParse(restoModel.address_lon),
+                            restoModel),
+                      );
+                      reloadData(restoModel);
+                    } else {
+                      return Divider();
+                    }
                   });
             } else {
               return Center(child: circularProgress(context));
@@ -97,6 +104,30 @@ class _MapsState extends State<Maps> {
         ),
       ),
     );
+  }
+
+  reloadData(RestoModel restoModel) {
+    setState(() {
+      markerlist.add(Marker(
+        markerId: MarkerId(restoModel.name),
+        position: LatLng(double.tryParse(restoModel.address_lat),
+            double.tryParse(restoModel.address_lon)),
+        infoWindow: InfoWindow(
+            title: restoModel.name,
+            onTap: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => NewRestoDetails(
+                              restoModel: restoModel,
+                            )),
+                  )
+                }),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueViolet,
+        ),
+      ));
+    });
   }
 
   Widget _boxes(
@@ -256,7 +287,7 @@ class _MapsState extends State<Maps> {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: LatLng(lat, long),
-      zoom: 15,
+      zoom: 20,
       tilt: 50.0,
       bearing: 45.0,
     )));

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:lmaida/Resto/componant/RestaurantDetailsScreen.dart';
+import 'package:lmaida/Resto/componant/new_resto_details.dart';
 import 'package:lmaida/Resto/resto_page.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/indicators.dart';
@@ -73,8 +73,7 @@ class _BodyState extends State<Body> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          RestaurantDetailsScreen(
+                                      builder: (context) => NewRestoDetails(
                                             restoModel: restoModel,
                                           )),
                                 );

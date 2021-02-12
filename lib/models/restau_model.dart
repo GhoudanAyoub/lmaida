@@ -25,8 +25,8 @@ class RestoModel {
   List filters;
   List itemphotos;
   LocationModel locationModel;
-
-  List special_offer;
+  double rating;
+  Map<String, dynamic> special_offer;
   Users user;
 
   RestoModel(
@@ -72,6 +72,7 @@ class RestoModel {
     user_id = json['user_id'];
     list = json['list'];
     filters = json['filters'];
+    special_offer = json['special_offer'];
     itemphotos = json['itemphotos'];
     locationModel = json['locationModel'];
     created_at = json['created_at'];

@@ -1,10 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:lmaida/components/rater.dart';
 import 'package:lmaida/values/values.dart';
 
 class LmaidaCard extends StatelessWidget {
   final String status;
-  final String rating;
+  final double rating;
   final String imagePath;
   final String cardTitle;
   final String category;
@@ -20,13 +21,12 @@ class LmaidaCard extends StatelessWidget {
   final double cardHeight;
   final double imageHeight;
   final double cardElevation;
-  final double ratingsAndStatusCardElevation;
   final List<String> followersImagePath;
   final BoxDecoration decoration;
 
   LmaidaCard({
     this.status,
-    this.rating = "4.5",
+    this.rating = 1,
     this.imagePath,
     this.cardTitle,
     this.category,
@@ -42,7 +42,6 @@ class LmaidaCard extends StatelessWidget {
     this.isThereRatings = false,
     this.bookmark = false,
     this.cardElevation = 4.0,
-    this.ratingsAndStatusCardElevation = 8.0,
     this.followersImagePath,
     this.decoration,
   });
@@ -81,8 +80,8 @@ class LmaidaCard extends StatelessWidget {
                     ),
                     Container(
                       margin: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
+                        horizontal: 10,
+                        vertical: 10,
                       ),
                       child: Column(
                         children: <Widget>[
@@ -97,45 +96,8 @@ class LmaidaCard extends StatelessWidget {
                                   fontSize: 18,
                                 ),
                               ),
-                              Spacer(
-                                flex: 1,
-                              ),
-                              if (bookmark)
-                                Container()
-                              else
-                                Container(
-                                  width: 40,
-                                  height: 20,
-                                  child: Stack(
-                                    alignment: Alignment.centerLeft,
-                                    children: [
-                                      Positioned(
-                                        left: 21,
-                                        child: Image.asset(
-                                          ImagePath.cardImage1,
-                                          fit: BoxFit.none,
-                                        ),
-                                      ),
-                                      Positioned(
-                                        left: 12,
-                                        child: Image.asset(
-                                          ImagePath.cardImage2,
-                                          fit: BoxFit.none,
-                                        ),
-                                      ),
-                                      Positioned(
-                                        left: 0,
-                                        child: Image.asset(
-                                          ImagePath.cardImage1,
-                                          fit: BoxFit.none,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
                             ],
                           ),
-                          SizedBox(height: 10.0),
                           Row(
                             children: <Widget>[
                               Align(
@@ -153,7 +115,9 @@ class LmaidaCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                          SizedBox(height: 10.0),
+                          SizedBox(
+                            height: 5,
+                          ),
                           Row(
                             children: <Widget>[
                               Align(
@@ -170,6 +134,12 @@ class LmaidaCard extends StatelessWidget {
                                 ),
                               ),
                             ],
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Rater(
+                            rate: rating,
                           ),
                         ],
                       ),

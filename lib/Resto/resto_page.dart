@@ -133,8 +133,6 @@ class _RestaurantState extends State<RestaurantPage> {
                             imagePath: restoModel.pictures,
                             status: restoModel.status,
                             cardTitle: restoModel.name,
-                            rating: '4.5',
-                            //ratings[index],
                             category: restoModel.categories,
                             distance: "restoModel",
                             address: restoModel.address,
