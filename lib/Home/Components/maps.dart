@@ -44,7 +44,7 @@ class _MapsState extends State<Maps> {
         ));
       }
     }
-    Timer.periodic(Duration(seconds: 2), (_) {
+    Timer.periodic(Duration(milliseconds: 500), (_) {
       reloadData(restoModel);
     });
 

@@ -7,6 +7,7 @@ ThemeData theme() {
     scaffoldBackgroundColor: Colors.white,
     fontFamily: "Lmaida.ttf",
     appBarTheme: appBarTheme(),
+    primarySwatch: Colors.red,
     textTheme: textTheme(),
     inputDecorationTheme: inputDecorationTheme(),
     visualDensity: VisualDensity.adaptivePlatformDensity,
