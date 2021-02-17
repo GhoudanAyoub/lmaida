@@ -28,6 +28,7 @@ class RestoModel {
   double rating;
   Map<String, dynamic> special_offer;
   Users user;
+  List menus;
 
   RestoModel(
       {this.id,
@@ -52,7 +53,8 @@ class RestoModel {
       this.list,
       this.filters,
       this.itemphotos,
-      this.locationModel});
+      this.locationModel,
+      this.menus});
 
   RestoModel.fromJson(Map<dynamic, dynamic> json) {
     id = json['id'];
@@ -77,5 +79,6 @@ class RestoModel {
     locationModel = json['locationModel'];
     created_at = json['created_at'];
     updated_at = json['updated_at'];
+    menus = json['menus'];
   }
 }

@@ -7,6 +7,7 @@ import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/values/values.dart';
 
 import 'booked_screen.dart';
+import 'menu_page.dart';
 
 class NewRestoDetails extends StatefulWidget {
   final RestoModel restoModel;
@@ -46,7 +47,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                 widget.restoModel.name,
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 30.0,
+                  fontSize: 28.0,
                   color: Colors.white,
                 ),
               )),
@@ -200,14 +201,27 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                   color: Colors.black,
                                 ),
                               ),
-                              Text(
-                                "See The Full Menu",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 14.0,
-                                  color: Colors.black,
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => MenuPage(
+                                              restoModel: widget.restoModel,
+                                              data: widget.restoModel.menus,
+                                              index: widget.restoModel.id,
+                                            )),
+                                  );
+                                },
+                                child: Text(
+                                  "See The Full Menu",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 14.0,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -250,7 +264,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                       "Book Without a Special offer",
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
-                        fontSize: 20.0,
+                        fontSize: 15.0,
                         color: Colors.blue[900],
                       ),
                     ),
@@ -294,7 +308,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Icon(Icons.card_giftcard_outlined,
-                        size: 40, color: Colors.blue[800]),
+                        size: 30, color: Colors.blue[800]),
                     Text(
                       widget.restoModel.special_offer["name"] +
                           " off the " +
@@ -302,7 +316,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                           " menu!",
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
-                        fontSize: 20.0,
+                        fontSize: 15.0,
                         color: Colors.blue[900],
                       ),
                     ),

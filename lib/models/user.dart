@@ -4,9 +4,10 @@ class Users {
   bool email_verified_at;
   String phone_number;
   String item_ids;
+  String photoUrl;
   String created_at;
   String updated_at;
-  int id;
+  String id;
 
   Users(
       {this.name,
@@ -16,16 +17,18 @@ class Users {
       this.item_ids,
       this.created_at,
       this.updated_at,
+      this.photoUrl,
       this.id});
 
   Users.fromJson(Map<dynamic, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
+    name = json['username'];
     email = json['email'];
     email_verified_at = json['email_verified_at'];
     phone_number = json['phone_number'];
     item_ids = json['item_ids'];
     created_at = json['created_at'];
+    photoUrl = json['photoUrl'];
     updated_at = json['updated_at'];
+    id = json['id'];
   }
 }

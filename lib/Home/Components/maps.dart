@@ -10,6 +10,7 @@ import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/StringConst.dart';
+import 'package:lmaida/utils/constants.dart';
 
 class Maps extends StatefulWidget with NavigationStates {
   @override
@@ -18,9 +19,11 @@ class Maps extends StatefulWidget with NavigationStates {
 
 class _MapsState extends State<Maps> {
   Completer<GoogleMapController> _controller = Completer();
+  TextEditingController searchController = TextEditingController();
   Set<Marker> markerlist = {};
   final String apiUrl2 = StringConst.URI_RESTAU + 'all';
   RestoModel restoModel;
+  String Search = "";
 
   Future<List<dynamic>> fetResto() async {
     var result = await http.get(apiUrl2);
@@ -44,10 +47,10 @@ class _MapsState extends State<Maps> {
         ));
       }
     }
+
     Timer.periodic(Duration(milliseconds: 500), (_) {
       reloadData(restoModel);
     });
-
     super.initState();
   }
 
@@ -57,6 +60,35 @@ class _MapsState extends State<Maps> {
       body: Stack(
         children: <Widget>[
           _buildGoogleMap(context),
+          Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                margin: EdgeInsets.symmetric(vertical: 70.0, horizontal: 35),
+                child: Padding(
+                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                  child: Material(
+                    elevation: 5.0,
+                    borderRadius: BorderRadius.circular(50.0),
+                    child: TextFormField(
+                      style: TextStyle(color: Colors.black),
+                      cursorColor: black,
+                      controller: searchController,
+                      onChanged: (value) {
+                        Search = value;
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        prefixIcon:
+                            Icon(Icons.search, color: GBottomNav, size: 30.0),
+                        hintStyle: TextStyle(
+                            color: Colors.black,
+                            fontFamily: 'SFProDisplay-Black'),
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                      ),
+                    ),
+                  ),
+                ),
+              )),
           _buildContainer(),
         ],
       ),
@@ -82,17 +114,36 @@ class _MapsState extends State<Maps> {
 
                     if (restoModel.address_lat != null ||
                         restoModel.address_lon != null) {
-                      return Container(
-                        margin: EdgeInsets.symmetric(horizontal: 10.0),
-                        child: _boxes(
-                            restoModel.pictures == null
-                                ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
-                                : restoModel.pictures,
-                            double.tryParse(restoModel.address_lat),
-                            double.tryParse(restoModel.address_lon),
-                            restoModel),
-                      );
-                      reloadData(restoModel);
+                      if (Search == "") {
+                        return Container(
+                          margin: EdgeInsets.symmetric(horizontal: 10.0),
+                          child: _boxes(
+                              restoModel.pictures == null
+                                  ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
+                                  : restoModel.pictures,
+                              double.tryParse(restoModel.address_lat),
+                              double.tryParse(restoModel.address_lon),
+                              restoModel),
+                        );
+                      } else {
+                        if (restoModel.name
+                            .toLowerCase()
+                            .contains(Search.toLowerCase()))
+                          return Container(
+                            margin: EdgeInsets.symmetric(horizontal: 10.0),
+                            child: _boxes(
+                                restoModel.pictures == null
+                                    ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
+                                    : restoModel.pictures,
+                                double.tryParse(restoModel.address_lat),
+                                double.tryParse(restoModel.address_lon),
+                                restoModel),
+                          );
+                        else
+                          return Center(
+                            child: Text("no sush name"),
+                          );
+                      }
                     } else {
                       return Divider();
                     }

@@ -7,6 +7,7 @@ import 'package:lmaida/helper/keyboard.dart';
 import 'package:lmaida/service/auth_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
+import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/utils/theme.dart';
 
 class SignForm extends StatefulWidget {
@@ -129,26 +130,25 @@ class _SignFormState extends State<SignForm> {
               if (_formKey.currentState.validate()) {
                 submitted = true;
                 KeyboardUtil.hideKeyboard(context);
+                String success;
                 try {
-                  bool success = await auth.loginUser(
+                  success = await auth.loginUser(
                     email: _emailContoller.text,
                     password: _passwordController.text,
                   );
                   print(success);
-                  if (success) {
+                  if (success == firebaseAuth.currentUser.uid) {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => HomePage()));
                     Scaffold.of(context)
                         .showSnackBar(SnackBar(content: Text('Welcome Back')));
                   } else {
-                    setState(() {
-                      buttonText = "Check Your Email/Password";
-                      submitted = false;
-                    });
+                    addError(error: success);
+                    submitted = false;
                   }
                 } catch (e) {
                   submitted = false;
-                  print(e);
+                  addError(error: success);
                   showInSnackBar(
                       '${auth.handleFirebaseAuthError(e.toString())}');
                 }

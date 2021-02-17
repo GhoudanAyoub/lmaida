@@ -80,29 +80,56 @@ class _SideBarState extends State<SideBar>
                       SizedBox(
                         height: 100,
                       ),
-                      ListTile(
-                        title: Text(
-                          firebaseAuth.currentUser.displayName ?? '',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.w800),
-                        ),
-                        subtitle: Text(
-                          firebaseAuth.currentUser.email ?? '',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.white,
-                          child: Icon(
-                            Icons.perm_identity,
-                            color: Colors.black,
-                          ),
-                          radius: 40,
-                        ),
+                      FutureBuilder(
+                        future:
+                            usersRef.doc(firebaseAuth.currentUser.uid).get(),
+                        builder:
+                            (BuildContext context, AsyncSnapshot snapshot) {
+                          if (snapshot.hasError) {
+                            return Text("Something went wrong");
+                          }
+
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            Map<String, dynamic> data = snapshot.data.data();
+                            if (data['id'] == firebaseAuth.currentUser.uid)
+                              return ListTile(
+                                title: Text(
+                                  data['username'] ?? '',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800),
+                                ),
+                                subtitle: Text(
+                                  firebaseAuth.currentUser.email ?? '',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                leading: CircleAvatar(
+                                  radius: 65.0,
+                                  backgroundImage: NetworkImage(
+                                      data['photoUrl'] ??
+                                          'assets/images/Profile Image.png'),
+                                ),
+                              );
+                            else
+                              return Center(
+                                child: Text(
+                                  'Username',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15.0,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              );
+                          }
+
+                          return Text("loading");
+                        },
                       ),
                       Divider(
                         height: 64,

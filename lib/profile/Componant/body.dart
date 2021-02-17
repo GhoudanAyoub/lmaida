@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/user.dart';
 import 'package:lmaida/profile/Componant/edit_profile__model_view.dart';
@@ -9,12 +11,35 @@ import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/utils/validation.dart';
 import 'package:provider/provider.dart';
 
-class Body extends StatelessWidget {
+class Body extends StatefulWidget {
+  @override
+  _BodyState createState() => _BodyState();
+}
+
+class _BodyState extends State<Body> {
   Users user;
   bool valuesecond;
+  DocumentSnapshot user1;
+  List<DocumentSnapshot> filteredUsers = [];
+  bool loading = true;
 
   String currentUid() {
     return firebaseAuth.currentUser.uid;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getUsers();
+  }
+
+  getUsers() async {
+    DocumentSnapshot snap =
+        await usersRef.doc(firebaseAuth.currentUser.uid).get();
+    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
@@ -55,7 +80,13 @@ class Body extends StatelessWidget {
           ),
         ],
       ),
-      body: Stack(
+      body: buildBody(viewModel),
+    );
+  }
+
+  buildBody(viewModel) {
+    if (!loading) {
+      return Stack(
         children: <Widget>[
           Container(
             height: getProportionateScreenHeight(250),
@@ -119,14 +150,9 @@ class Body extends StatelessWidget {
                                                   const EdgeInsets.all(1.0),
                                               child: CircleAvatar(
                                                 radius: 65.0,
-                                                backgroundImage: NetworkImage(
-                                                    firebaseAuth.currentUser
-                                                                .photoURL ==
-                                                            null
-                                                        ? 'assets/images/Profile Image.png'
-                                                        : firebaseAuth
-                                                            .currentUser
-                                                            .photoURL),
+                                                backgroundImage: NetworkImage(user1
+                                                        .data()["photoUrl"] ??
+                                                    'assets/images/Profile Image.png'),
                                               ),
                                             )
                                           : Padding(
@@ -144,11 +170,11 @@ class Body extends StatelessWidget {
                             SizedBox(height: 10.0),
                             Center(
                               child: Text(
-                                'Username',
+                                user1.data()['username'],
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 15.0,
-                                  color: Colors.blue,
+                                  color: Colors.black,
                                 ),
                               ),
                             ),
@@ -158,8 +184,12 @@ class Body extends StatelessWidget {
                         ))),
               )),
         ],
-      ),
-    );
+      );
+    } else {
+      return Center(
+        child: circularProgress(context),
+      );
+    }
   }
 
   buildForm(EditProfileViewModel viewModel, BuildContext context) {
@@ -188,7 +218,7 @@ class Body extends StatelessWidget {
             SizedBox(height: 10.0),
             TextFormBuilder(
               enabled: !viewModel.loading,
-              initialValue: firebaseAuth.currentUser.phoneNumber,
+              initialValue: user1.data()["contact"],
               prefix: Feather.phone,
               hintText: "contact",
               textInputAction: TextInputAction.next,

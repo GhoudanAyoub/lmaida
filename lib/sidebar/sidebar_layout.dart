@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lmaida/Home/Components/Body.dart';
+import 'package:lmaida/Home/Components/maps.dart';
 
 import '../bloc.navigation_bloc/navigation_bloc.dart';
 import 'sidebar.dart';
@@ -10,7 +10,7 @@ class SideBarLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocProvider<NavigationBloc>(
-        create: (context) => NavigationBloc(Body()),
+        create: (context) => NavigationBloc(Maps()),
         child: Stack(
           children: <Widget>[
             BlocBuilder<NavigationBloc, NavigationStates>(
