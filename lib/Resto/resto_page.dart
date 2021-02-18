@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/LmaidaCard.dart';
 import 'package:lmaida/components/indicators.dart';
@@ -20,6 +21,11 @@ class RestaurantPage extends StatefulWidget with NavigationStates {
 
 class _RestaurantState extends State<RestaurantPage> {
   final String apiUrl = StringConst.URI_RESTAU + 'all';
+  String dropdownValue = '2';
+  var selectedDateTxt;
+  var selectedTimeTxt;
+  DateTime selectedDate = DateTime.now();
+  final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
   Future<List<dynamic>> fetResto() async {
     var result = await http.get(apiUrl);
@@ -72,11 +78,33 @@ class _RestaurantState extends State<RestaurantPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     color: Color(0xFFF5F6F9),
-                    onPressed: () {},
+                    onPressed: () async {
+                      selectedDateTxt = await _selectDateTime(context);
+                      if (selectedDateTxt == null) return;
+
+                      print(selectedDateTxt);
+
+                      selectedTimeTxt = await _selectTime(context);
+                      if (selectedTimeTxt == null) return;
+                      print(selectedTimeTxt);
+
+                      setState(() {
+                        this.selectedDate = DateTime(
+                          selectedDateTxt.year,
+                          selectedDateTxt.month,
+                          selectedDateTxt.day,
+                          selectedTimeTxt.hour,
+                          selectedTimeTxt.minute,
+                        );
+                      });
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
-                        buildCount("18 Jun", Icons.calendar_today_sharp),
+                        buildCount(
+                            "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}" ??
+                                "18 Jun",
+                            Icons.calendar_today_sharp),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 5.0),
                           child: Container(
@@ -85,7 +113,10 @@ class _RestaurantState extends State<RestaurantPage> {
                             color: Colors.grey,
                           ),
                         ),
-                        buildCount("20:03", Icons.watch_later_outlined),
+                        buildCount(
+                            "${selectedDate.hour} : ${selectedDate.minute}" ??
+                                "20:03",
+                            Icons.watch_later_outlined),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 5.0),
                           child: Container(
@@ -94,7 +125,39 @@ class _RestaurantState extends State<RestaurantPage> {
                             color: Colors.grey,
                           ),
                         ),
-                        buildCount("2 pers", Icons.person_outline),
+                        DropdownButton<String>(
+                          value: dropdownValue,
+                          icon: Icon(
+                            Icons.person_outline,
+                            color: Colors.red[900],
+                            size: 20,
+                          ),
+                          iconSize: 24,
+                          elevation: 16,
+                          style: TextStyle(color: Colors.red[900]),
+                          onChanged: (String newValue) {
+                            setState(() {
+                              dropdownValue = newValue;
+                            });
+                          },
+                          items: <String>[
+                            '1',
+                            '2',
+                            '3',
+                            '4',
+                            '5',
+                            '6',
+                            '7',
+                            '8',
+                            '9',
+                            '10'
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value + " pers"),
+                            );
+                          }).toList(),
+                        ),
                       ],
                     ),
                   ),
@@ -120,6 +183,9 @@ class _RestaurantState extends State<RestaurantPage> {
                                 MaterialPageRoute(
                                     builder: (context) => NewRestoDetails(
                                           restoModel: restoModel,
+                                          dropdownValue: dropdownValue,
+                                          selectedDateTxt: selectedDateTxt,
+                                          selectedTimeTxt: selectedTimeTxt,
                                         )),
                               )
                             },
@@ -149,6 +215,22 @@ class _RestaurantState extends State<RestaurantPage> {
       ),
     );
   }
+
+  Future<TimeOfDay> _selectTime(BuildContext context) {
+    final now = DateTime.now();
+
+    return showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: now.hour, minute: now.minute),
+    );
+  }
+
+  Future<DateTime> _selectDateTime(BuildContext context) => showDatePicker(
+        context: context,
+        initialDate: DateTime.now().add(Duration(seconds: 1)),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2100),
+      );
 
   buildCount(String label, final icons) {
     return Row(

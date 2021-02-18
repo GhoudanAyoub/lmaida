@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:intl/intl.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/restau_model.dart';
@@ -13,14 +14,31 @@ import 'package:lmaida/values/values.dart';
 class BookedScreen extends StatefulWidget {
   final RestoModel restoModel;
   final String offer;
+  final dropdownValue;
+  final selectedDateTxt;
+  final selectedTimeTxt;
 
-  const BookedScreen({Key key, this.restoModel, this.offer}) : super(key: key);
+  const BookedScreen(
+      {Key key,
+      this.restoModel,
+      this.offer,
+      this.dropdownValue,
+      this.selectedDateTxt,
+      this.selectedTimeTxt})
+      : super(key: key);
 
   @override
   _BookedScreenState createState() => _BookedScreenState();
 }
 
 class _BookedScreenState extends State<BookedScreen> {
+  final String apiUrl = StringConst.URI_RESTAU + 'all';
+  String dropdownValue = '2';
+  var selectedDateTxt;
+  var selectedTimeTxt;
+  DateTime selectedDate = DateTime.now();
+  final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,13 +108,34 @@ class _BookedScreenState extends State<BookedScreen> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15)),
                                 color: Color(0xFFF5F6F9),
-                                onPressed: () {},
+                                onPressed: () async {
+                                  selectedDateTxt =
+                                      await _selectDateTime(context);
+                                  if (selectedDateTxt == null) return;
+
+                                  print(selectedDateTxt);
+
+                                  selectedTimeTxt = await _selectTime(context);
+                                  if (selectedTimeTxt == null) return;
+                                  print(selectedTimeTxt);
+
+                                  setState(() {
+                                    this.selectedDate = DateTime(
+                                      selectedDateTxt.year,
+                                      selectedDateTxt.month,
+                                      selectedDateTxt.day,
+                                      selectedTimeTxt.hour,
+                                      selectedTimeTxt.minute,
+                                    );
+                                  });
+                                },
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
                                   children: <Widget>[
                                     buildCount(
-                                        "18 Jun", Icons.calendar_today_sharp),
+                                        "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
+                                        Icons.calendar_today_sharp),
                                     Padding(
                                       padding:
                                           const EdgeInsets.only(bottom: 5.0),
@@ -107,7 +146,8 @@ class _BookedScreenState extends State<BookedScreen> {
                                       ),
                                     ),
                                     buildCount(
-                                        "20:03", Icons.watch_later_outlined),
+                                        "${selectedDate.hour} : ${selectedDate.minute}",
+                                        Icons.watch_later_outlined),
                                     Padding(
                                       padding:
                                           const EdgeInsets.only(bottom: 5.0),
@@ -117,7 +157,41 @@ class _BookedScreenState extends State<BookedScreen> {
                                         color: Colors.grey,
                                       ),
                                     ),
-                                    buildCount("2 pers", Icons.person_outline),
+                                    DropdownButton<String>(
+                                      value: dropdownValue,
+                                      icon: Icon(
+                                        Icons.person_outline,
+                                        color: Colors.red[900],
+                                        size: 20,
+                                      ),
+                                      iconSize: 24,
+                                      elevation: 16,
+                                      style: TextStyle(color: Colors.red[900]),
+                                      onChanged: (String newValue) {
+                                        setState(() {
+                                          dropdownValue = newValue;
+                                        });
+                                      },
+                                      items: <String>[
+                                        '1',
+                                        '2',
+                                        '3',
+                                        '4',
+                                        '5',
+                                        '6',
+                                        '7',
+                                        '8',
+                                        '9',
+                                        '10'
+                                      ].map<DropdownMenuItem<String>>(
+                                          (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(widget.dropdownValue ??
+                                              value + " pers"),
+                                        );
+                                      }).toList(),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -235,6 +309,22 @@ class _BookedScreenState extends State<BookedScreen> {
       ),
     );
   }
+
+  Future<TimeOfDay> _selectTime(BuildContext context) {
+    return showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+          hour: widget.selectedTimeTxt.hour,
+          minute: widget.selectedTimeTxt.minute),
+    );
+  }
+
+  Future<DateTime> _selectDateTime(BuildContext context) => showDatePicker(
+        context: context,
+        initialDate: widget.selectedDateTxt.add(Duration(seconds: 1)),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2100),
+      );
 
   buildCount(String label, final icons) {
     return Row(

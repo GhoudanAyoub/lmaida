@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmaida/Resto/componant/new_resto_details.dart';
@@ -24,7 +25,7 @@ class _MapsState extends State<Maps> {
   final String apiUrl2 = StringConst.URI_RESTAU + 'all';
   RestoModel restoModel;
   String Search = "";
-
+  Position position;
   Future<List<dynamic>> fetResto() async {
     var result = await http.get(apiUrl2);
     return json.decode(result.body);
@@ -33,7 +34,7 @@ class _MapsState extends State<Maps> {
   double zoomVal = 5.0;
   @override
   void initState() {
-    // TODO: implement initState
+    getLastLocation();
     if (restoModel != null) {
       if (restoModel.address_lat != null || restoModel.address_lon != null) {
         markerlist.add(Marker(
@@ -47,9 +48,8 @@ class _MapsState extends State<Maps> {
         ));
       }
     }
-
     Timer.periodic(Duration(milliseconds: 500), (_) {
-      reloadData(restoModel);
+      if (restoModel != null) reloadData(restoModel);
     });
     super.initState();
   }
@@ -324,14 +324,20 @@ class _MapsState extends State<Maps> {
       width: MediaQuery.of(context).size.width,
       child: GoogleMap(
         mapType: MapType.normal,
-        initialCameraPosition:
-            CameraPosition(target: LatLng(31.630311, -8.0167889), zoom: 10),
+        initialCameraPosition: CameraPosition(
+            target: LatLng(34.0211418, -6.837584399999969), zoom: 10),
         onMapCreated: (GoogleMapController controller) {
           _controller.complete(controller);
         },
         markers: markerlist,
       ),
     );
+  }
+
+  getLastLocation() async {
+    position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    var lastPosition = await Geolocator.getLastKnownPosition();
   }
 
   Future<void> _gotoLocation(double lat, double long) async {

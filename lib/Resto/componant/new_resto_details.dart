@@ -11,8 +11,18 @@ import 'menu_page.dart';
 
 class NewRestoDetails extends StatefulWidget {
   final RestoModel restoModel;
+  final dropdownValue;
+  final selectedDateTxt;
+  final selectedTimeTxt;
 
-  const NewRestoDetails({Key key, this.restoModel}) : super(key: key);
+  const NewRestoDetails(
+      {Key key,
+      this.restoModel,
+      this.dropdownValue,
+      this.selectedDateTxt,
+      this.selectedTimeTxt})
+      : super(key: key);
+
   @override
   _NewRestoDetailsState createState() => _NewRestoDetailsState();
 }
@@ -279,6 +289,9 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                               builder: (context) => BookedScreen(
                                     restoModel: widget.restoModel,
                                     offer: "0",
+                                    dropdownValue: widget.dropdownValue,
+                                    selectedTimeTxt: widget.selectedTimeTxt,
+                                    selectedDateTxt: widget.selectedDateTxt,
                                   )),
                         );
                       },
@@ -332,6 +345,9 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                     restoModel: widget.restoModel,
                                     offer:
                                         widget.restoModel.special_offer["name"],
+                                    dropdownValue: widget.dropdownValue,
+                                    selectedTimeTxt: widget.selectedTimeTxt,
+                                    selectedDateTxt: widget.selectedDateTxt,
                                   )),
                         );
                       },

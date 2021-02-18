@@ -79,6 +79,8 @@ class _SignUpFormState extends State<SignUpForm> {
               try {
                 if (_formKey.currentState.validate()) {
                   submitted = true;
+                  Scaffold.of(context)
+                      .showSnackBar(SnackBar(content: Text('Please Wait...')));
                   bool success = await authService.createUser(
                     name: _namentoller.text,
                     email: _emailContoller.text,

@@ -38,7 +38,7 @@ dependencies:
   image: ^2.1.18
   google_fonts: ^1.1.1
   provider: ^4.3.2+3
-
+  table_calendar: ^2.3.3
   flutter_svg: ^0.18.0
   shared_preferences: 0.5.7
   permission_handler: ^3.0.0
@@ -55,7 +55,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
-
+  geolocator: ^6.2.0
   flutter_spinkit: ^3.1.0
   google_maps_flutter: ^1.2.0
   font_awesome_flutter: ^8.2.0
