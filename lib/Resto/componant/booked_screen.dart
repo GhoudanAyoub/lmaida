@@ -174,8 +174,9 @@ class _BookedScreenState extends State<BookedScreen> {
                                         MainAxisAlignment.spaceAround,
                                     children: <Widget>[
                                       buildCount(
-                                          "${widget.selectedDateTxt.year}-${widget.selectedDateTxt.month}-${widget.selectedDateTxt.day}" ??
-                                              "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
+                                          widget.selectedDateTxt != null
+                                              ? "${widget.selectedDateTxt.year}-${widget.selectedDateTxt.month}-${widget.selectedDateTxt.day}"
+                                              : "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
                                           Icons.calendar_today_sharp),
                                       Padding(
                                         padding:
@@ -187,8 +188,9 @@ class _BookedScreenState extends State<BookedScreen> {
                                         ),
                                       ),
                                       buildCount(
-                                          "${widget.selectedTimeTxt.hour} : ${widget.selectedTimeTxt.minute}" ??
-                                              "${selectedDate.hour} : ${selectedDate.minute}",
+                                          widget.selectedTimeTxt != null
+                                              ? "${widget.selectedTimeTxt.hour} : ${widget.selectedTimeTxt.minute}"
+                                              : "${selectedDate.hour} : ${selectedDate.minute}",
                                           Icons.watch_later_outlined),
                                       Padding(
                                         padding:
@@ -266,20 +268,33 @@ class _BookedScreenState extends State<BookedScreen> {
 
   Future<TimeOfDay> _selectTime(BuildContext context) {
     final now = DateTime.now();
-    return showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(
-          hour: widget.selectedTimeTxt.hour,
-          minute: widget.selectedTimeTxt.minute),
-    );
+    return widget.selectedTimeTxt != null
+        ? showTimePicker(
+            context: context,
+            initialTime: TimeOfDay(
+                hour: widget.selectedTimeTxt.hour,
+                minute: widget.selectedTimeTxt.minute),
+          )
+        : showTimePicker(
+            context: context,
+            initialTime: TimeOfDay(hour: now.hour, minute: now.minute),
+          );
   }
 
-  Future<DateTime> _selectDateTime(BuildContext context) => showDatePicker(
-        context: context,
-        initialDate: widget.selectedDateTxt.add(Duration(seconds: 1)),
-        firstDate: DateTime.now(),
-        lastDate: DateTime(2100),
-      );
+  Future<DateTime> _selectDateTime(BuildContext context) =>
+      widget.selectedDateTxt != null
+          ? showDatePicker(
+              context: context,
+              initialDate: widget.selectedDateTxt.add(Duration(seconds: 1)),
+              firstDate: DateTime.now(),
+              lastDate: DateTime(2100),
+            )
+          : showDatePicker(
+              context: context,
+              initialDate: DateTime.now().add(Duration(seconds: 1)),
+              firstDate: DateTime.now(),
+              lastDate: DateTime(2100),
+            );
 
   buildCount(String label, final icons) {
     return Row(
