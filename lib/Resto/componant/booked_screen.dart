@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:intl/intl.dart';
@@ -33,11 +34,28 @@ class BookedScreen extends StatefulWidget {
 
 class _BookedScreenState extends State<BookedScreen> {
   final String apiUrl = StringConst.URI_RESTAU + 'all';
-  String dropdownValue = '2';
+  String dropdownValue;
   var selectedDateTxt;
   var selectedTimeTxt;
   DateTime selectedDate = DateTime.now();
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm');
+
+  DocumentSnapshot user1;
+  bool loading = true;
+
+  @override
+  void initState() {
+    getUsers();
+  }
+
+  getUsers() async {
+    DocumentSnapshot snap =
+        await usersRef.doc(firebaseAuth.currentUser.uid).get();
+    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
+    setState(() {
+      loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,104 +113,130 @@ class _BookedScreenState extends State<BookedScreen> {
                             ),
                           )),
                         ),
-                        Container(
-                          margin: EdgeInsets.fromLTRB(10, 100, 10, 20),
-                          height: 60.0,
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: FlatButton(
-                                padding: EdgeInsets.all(10),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15)),
-                                color: Color(0xFFF5F6F9),
-                                onPressed: () async {
-                                  selectedDateTxt =
-                                      await _selectDateTime(context);
-                                  if (selectedDateTxt == null) return;
+                        GestureDetector(
+                          onTap: () async {
+                            selectedDateTxt = await _selectDateTime(context);
+                            if (selectedDateTxt == null) return;
 
-                                  print(selectedDateTxt);
+                            print(selectedDateTxt);
 
-                                  selectedTimeTxt = await _selectTime(context);
-                                  if (selectedTimeTxt == null) return;
-                                  print(selectedTimeTxt);
+                            selectedTimeTxt = await _selectTime(context);
+                            if (selectedTimeTxt == null) return;
+                            print(selectedTimeTxt);
 
-                                  setState(() {
-                                    this.selectedDate = DateTime(
-                                      selectedDateTxt.year,
-                                      selectedDateTxt.month,
-                                      selectedDateTxt.day,
-                                      selectedTimeTxt.hour,
-                                      selectedTimeTxt.minute,
-                                    );
-                                  });
-                                },
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: <Widget>[
-                                    buildCount(
-                                        "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
-                                        Icons.calendar_today_sharp),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 5.0),
-                                      child: Container(
-                                        height: 30.0,
-                                        width: 0.5,
-                                        color: Colors.grey,
+                            setState(() {
+                              this.selectedDate = DateTime(
+                                selectedDateTxt.year,
+                                selectedDateTxt.month,
+                                selectedDateTxt.day,
+                                selectedTimeTxt.hour,
+                                selectedTimeTxt.minute,
+                              );
+                            });
+                          },
+                          child: Container(
+                            margin: EdgeInsets.fromLTRB(10, 100, 10, 20),
+                            height: 60.0,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0),
+                                child: FlatButton(
+                                  padding: EdgeInsets.all(10),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15)),
+                                  color: Color(0xFFF5F6F9),
+                                  onPressed: () async {
+                                    selectedDateTxt =
+                                        await _selectDateTime(context);
+                                    if (selectedDateTxt == null) return;
+
+                                    print(selectedDateTxt);
+
+                                    selectedTimeTxt =
+                                        await _selectTime(context);
+                                    if (selectedTimeTxt == null) return;
+                                    print(selectedTimeTxt);
+
+                                    setState(() {
+                                      this.selectedDate = DateTime(
+                                        selectedDateTxt.year,
+                                        selectedDateTxt.month,
+                                        selectedDateTxt.day,
+                                        selectedTimeTxt.hour,
+                                        selectedTimeTxt.minute,
+                                      );
+                                    });
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: <Widget>[
+                                      buildCount(
+                                          "${widget.selectedDateTxt.year}-${widget.selectedDateTxt.month}-${widget.selectedDateTxt.day}" ??
+                                              "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
+                                          Icons.calendar_today_sharp),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5.0),
+                                        child: Container(
+                                          height: 30.0,
+                                          width: 0.5,
+                                          color: Colors.grey,
+                                        ),
                                       ),
-                                    ),
-                                    buildCount(
-                                        "${selectedDate.hour} : ${selectedDate.minute}",
-                                        Icons.watch_later_outlined),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 5.0),
-                                      child: Container(
-                                        height: 30.0,
-                                        width: 0.5,
-                                        color: Colors.grey,
+                                      buildCount(
+                                          "${widget.selectedTimeTxt.hour} : ${widget.selectedTimeTxt.minute}" ??
+                                              "${selectedDate.hour} : ${selectedDate.minute}",
+                                          Icons.watch_later_outlined),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5.0),
+                                        child: Container(
+                                          height: 30.0,
+                                          width: 0.5,
+                                          color: Colors.grey,
+                                        ),
                                       ),
-                                    ),
-                                    DropdownButton<String>(
-                                      value: dropdownValue,
-                                      icon: Icon(
-                                        Icons.person_outline,
-                                        color: Colors.red[900],
-                                        size: 20,
+                                      DropdownButton<String>(
+                                        value: dropdownValue ??
+                                            widget.dropdownValue,
+                                        icon: Icon(
+                                          Icons.person_outline,
+                                          color: Colors.red[900],
+                                          size: 20,
+                                        ),
+                                        iconSize: 24,
+                                        elevation: 16,
+                                        style:
+                                            TextStyle(color: Colors.red[900]),
+                                        onChanged: (String newValue) {
+                                          setState(() {
+                                            dropdownValue = newValue;
+                                          });
+                                        },
+                                        items: <String>[
+                                          '1',
+                                          '2',
+                                          '3',
+                                          '4',
+                                          '5',
+                                          '6',
+                                          '7',
+                                          '8',
+                                          '9',
+                                          '10'
+                                        ].map<DropdownMenuItem<String>>(
+                                            (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value + " pers"),
+                                          );
+                                        }).toList(),
                                       ),
-                                      iconSize: 24,
-                                      elevation: 16,
-                                      style: TextStyle(color: Colors.red[900]),
-                                      onChanged: (String newValue) {
-                                        setState(() {
-                                          dropdownValue = newValue;
-                                        });
-                                      },
-                                      items: <String>[
-                                        '1',
-                                        '2',
-                                        '3',
-                                        '4',
-                                        '5',
-                                        '6',
-                                        '7',
-                                        '8',
-                                        '9',
-                                        '10'
-                                      ].map<DropdownMenuItem<String>>(
-                                          (String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(widget.dropdownValue ??
-                                              value + " pers"),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -205,97 +249,7 @@ class _BookedScreenState extends State<BookedScreen> {
                           horizontal: 16.0, vertical: 16.0),
                       child: Column(
                         children: <Widget>[
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              SizedBox(height: 10.0),
-                              Text(
-                                'Table booked under the name',
-                                textAlign: TextAlign.center,
-                                style: Styles.customTitleTextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: Sizes.TEXT_SIZE_20,
-                                ),
-                              ),
-                              SizedBox(height: 16.0),
-                              Icon(Icons.dinner_dining,
-                                  size: 80, color: Colors.black87),
-                              SizedBox(height: 16.0),
-                              Text(
-                                'Anonymous',
-                                textAlign: TextAlign.center,
-                                style: Styles.customTitleTextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              Text(
-                                firebaseAuth.currentUser.email,
-                                textAlign: TextAlign.center,
-                                style: Styles.customTitleTextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              Text(
-                                "+212 654544",
-                                textAlign: TextAlign.center,
-                                style: Styles.customTitleTextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              SizedBox(height: 20.0),
-                              Divider(
-                                color: Colors.grey[900],
-                              ),
-                              SizedBox(height: 20.0),
-                              TextFormBuilder(
-                                enabled: true,
-                                suffix: Feather.inbox,
-                                hintText: "Special Requests",
-                                textInputAction: TextInputAction.next,
-                                onSaved: (String val) {},
-                              ),
-                              SizedBox(height: 16.0),
-                              TextFormBuilder(
-                                enabled: true,
-                                suffix: Feather.code,
-                                hintText: "Do you have a code?",
-                                textInputAction: TextInputAction.next,
-                                onSaved: (String val) {},
-                              ),
-                              SizedBox(height: 16.0),
-                              Container(
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    DefaultButton(
-                                      text: "CONFIRM YOUR TABLE",
-                                      submitted: false,
-                                      press: () {},
-                                    ),
-                                    SizedBox(height: 15.0),
-                                    Text(
-                                      'Immediate confirmation + Free Service + Possibility of cancellation',
-                                      textAlign: TextAlign.center,
-                                      style: Styles.customTitleTextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                          buildbody(),
                           SizedBox(height: 10.0),
                         ],
                       ),
@@ -311,6 +265,7 @@ class _BookedScreenState extends State<BookedScreen> {
   }
 
   Future<TimeOfDay> _selectTime(BuildContext context) {
+    final now = DateTime.now();
     return showTimePicker(
       context: context,
       initialTime: TimeOfDay(
@@ -345,5 +300,189 @@ class _BookedScreenState extends State<BookedScreen> {
         )
       ],
     );
+  }
+
+  buildbody() {
+    if (!loading && user1 != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          SizedBox(height: 10.0),
+          Text(
+            'Table booked under the name',
+            textAlign: TextAlign.center,
+            style: Styles.customTitleTextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              fontSize: Sizes.TEXT_SIZE_20,
+            ),
+          ),
+          SizedBox(height: 16.0),
+          Icon(Icons.dinner_dining, size: 80, color: Colors.black87),
+          SizedBox(height: 16.0),
+          Text(
+            user1.data()["username"],
+            textAlign: TextAlign.center,
+            style: Styles.customTitleTextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+          Text(
+            firebaseAuth.currentUser.email,
+            textAlign: TextAlign.center,
+            style: Styles.customTitleTextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.normal,
+              fontSize: 14,
+            ),
+          ),
+          Text(
+            user1.data()["contact"],
+            textAlign: TextAlign.center,
+            style: Styles.customTitleTextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.normal,
+              fontSize: 14,
+            ),
+          ),
+          SizedBox(height: 20.0),
+          Divider(
+            color: Colors.grey[900],
+          ),
+          SizedBox(height: 20.0),
+          TextFormBuilder(
+            enabled: true,
+            suffix: Feather.inbox,
+            hintText: "Special Requests",
+            textInputAction: TextInputAction.next,
+            onSaved: (String val) {},
+          ),
+          SizedBox(height: 16.0),
+          TextFormBuilder(
+            enabled: true,
+            suffix: Feather.code,
+            hintText: "Do you have a code?",
+            textInputAction: TextInputAction.next,
+            onSaved: (String val) {},
+          ),
+          SizedBox(height: 16.0),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DefaultButton(
+                  text: "CONFIRM YOUR TABLE",
+                  submitted: false,
+                  press: () {},
+                ),
+                SizedBox(height: 15.0),
+                Text(
+                  'Immediate confirmation + Free Service + Possibility of cancellation',
+                  textAlign: TextAlign.center,
+                  style: Styles.customTitleTextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          SizedBox(height: 10.0),
+          Text(
+            'Table booked under the name',
+            textAlign: TextAlign.center,
+            style: Styles.customTitleTextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              fontSize: Sizes.TEXT_SIZE_20,
+            ),
+          ),
+          SizedBox(height: 16.0),
+          Icon(Icons.dinner_dining, size: 80, color: Colors.black87),
+          SizedBox(height: 16.0),
+          Text(
+            'Anonymous',
+            textAlign: TextAlign.center,
+            style: Styles.customTitleTextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+          Text(
+            firebaseAuth.currentUser.email,
+            textAlign: TextAlign.center,
+            style: Styles.customTitleTextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.normal,
+              fontSize: 14,
+            ),
+          ),
+          Text(
+            "+212 654544",
+            textAlign: TextAlign.center,
+            style: Styles.customTitleTextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.normal,
+              fontSize: 14,
+            ),
+          ),
+          SizedBox(height: 20.0),
+          Divider(
+            color: Colors.grey[900],
+          ),
+          SizedBox(height: 20.0),
+          TextFormBuilder(
+            enabled: true,
+            suffix: Feather.inbox,
+            hintText: "Special Requests",
+            textInputAction: TextInputAction.next,
+            onSaved: (String val) {},
+          ),
+          SizedBox(height: 16.0),
+          TextFormBuilder(
+            enabled: true,
+            suffix: Feather.code,
+            hintText: "Do you have a code?",
+            textInputAction: TextInputAction.next,
+            onSaved: (String val) {},
+          ),
+          SizedBox(height: 16.0),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DefaultButton(
+                  text: "CONFIRM YOUR TABLE",
+                  submitted: false,
+                  press: () {},
+                ),
+                SizedBox(height: 15.0),
+                Text(
+                  'Immediate confirmation + Free Service + Possibility of cancellation',
+                  textAlign: TextAlign.center,
+                  style: Styles.customTitleTextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
   }
 }

@@ -1,13 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:lmaida/Resto/componant/booked_screen.dart';
+import 'package:lmaida/Resto/componant/menu_page.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/rater.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/values/values.dart';
-
-import 'booked_screen.dart';
-import 'menu_page.dart';
 
 class NewRestoDetails extends StatefulWidget {
   final RestoModel restoModel;
@@ -186,44 +185,44 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                     child: buildOffer(),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  child: Container(
-                      margin: EdgeInsets.fromLTRB(0, 500, 0, 0),
-                      height: 100.0,
-                      child: Card(
-                        elevation: 10.0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        child: Container(
-                          margin: EdgeInsets.fromLTRB(20, 0, 0, 10),
-                          width: SizeConfig.screenWidth - 50,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(width: 10),
-                              Text(
-                                "Chef's Suggestions",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20.0,
-                                  color: Colors.black,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MenuPage(
+                                restoModel: widget.restoModel,
+                                data: widget.restoModel.menus,
+                                index: widget.restoModel.id,
+                              )),
+                    );
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: Container(
+                        margin: EdgeInsets.fromLTRB(0, 500, 0, 0),
+                        height: 100.0,
+                        child: Card(
+                          elevation: 10.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          child: Container(
+                            margin: EdgeInsets.fromLTRB(20, 0, 0, 10),
+                            width: SizeConfig.screenWidth - 50,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                SizedBox(width: 10),
+                                Text(
+                                  "Chef's Suggestions",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20.0,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => MenuPage(
-                                              restoModel: widget.restoModel,
-                                              data: widget.restoModel.menus,
-                                              index: widget.restoModel.id,
-                                            )),
-                                  );
-                                },
-                                child: Text(
+                                Text(
                                   "See The Full Menu",
                                   style: TextStyle(
                                     fontWeight: FontWeight.normal,
@@ -231,11 +230,11 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                     color: Colors.black,
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      )),
+                        )),
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(20, 10, 20, 20),

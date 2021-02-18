@@ -318,14 +318,14 @@ class _SignUpFormState extends State<SignUpForm> {
       controller: _countryContoller,
       keyboardType: TextInputType.phone,
       onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kCountryNullError);
+        if (value.isNotEmpty || value.length == 13) {
+          removeError(error: kPhoneNumberNullError);
         }
         return null;
       },
       validator: (value) {
-        if (value.isEmpty) {
-          addError(error: kCountryNullError);
+        if (value.isEmpty || value.length != 13) {
+          addError(error: kPhoneNumberNullError);
           return "";
         }
         return null;

@@ -68,155 +68,169 @@ class _BookState extends State<Book> {
                         itemBuilder: (BuildContext context, int index) {
                           BookModel bookmodel =
                               BookModel.fromJson(snapshot.data);
-                          return Padding(
-                            padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                            child: Container(
-                                child: Card(
-                              elevation: 10.0,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
+                          if (bookmodel != null)
+                            return Padding(
+                              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                               child: Container(
-                                margin: EdgeInsets.fromLTRB(5, 5, 0, 5),
-                                width: SizeConfig.screenWidth - 50,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    SizedBox(height: 10),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "Your Book For " +
-                                              bookmodel.restoModel['name'] +
-                                              " is ",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 15.0,
-                                            color: Colors.black,
+                                  child: Card(
+                                elevation: 10.0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                                child: Container(
+                                  margin: EdgeInsets.fromLTRB(5, 5, 0, 5),
+                                  width: SizeConfig.screenWidth - 50,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Your Book For " +
+                                                bookmodel.restoModel['name'] +
+                                                " is ",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 15.0,
+                                              color: Colors.black,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          bookmodel.statut,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 15.0,
-                                            color: Colors.red[900],
+                                          Text(
+                                            bookmodel.statut,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 15.0,
+                                              color: Colors.red[900],
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 10),
-                                    Container(
-                                      height: 60.0,
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10.0),
-                                          child: FlatButton(
-                                            padding: EdgeInsets.all(10),
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(15)),
-                                            color: Color(0xFFF5F6F9),
-                                            onPressed: () {},
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceAround,
-                                              children: <Widget>[
-                                                buildCount(bookmodel.dates,
-                                                    Icons.calendar_today_sharp),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          bottom: 5.0),
-                                                  child: Container(
-                                                    height: 30.0,
-                                                    width: 0.5,
-                                                    color: Colors.grey,
+                                        ],
+                                      ),
+                                      SizedBox(height: 10),
+                                      Container(
+                                        height: 60.0,
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10.0),
+                                            child: FlatButton(
+                                              padding: EdgeInsets.all(10),
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          15)),
+                                              color: Color(0xFFF5F6F9),
+                                              onPressed: () {},
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: <Widget>[
+                                                  buildCount(
+                                                      bookmodel.dates,
+                                                      Icons
+                                                          .calendar_today_sharp),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            bottom: 5.0),
+                                                    child: Container(
+                                                      height: 30.0,
+                                                      width: 0.5,
+                                                      color: Colors.grey,
+                                                    ),
                                                   ),
-                                                ),
-                                                buildCount(
-                                                    bookmodel.person
-                                                            .toString() +
-                                                        " person(s)",
-                                                    Icons.person_outline),
-                                              ],
+                                                  buildCount(
+                                                      bookmodel.person
+                                                              .toString() +
+                                                          " person(s)",
+                                                      Icons.person_outline),
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Text(
-                                        'Table booked under the name ' +
-                                            bookmodel.user["name"],
+                                      Text(
+                                          'Table booked under the name ' +
+                                              bookmodel.user["name"],
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 14.0,
+                                            color: Colors.black,
+                                          )),
+                                      SizedBox(height: 5),
+                                      Text(
+                                        bookmodel.user["email"],
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontWeight: FontWeight.normal,
                                           fontSize: 14.0,
                                           color: Colors.black,
-                                        )),
-                                    SizedBox(height: 5),
-                                    Text(
-                                      bookmodel.user["email"],
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 14.0,
-                                        color: Colors.black,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: 5),
-                                    Text(
-                                      bookmodel.user["phone_number"],
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 14.0,
-                                        color: Colors.black,
+                                      SizedBox(height: 5),
+                                      Text(
+                                        bookmodel.user["phone_number"],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 14.0,
+                                          color: Colors.black,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: 5),
-                                    FlatButton(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20)),
-                                      color: Colors.red[900],
-                                      disabledColor: Colors.grey[400],
-                                      disabledTextColor: Colors.white60,
-                                      onPressed: () {
-                                        submitted = true;
-                                      },
-                                      child: submitted
-                                          ? SizedBox(
-                                              height: 15,
-                                              width: 15,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                        Color>(Colors.white),
+                                      SizedBox(height: 5),
+                                      FlatButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20)),
+                                        color: Colors.red[900],
+                                        disabledColor: Colors.grey[400],
+                                        disabledTextColor: Colors.white60,
+                                        onPressed: () {
+                                          submitted = true;
+                                        },
+                                        child: submitted
+                                            ? SizedBox(
+                                                height: 15,
+                                                width: 15,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(Colors.white),
+                                                ),
+                                              )
+                                            : Text(
+                                                "Delete Your Booking",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.white,
+                                                ),
                                               ),
-                                            )
-                                          : Text(
-                                              "Delete Your Booking",
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                    ),
-                                  ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            )),
-                          );
+                              )),
+                            );
+                          else
+                            return Center(child: circularProgress(context));
                         });
                   } else {
-                    return Center(child: circularProgress(context));
+                    return Center(
+                        child: Text("You Booked restaurant will appear here ",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.red[900],
+                            )));
                   }
                 },
               ),

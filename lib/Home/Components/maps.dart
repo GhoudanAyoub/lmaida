@@ -140,8 +140,8 @@ class _MapsState extends State<Maps> {
                                 restoModel),
                           );
                         else
-                          return Center(
-                            child: Text("no sush name"),
+                          return Container(
+                            width: 0.1,
                           );
                       }
                     } else {
@@ -171,6 +171,9 @@ class _MapsState extends State<Maps> {
                     MaterialPageRoute(
                         builder: (context) => NewRestoDetails(
                               restoModel: restoModel,
+                              selectedDateTxt: null,
+                              selectedTimeTxt: null,
+                              dropdownValue: null,
                             )),
                   )
                 }),

@@ -50,7 +50,8 @@ const String kPassNullError = "Please Enter your password";
 const String kShortPassError = "Password is too short";
 const String kMatchPassError = "Passwords don't match";
 const String kNamelNullError = "Please Enter your name";
-const String kPhoneNumberNullError = "Please Enter your phone number";
+const String kPhoneNumberNullError =
+    "Please Enter your phone number ex: +212*********";
 const String kAddressNullError = "Please Enter your address";
 const String messagesListClass = "messagesList";
 
