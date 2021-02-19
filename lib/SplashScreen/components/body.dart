@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:lmaida/Home/HomePage.dart';
 import 'package:lmaida/SignIn/sign_in_screen.dart';
 
@@ -12,17 +13,29 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
   int currentPage = 0;
+  Position position;
 
   @override
   void initState() {
+    getLastLocation();
     new Future.delayed(Duration(seconds: 3), () {
       if (FirebaseAuth.instance.currentUser == null) {
         Navigator.pushNamed(context, SignInScreen.routeName);
       } else {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomePage(
+                      position: position,
+                    )));
       }
     });
+  }
+
+  getLastLocation() async {
+    position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    var lastPosition = await Geolocator.getLastKnownPosition();
   }
 
   @override

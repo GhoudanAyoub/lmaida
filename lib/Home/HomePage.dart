@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:lmaida/sidebar/sidebar_layout.dart';
 
 class HomePage extends StatefulWidget {
+  final position;
+
+  const HomePage({Key key, this.position}) : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }

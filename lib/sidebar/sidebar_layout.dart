@@ -5,7 +5,12 @@ import 'package:lmaida/Home/Components/maps.dart';
 import '../bloc.navigation_bloc/navigation_bloc.dart';
 import 'sidebar.dart';
 
-class SideBarLayout extends StatelessWidget {
+class SideBarLayout extends StatefulWidget {
+  @override
+  _SideBarLayoutState createState() => _SideBarLayoutState();
+}
+
+class _SideBarLayoutState extends State<SideBarLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

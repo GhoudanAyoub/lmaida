@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:lmaida/Home/HomePage.dart';
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
@@ -27,6 +28,20 @@ class _SignUpFormState extends State<SignUpForm> {
   bool remember = false;
   AuthService authService = AuthService();
   final List<String> errors = [];
+
+  Position position;
+
+  @override
+  void initState() {
+    getLastLocation();
+    super.initState();
+  }
+
+  getLastLocation() async {
+    position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    var lastPosition = await Geolocator.getLastKnownPosition();
+  }
 
   void addError({String error}) {
     if (!errors.contains(error))
@@ -89,8 +104,12 @@ class _SignUpFormState extends State<SignUpForm> {
                   );
                   print(success);
                   if (success) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomePage()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomePage(
+                                  position: position,
+                                )));
                     Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text('Congratulation Your Account Created')));
                   }

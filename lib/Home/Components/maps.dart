@@ -14,6 +14,9 @@ import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
 
 class Maps extends StatefulWidget with NavigationStates {
+  final position;
+
+  const Maps({Key key, this.position}) : super(key: key);
   @override
   _MapsState createState() => _MapsState();
 }
@@ -36,6 +39,16 @@ class _MapsState extends State<Maps> {
   void initState() {
     getLastLocation();
     if (restoModel != null) {
+      if (position != null) {
+        markerlist.add(Marker(
+          markerId: MarkerId("MyPlace"),
+          position: LatLng(position.latitude, position.longitude),
+          infoWindow: InfoWindow(title: 'Your Current Position'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueRed,
+          ),
+        ));
+      }
       if (restoModel.address_lat != null || restoModel.address_lon != null) {
         markerlist.add(Marker(
           markerId: MarkerId(restoModel.name),
@@ -322,19 +335,34 @@ class _MapsState extends State<Maps> {
   }
 
   Widget _buildGoogleMap(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      child: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: CameraPosition(
-            target: LatLng(34.0211418, -6.837584399999969), zoom: 10),
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-        markers: markerlist,
-      ),
-    );
+    return position != null
+        ? Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: CameraPosition(
+                  target: LatLng(position.latitude, position.longitude),
+                  zoom: 10),
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              markers: markerlist,
+            ),
+          )
+        : Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: CameraPosition(
+                  target: LatLng(34.0211418, -6.837584399999969), zoom: 12),
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              markers: markerlist,
+            ),
+          );
   }
 
   getLastLocation() async {

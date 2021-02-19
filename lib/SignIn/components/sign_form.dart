@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:lmaida/Home/HomePage.dart';
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
@@ -26,6 +27,20 @@ class _SignFormState extends State<SignForm> {
 
   var submitted = false;
   var buttonText = "Continue";
+
+  Position position;
+
+  @override
+  void initState() {
+    getLastLocation();
+    super.initState();
+  }
+
+  getLastLocation() async {
+    position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    var lastPosition = await Geolocator.getLastKnownPosition();
+  }
 
   void addError({String error}) {
     if (!errors.contains(error))
@@ -138,8 +153,12 @@ class _SignFormState extends State<SignForm> {
                   );
                   print(success);
                   if (success == firebaseAuth.currentUser.uid) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomePage()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomePage(
+                                  position: position,
+                                )));
                     Scaffold.of(context)
                         .showSnackBar(SnackBar(content: Text('Welcome Back')));
                   } else {
