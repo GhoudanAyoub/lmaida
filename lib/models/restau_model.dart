@@ -15,7 +15,7 @@ class RestoModel {
   String telephone;
   String trip_advisor_id;
   String status;
-  String categories;
+  List categories;
   String pictures;
   int location_id;
   int user_id;
@@ -68,7 +68,7 @@ class RestoModel {
     telephone = json['telephone'];
     trip_advisor_id = json['trip_advisor_id'];
     status = json['status'];
-    categories = json['categories'];
+    categories = json['category'];
     pictures = json['pictures'];
     location_id = json['location_id'];
     user_id = json['user_id'];

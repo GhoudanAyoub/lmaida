@@ -22,6 +22,7 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage> {
   final String apiUrl = StringConst.URI_RESTAU + 'all';
+  String type;
 
   Future<List<dynamic>> fetResto() async {
     var result = await http.get(apiUrl);
@@ -50,7 +51,7 @@ class _MenuPageState extends State<MenuPage> {
               ),
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(10, 30, 10, 20),
+              margin: EdgeInsets.fromLTRB(10, 20, 10, 20),
               height: 60.0,
               child: Center(
                   child: Text(
@@ -63,58 +64,168 @@ class _MenuPageState extends State<MenuPage> {
               )),
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(10, 100, 10, 20),
-              height: 60.0,
-              child: Align(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: FlatButton(
-                    padding: EdgeInsets.all(10),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    color: Color(0xFFF5F6F9),
-                    onPressed: () {},
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        buildCount("Starter"),
-                        Divider(
-                          height: 30,
-                        ),
-                        buildCount("Main Course"),
-                        Divider(),
-                        buildCount("Dessert"),
-                      ],
-                    ),
+                margin: EdgeInsets.fromLTRB(10, 25, 10, 20),
+                height: 60.0,
+                child: Center(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: FlatButton(
+                        onPressed: () {
+                          setState(() {
+                            type = null;
+                          });
+                        },
+                        child: Text(
+                          "Clear",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )),
                   ),
-                ),
-              ),
-            ),
+                )),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 170, 0, 20),
+              margin: EdgeInsets.fromLTRB(0, 80, 0, 20),
               child: FutureBuilder<List<dynamic>>(
                 future: fetResto(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) {
                     if (widget.data.isNotEmpty) {
-                      return ListView.builder(
-                          padding: EdgeInsets.all(20),
-                          itemCount: widget.data.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return buildcontainer(widget.data[index]);
-                          });
-                    } else {
-                      return Center(
-                        child: Text(
-                          "This Restaurant Didn't Upload There Menu Yet",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
+                      return Stack(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.fromLTRB(10, 0, 10, 30),
+                            height: 60.0,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0),
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15)),
+                                  color: Color(0xFFF5F6F9),
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      shrinkWrap: true,
+                                      itemCount: widget.data.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return FlatButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                type = widget.data[index]
+                                                    ["type"]["name"];
+                                              });
+                                            },
+                                            child: buildCount(widget.data[index]
+                                                ["type"]["name"]));
+                                      }),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                          type == null
+                              ? Container(
+                                  margin: EdgeInsets.fromLTRB(0, 70, 0, 10),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0),
+                                        child: ListView.builder(
+                                            padding: EdgeInsets.all(10),
+                                            itemCount: widget.data.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              print(type);
+                                              return buildcontainer(
+                                                  widget.data[index]);
+                                            })),
+                                  ),
+                                )
+                              : Container(
+                                  margin: EdgeInsets.fromLTRB(0, 70, 0, 10),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0),
+                                        child: ListView.builder(
+                                            padding: EdgeInsets.all(10),
+                                            itemCount: widget.data.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              print("===>" + type);
+                                              if (type ==
+                                                  widget.data[index]["type"]
+                                                      ["name"])
+                                                return buildcontainer(
+                                                    widget.data[index]);
+                                              else
+                                                return Container(
+                                                  width: 0.2,
+                                                );
+                                            })),
+                                  ))
+                        ],
+                      );
+                    } else {
+                      return Stack(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.fromLTRB(10, 20, 10, 30),
+                            height: 60.0,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0),
+                                child: FlatButton(
+                                  padding: EdgeInsets.all(10),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15)),
+                                  color: Color(0xFFF5F6F9),
+                                  onPressed: () {},
+                                  child: FlatButton(
+                                    padding: EdgeInsets.all(10),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    color: Color(0xFFF5F6F9),
+                                    onPressed: () {},
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        buildCount("Starter"),
+                                        Divider(
+                                          height: 30,
+                                        ),
+                                        buildCount("Main Course"),
+                                        Divider(),
+                                        buildCount("Dessert"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              "This Restaurant Didn't Upload There Menu Yet",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        ],
                       );
                     }
                   } else {
@@ -188,14 +299,12 @@ class _MenuPageState extends State<MenuPage> {
     );
   }
 
-  /*
-  *
-
-  *
-  * */
   buildCount(String label) {
     return Row(
       children: <Widget>[
+        SizedBox(
+          width: 15,
+        ),
         Text(
           label,
           style: TextStyle(
@@ -203,7 +312,10 @@ class _MenuPageState extends State<MenuPage> {
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
-        )
+        ),
+        SizedBox(
+          width: 15,
+        ),
       ],
     );
   }

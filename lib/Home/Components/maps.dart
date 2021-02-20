@@ -29,6 +29,8 @@ class _MapsState extends State<Maps> {
   RestoModel restoModel;
   String Search = "";
   Position position;
+  bool submitted = false;
+  static CameraPosition _myPosition;
   Future<List<dynamic>> fetResto() async {
     var result = await http.get(apiUrl2);
     return json.decode(result.body);
@@ -39,26 +41,12 @@ class _MapsState extends State<Maps> {
   void initState() {
     getLastLocation();
     if (restoModel != null) {
-      if (position != null) {
-        markerlist.add(Marker(
-          markerId: MarkerId("MyPlace"),
-          position: LatLng(position.latitude, position.longitude),
-          infoWindow: InfoWindow(title: 'Your Current Position'),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueRed,
-          ),
-        ));
-      }
       if (restoModel.address_lat != null || restoModel.address_lon != null) {
-        markerlist.add(Marker(
-          markerId: MarkerId(restoModel.name),
-          position: LatLng(double.tryParse(restoModel.address_lat),
-              double.tryParse(restoModel.address_lon)),
-          infoWindow: InfoWindow(title: restoModel.name),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueViolet,
-          ),
-        ));
+        markerlist.add(_createMarker(
+            double.tryParse(restoModel.address_lat),
+            double.tryParse(restoModel.address_lon),
+            restoModel.name,
+            restoModel));
       }
     }
     Timer.periodic(Duration(milliseconds: 500), (_) {
@@ -67,45 +55,106 @@ class _MapsState extends State<Maps> {
     super.initState();
   }
 
+  Marker _createMarker(lat, lon, name, restoModel) {
+    return Marker(
+      markerId: MarkerId(name),
+      position: LatLng(lat, lon),
+      infoWindow: InfoWindow(
+          title: name,
+          onTap: () => {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => NewRestoDetails(
+                            restoModel: restoModel,
+                            selectedDateTxt: null,
+                            selectedTimeTxt: null,
+                            dropdownValue: null,
+                          )),
+                )
+              }),
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+        BitmapDescriptor.hueViolet,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          _buildGoogleMap(context),
-          Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 70.0, horizontal: 35),
-                child: Padding(
-                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                  child: Material(
-                    elevation: 5.0,
-                    borderRadius: BorderRadius.circular(50.0),
-                    child: TextFormField(
-                      style: TextStyle(color: Colors.black),
-                      cursorColor: black,
-                      controller: searchController,
-                      onChanged: (value) {
-                        Search = value;
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Search',
-                        prefixIcon:
-                            Icon(Icons.search, color: GBottomNav, size: 30.0),
-                        hintStyle: TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'SFProDisplay-Black'),
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
+    return _myPosition != null
+        ? Scaffold(
+            body: Stack(
+              children: <Widget>[
+                _buildGoogleMap(context),
+                Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      margin:
+                          EdgeInsets.symmetric(vertical: 70.0, horizontal: 35),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                        child: Material(
+                          elevation: 5.0,
+                          borderRadius: BorderRadius.circular(50.0),
+                          child: TextFormField(
+                            style: TextStyle(color: Colors.black),
+                            cursorColor: black,
+                            controller: searchController,
+                            onChanged: (value) {
+                              Search = value;
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'Search',
+                              prefixIcon: Icon(Icons.search,
+                                  color: GBottomNav, size: 30.0),
+                              hintStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: 'SFProDisplay-Black'),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
+                            ),
+                          ),
+                        ),
                       ),
+                    )),
+                _buildContainer(),
+              ],
+            ),
+          )
+        : Scaffold(
+            body: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  "assets/images/9_Location Error.png",
+                  fit: BoxFit.cover,
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(0, 5),
+                          blurRadius: 25,
+                          color: Colors.black.withOpacity(0.17),
+                        ),
+                      ],
+                    ),
+                    child: FlatButton(
+                      onPressed: () {
+                        _goToMyPosition();
+                        setState(() {
+                          submitted = true;
+                        });
+                      },
+                      child: Text('GET MY LOCATION'),
                     ),
                   ),
                 ),
-              )),
-          _buildContainer(),
-        ],
-      ),
-    );
+              ],
+            ),
+          );
   }
 
   Widget _buildContainer() {
@@ -154,7 +203,7 @@ class _MapsState extends State<Maps> {
                           );
                         else
                           return Container(
-                            width: 0.1,
+                            width: 0,
                           );
                       }
                     } else {
@@ -172,28 +221,11 @@ class _MapsState extends State<Maps> {
 
   reloadData(RestoModel restoModel) {
     setState(() {
-      markerlist.add(Marker(
-        markerId: MarkerId(restoModel.name),
-        position: LatLng(double.tryParse(restoModel.address_lat),
-            double.tryParse(restoModel.address_lon)),
-        infoWindow: InfoWindow(
-            title: restoModel.name,
-            onTap: () => {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => NewRestoDetails(
-                              restoModel: restoModel,
-                              selectedDateTxt: null,
-                              selectedTimeTxt: null,
-                              dropdownValue: null,
-                            )),
-                  )
-                }),
-        icon: BitmapDescriptor.defaultMarkerWithHue(
-          BitmapDescriptor.hueViolet,
-        ),
-      ));
+      markerlist.add(_createMarker(
+          double.tryParse(restoModel.address_lat),
+          double.tryParse(restoModel.address_lon),
+          restoModel.name,
+          restoModel));
     });
   }
 
@@ -214,8 +246,8 @@ class _MapsState extends State<Maps> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
-                    width: 180,
-                    height: 200,
+                    width: 90,
+                    height: 100,
                     child: ClipRRect(
                       borderRadius: new BorderRadius.circular(24.0),
                       child: Image(
@@ -248,7 +280,7 @@ class _MapsState extends State<Maps> {
             restaurantName.name,
             style: TextStyle(
                 color: Color(0xff6200ee),
-                fontSize: 24.0,
+                fontSize: 14.0,
                 fontWeight: FontWeight.bold),
           )),
         ),
@@ -262,42 +294,42 @@ class _MapsState extends State<Maps> {
               "4.1",
               style: TextStyle(
                 color: Colors.black54,
-                fontSize: 18.0,
+                fontSize: 12.0,
               ),
             )),
             Container(
               child: Icon(
                 FontAwesomeIcons.solidStar,
                 color: Colors.amber,
-                size: 15.0,
+                size: 10.0,
               ),
             ),
             Container(
               child: Icon(
                 FontAwesomeIcons.solidStar,
                 color: Colors.amber,
-                size: 15.0,
+                size: 10.0,
               ),
             ),
             Container(
               child: Icon(
                 FontAwesomeIcons.solidStar,
                 color: Colors.amber,
-                size: 15.0,
+                size: 10.0,
               ),
             ),
             Container(
               child: Icon(
                 FontAwesomeIcons.solidStar,
                 color: Colors.amber,
-                size: 15.0,
+                size: 10.0,
               ),
             ),
             Container(
               child: Icon(
                 FontAwesomeIcons.solidStarHalf,
                 color: Colors.amber,
-                size: 15.0,
+                size: 10.0,
               ),
             ),
             Container(
@@ -305,7 +337,7 @@ class _MapsState extends State<Maps> {
               "(946)",
               style: TextStyle(
                 color: Colors.black54,
-                fontSize: 18.0,
+                fontSize: 10.0,
               ),
             )),
           ],
@@ -316,7 +348,7 @@ class _MapsState extends State<Maps> {
           restaurantName.address + "re \u00B7 \u0024\u0024 \u00B7 1.6 mi",
           style: TextStyle(
             color: Colors.black54,
-            fontSize: 18.0,
+            fontSize: 10.0,
           ),
         )),
         SizedBox(height: 5.0),
@@ -327,7 +359,7 @@ class _MapsState extends State<Maps> {
               restaurantName.opening_hours_from,
           style: TextStyle(
               color: Colors.black54,
-              fontSize: 18.0,
+              fontSize: 10.0,
               fontWeight: FontWeight.bold),
         )),
       ],
@@ -335,40 +367,35 @@ class _MapsState extends State<Maps> {
   }
 
   Widget _buildGoogleMap(BuildContext context) {
-    return position != null
-        ? Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition: CameraPosition(
-                  target: LatLng(position.latitude, position.longitude),
-                  zoom: 10),
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-              markers: markerlist,
-            ),
-          )
-        : Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            child: GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition: CameraPosition(
-                  target: LatLng(34.0211418, -6.837584399999969), zoom: 12),
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-              markers: markerlist,
-            ),
-          );
+    return Container(
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      child: GoogleMap(
+        mapType: MapType.normal,
+        initialCameraPosition: _myPosition,
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
+        },
+        markers: markerlist,
+        myLocationEnabled: true,
+      ),
+    );
   }
 
   getLastLocation() async {
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    var lastPosition = await Geolocator.getLastKnownPosition();
+    setState(() {
+      _myPosition = CameraPosition(
+        target: LatLng(position.latitude, position.longitude),
+        zoom: 14.5,
+      );
+    });
+  }
+
+  Future<void> _goToMyPosition() async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(_myPosition));
   }
 
   Future<void> _gotoLocation(double lat, double long) async {

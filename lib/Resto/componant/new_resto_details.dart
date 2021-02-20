@@ -87,7 +87,8 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                         imageUrl: widget.restoModel.pictures ==
                                                 null
                                             ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
-                                            : widget.restoModel.pictures,
+                                            : "https://lmaida.com/storage/gallery/" +
+                                                widget.restoModel.pictures,
                                         fit: BoxFit.cover,
                                         width:
                                             MediaQuery.of(context).size.width,
@@ -411,11 +412,12 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                               borderRadius:
                                   BorderRadius.all(Radius.circular(8))),
                           child: CachedNetworkImage(
-                            imageUrl: widget.restoModel.itemphotos[index]
-                                    ['name'] ??
+                            imageUrl: "https://lmaida.com/storage/gallery/" +
+                                    widget.restoModel.itemphotos[index]
+                                        ['name'] ??
                                 "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
                             fit: BoxFit.cover,
-                            width: 160,
+                            width: 100,
                             fadeInDuration: Duration(milliseconds: 500),
                             fadeInCurve: Curves.easeIn,
                             placeholder: (context, progressText) =>

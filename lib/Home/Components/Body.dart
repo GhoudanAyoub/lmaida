@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -147,7 +148,7 @@ class _BodyState extends State<Body> {
     );
   }
 
-  Widget headerCategoryItem(String name, {onPressed}) {
+  Widget headerCategoryItem(String im, String name, {onPressed}) {
     return Container(
       margin: EdgeInsets.only(left: 15),
       child: Column(
@@ -163,8 +164,18 @@ class _BodyState extends State<Body> {
                 heroTag: name,
                 onPressed: onPressed,
                 backgroundColor: white,
-                child:
-                    Icon(Icons.dinner_dining, size: 35, color: Colors.black87),
+                child: im != null
+                    ? CachedNetworkImage(
+                        imageUrl: "https://lmaida.com/storage/categories/" + im,
+                        fit: BoxFit.cover,
+                        width: 35,
+                        fadeInDuration: Duration(milliseconds: 500),
+                        fadeInCurve: Curves.easeIn,
+                        placeholder: (context, progressText) =>
+                            Center(child: circularProgress(context)),
+                      )
+                    : Icon(Icons.dinner_dining,
+                        size: 35, color: Colors.black87),
               )),
           Text(name + '',
               style: TextStyle(
@@ -195,8 +206,16 @@ class _BodyState extends State<Body> {
                     itemBuilder: (BuildContext context, int index) {
                       CategorieModel categoraiemodel =
                           CategorieModel.fromJson(snapshot.data[index]);
-                      return headerCategoryItem(categoraiemodel.name,
-                          onPressed: () {});
+                      return headerCategoryItem(
+                          categoraiemodel.picture, categoraiemodel.name,
+                          onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RestaurantPage(
+                                      categ: categoraiemodel.name,
+                                    )));
+                      });
                     });
               } else {
                 return Center(child: circularProgress(context));

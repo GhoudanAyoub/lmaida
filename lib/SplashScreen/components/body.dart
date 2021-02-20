@@ -17,25 +17,14 @@ class _BodyState extends State<Body> {
 
   @override
   void initState() {
-    getLastLocation();
     new Future.delayed(Duration(seconds: 3), () {
       if (FirebaseAuth.instance.currentUser == null) {
         Navigator.pushNamed(context, SignInScreen.routeName);
       } else {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => HomePage(
-                      position: position,
-                    )));
+            context, MaterialPageRoute(builder: (context) => HomePage()));
       }
     });
-  }
-
-  getLastLocation() async {
-    position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    var lastPosition = await Geolocator.getLastKnownPosition();
   }
 
   @override
