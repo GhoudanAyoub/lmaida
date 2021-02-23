@@ -144,7 +144,16 @@ class _SideBarState extends State<SideBar>
                         onTap: () {
                           onIconPressed();
                           BlocProvider.of<NavigationBloc>(context)
-                              .add(NavigationEvents.HomePageClickedEvent);
+                              .add(NavigationEvents.RestaurantPageEvent);
+                        },
+                      ),
+                      MenuItem(
+                        icon: Icons.map,
+                        title: "Map",
+                        onTap: () {
+                          onIconPressed();
+                          BlocProvider.of<NavigationBloc>(context)
+                              .add(NavigationEvents.MapClickedEvent);
                         },
                       ),
                       MenuItem(
@@ -163,24 +172,6 @@ class _SideBarState extends State<SideBar>
                           onIconPressed();
                           BlocProvider.of<NavigationBloc>(context)
                               .add(NavigationEvents.MyOrdersClickedEvent);
-                        },
-                      ),
-                      MenuItem(
-                        icon: Icons.map,
-                        title: "Map",
-                        onTap: () {
-                          onIconPressed();
-                          BlocProvider.of<NavigationBloc>(context)
-                              .add(NavigationEvents.MapClickedEvent);
-                        },
-                      ),
-                      MenuItem(
-                        icon: Icons.fastfood,
-                        title: "Restaurant",
-                        onTap: () {
-                          onIconPressed();
-                          BlocProvider.of<NavigationBloc>(context)
-                              .add(NavigationEvents.RestaurantPageEvent);
                         },
                       ),
                       Divider(

@@ -68,7 +68,7 @@ class LmaidaCard extends StatelessWidget {
                       child: CachedNetworkImage(
                         imageUrl: imagePath == null
                             ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
-                            : imagePath,
+                            : "https://lmaida.com/storage/gallery/" + imagePath,
                         fit: BoxFit.cover,
                         width: MediaQuery.of(context).size.width,
                         height: 180,

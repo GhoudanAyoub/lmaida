@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmaida/components/indicators.dart';
@@ -252,16 +251,12 @@ class _MenuPageState extends State<MenuPage> {
           margin: EdgeInsets.fromLTRB(5, 5, 5, 5),
           width: SizeConfig.screenWidth - 30,
           child: ListTile(
-            leading: CachedNetworkImage(
-              imageUrl:
-                  "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
-              fit: BoxFit.cover,
-              width: 60,
-              height: 60,
-              fadeInDuration: Duration(milliseconds: 500),
-              fadeInCurve: Curves.easeIn,
-              placeholder: (context, progressText) =>
-                  Center(child: circularProgress(context)),
+            leading: CircleAvatar(
+              radius: 35.0,
+              backgroundImage: NetworkImage(
+                "https://lmaida.com/storage/menus/" + data["picture"] ??
+                    "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
+              ),
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

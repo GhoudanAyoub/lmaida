@@ -55,6 +55,11 @@ class _MapsState extends State<Maps> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Marker _createMarker(lat, lon, name, restoModel) {
     return Marker(
       markerId: MarkerId(name),

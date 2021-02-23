@@ -1,7 +1,6 @@
 import 'package:lmaida/models/user.dart';
 
 import 'categorie_model.dart';
-import 'lcoation_model.dart';
 
 class RestoModel {
   int id;
@@ -24,7 +23,7 @@ class RestoModel {
   List<CategorieModel> list;
   List filters;
   List itemphotos;
-  LocationModel locationModel;
+  Map<String, dynamic> locationModel;
   double rating;
   Map<String, dynamic> special_offer;
   Users user;
@@ -76,7 +75,7 @@ class RestoModel {
     filters = json['filters'];
     special_offer = json['special_offer'];
     itemphotos = json['itemphotos'];
-    locationModel = json['locationModel'];
+    locationModel = json['location'];
     created_at = json['created_at'];
     updated_at = json['updated_at'];
     menus = json['menus'];

@@ -104,7 +104,7 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
                       hintStyle: TextStyle(
                         color: Colors.grey[400],
                       ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
                       border: border(context),
                       enabledBorder: border(context),
                       focusedBorder: focusBorder(context),

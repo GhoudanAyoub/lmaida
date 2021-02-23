@@ -212,9 +212,7 @@ class _BodyState extends State<Body> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => RestaurantPage(
-                                      categ: categoraiemodel.name,
-                                    )));
+                                builder: (context) => RestaurantPage()));
                       });
                     });
               } else {
