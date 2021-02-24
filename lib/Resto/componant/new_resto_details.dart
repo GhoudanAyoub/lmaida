@@ -411,18 +411,27 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                           decoration: BoxDecoration(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(8))),
-                          child: CachedNetworkImage(
-                            imageUrl: "https://lmaida.com/storage/gallery/" +
-                                    widget.restoModel.itemphotos[index]
-                                        ['name'] ??
-                                "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
-                            fit: BoxFit.cover,
-                            width: 100,
-                            fadeInDuration: Duration(milliseconds: 500),
-                            fadeInCurve: Curves.easeIn,
-                            placeholder: (context, progressText) =>
-                                Center(child: circularProgress(context)),
-                          ),
+                          child: GestureDetector(
+                              onTap: () {
+                                showpage(
+                                    context,
+                                    "https://lmaida.com/storage/gallery/" +
+                                            widget.restoModel.itemphotos[index]
+                                                ['name'] ??
+                                        "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg");
+                              },
+                              child: CachedNetworkImage(
+                                imageUrl: "https://lmaida.com/storage/gallery/" +
+                                        widget.restoModel.itemphotos[index]
+                                            ['name'] ??
+                                    "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
+                                fit: BoxFit.cover,
+                                width: 100,
+                                fadeInDuration: Duration(milliseconds: 500),
+                                fadeInCurve: Curves.easeIn,
+                                placeholder: (context, progressText) =>
+                                    Center(child: circularProgress(context)),
+                              )),
                         );
                       }
                     }),
@@ -460,5 +469,24 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
             )),
       );
     }
+  }
+
+  showpage(BuildContext parentContext, image) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.all(10),
+              child: Stack(
+                overflow: Overflow.visible,
+                alignment: Alignment.center,
+                children: <Widget>[
+                  Positioned(
+                      top: 100,
+                      child: Image.network(image, width: 500, height: 500))
+                ],
+              ));
+        });
   }
 }

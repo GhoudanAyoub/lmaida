@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lmaida/components/rater.dart';
+import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/values/values.dart';
 
 class LmaidaCard extends StatelessWidget {
@@ -24,6 +25,7 @@ class LmaidaCard extends StatelessWidget {
   final List<String> followersImagePath;
   final BoxDecoration decoration;
 
+  final RestoModel restoModel;
   LmaidaCard({
     this.status,
     this.rating = 1,
@@ -34,7 +36,7 @@ class LmaidaCard extends StatelessWidget {
     this.address,
     this.time,
     this.width = 340.0,
-    this.cardHeight = 300.0,
+    this.cardHeight = 320.0,
     this.imageHeight = 180.0,
     this.tagRadius = 8.0,
     this.onTap,
@@ -44,6 +46,7 @@ class LmaidaCard extends StatelessWidget {
     this.cardElevation = 4.0,
     this.followersImagePath,
     this.decoration,
+    this.restoModel,
   });
 
   @override
@@ -51,9 +54,8 @@ class LmaidaCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        width: width,
-        height: cardHeight,
-        child: Card(
+        child: new FittedBox(
+            child: Card(
           elevation: 4.0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4),
@@ -115,29 +117,82 @@ class LmaidaCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                          SizedBox(
-                            height: 5,
-                          ),
                           Row(
                             children: <Widget>[
                               Align(
                                 alignment: Alignment.topLeft,
                                 child: Container(
                                   child: Text(
-                                    time,
+                                    distance + " KM From You",
                                     textAlign: TextAlign.left,
                                     style: Styles.customNormalTextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 12,
                                     ),
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(
-                            height: 5,
-                          ),
+                          restoModel.special_offer != null &&
+                                  DateTime.now().isBefore(DateTime.parse(
+                                      restoModel.special_offer["date_to"]))
+                              ? Row(
+                                  children: <Widget>[
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
+                                        child: Text(
+                                          restoModel.special_offer["name"],
+                                          textAlign: TextAlign.left,
+                                          style: Styles.customNormalTextStyle(
+                                            color: Colors.red[900],
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
+                                        child: Text(
+                                          restoModel.special_offer["date_to"],
+                                          textAlign: TextAlign.left,
+                                          style: Styles.customNormalTextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : SizedBox(
+                                  height: 0,
+                                ),
+                          restoModel.opening_hours_from != null &&
+                                  restoModel.opening_hours_to != null
+                              ? Row(
+                                  children: <Widget>[
+                                    Align(
+                                      alignment: Alignment.topLeft,
+                                      child: Container(
+                                        child: Text(
+                                          time,
+                                          textAlign: TextAlign.left,
+                                          style: Styles.customNormalTextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : SizedBox(
+                                  height: 0,
+                                ),
                           Rater(
                             rate: rating,
                           ),
@@ -147,26 +202,9 @@ class LmaidaCard extends StatelessWidget {
                   ],
                 ),
               ),
-              bookmark
-                  ? Positioned(
-                      top: (cardHeight / 2) + 16,
-                      left: width - 60,
-                      child: Container(
-                        height: 60,
-                        width: 60,
-                        child: Card(
-                          elevation: 4.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                          child: Image.asset(ImagePath.activeBookmarksIcon2),
-                        ),
-                      ),
-                    )
-                  : Container()
             ],
           ),
-        ),
+        )),
       ),
     );
   }

@@ -251,6 +251,12 @@ class _MenuPageState extends State<MenuPage> {
           margin: EdgeInsets.fromLTRB(5, 5, 5, 5),
           width: SizeConfig.screenWidth - 30,
           child: ListTile(
+            onTap: () {
+              showpage(
+                  context,
+                  "https://lmaida.com/storage/menus/" + data["picture"] ??
+                      "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg");
+            },
             leading: CircleAvatar(
               radius: 35.0,
               backgroundImage: NetworkImage(
@@ -292,6 +298,25 @@ class _MenuPageState extends State<MenuPage> {
         ),
       ))),
     );
+  }
+
+  showpage(BuildContext parentContext, image) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.all(10),
+              child: Stack(
+                overflow: Overflow.visible,
+                alignment: Alignment.center,
+                children: <Widget>[
+                  Positioned(
+                      top: 100,
+                      child: Image.network(image, width: 450, height: 500))
+                ],
+              ));
+        });
   }
 
   buildCount(String label) {

@@ -1,9 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/text_form_builder.dart';
@@ -43,9 +46,15 @@ class _BookedScreenState extends State<BookedScreen> {
   DocumentSnapshot user1;
   bool loading = true;
 
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     getUsers();
+  }
+
+  void showInSnackBar(String value) {
+    scaffoldKey.currentState.removeCurrentSnackBar();
+    scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));
   }
 
   getUsers() async {
@@ -266,6 +275,32 @@ class _BookedScreenState extends State<BookedScreen> {
     );
   }
 
+  book(id, userid, date, person, offer, c_at, u_at, item, user) async {
+    String UrL = "https://lmaida.com/api/booking";
+    final msg = jsonEncode({
+      "mode": "urlencoded",
+      "urlencoded": [
+        {"key": "id", "value": id, "type": "text"},
+        {"key": "iduser", "value": userid.toString(), "type": "text"},
+        {"key": "iditem", "value": id.toString(), "type": "text"},
+        {"key": "dataes", "value": date.toString(), "type": "text"},
+        {"key": "person", "value": person.toString(), "type": "text"},
+        {"key": "offer", "value": offer.toString(), "type": "text"},
+        {"key": "created_at", "value": c_at.toString(), "type": "text"},
+        {"key": "updated_at", "value": u_at, "type": "text"},
+        {"key": "item", "value": item.toString(), "type": "text"},
+        {"key": "user", "value": user.toString(), "type": "text"}
+      ]
+    });
+    var res = await http
+        .post(
+          Uri.encodeFull(UrL),
+          body: msg,
+        )
+        .then((value) => {showInSnackBar("Done")});
+    print("Response ==>" + res.toString());
+  }
+
   Future<TimeOfDay> _selectTime(BuildContext context) {
     final now = DateTime.now();
     return widget.selectedTimeTxt != null
@@ -367,18 +402,11 @@ class _BookedScreenState extends State<BookedScreen> {
             color: Colors.grey[900],
           ),
           SizedBox(height: 20.0),
+          SizedBox(height: 16.0),
           TextFormBuilder(
             enabled: true,
             suffix: Feather.inbox,
             hintText: "Special Requests",
-            textInputAction: TextInputAction.next,
-            onSaved: (String val) {},
-          ),
-          SizedBox(height: 16.0),
-          TextFormBuilder(
-            enabled: true,
-            suffix: Feather.code,
-            hintText: "Do you have a code?",
             textInputAction: TextInputAction.next,
             onSaved: (String val) {},
           ),
@@ -391,7 +419,18 @@ class _BookedScreenState extends State<BookedScreen> {
                 DefaultButton(
                   text: "CONFIRM YOUR TABLE",
                   submitted: false,
-                  press: () {},
+                  press: () {
+                    book(
+                        widget.restoModel.id,
+                        user1.data()["id"],
+                        DateTime.now(),
+                        widget.dropdownValue,
+                        widget.offer,
+                        DateTime.now(),
+                        "",
+                        widget.restoModel,
+                        user1.data());
+                  },
                 ),
                 SizedBox(height: 15.0),
                 Text(
@@ -481,7 +520,18 @@ class _BookedScreenState extends State<BookedScreen> {
                 DefaultButton(
                   text: "CONFIRM YOUR TABLE",
                   submitted: false,
-                  press: () {},
+                  press: () {
+                    book(
+                        widget.restoModel.id,
+                        user1.data()["id"],
+                        DateTime.now(),
+                        widget.dropdownValue,
+                        widget.offer,
+                        DateTime.now(),
+                        "",
+                        widget.restoModel.name,
+                        user1.data()["name"]);
+                  },
                 ),
                 SizedBox(height: 15.0),
                 Text(

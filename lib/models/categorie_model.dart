@@ -5,6 +5,7 @@ class CategorieModel {
   int parent_id;
   String created_at;
   String updated_at;
+  bool value;
 
   CategorieModel(
       {this.id,

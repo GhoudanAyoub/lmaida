@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' show cos, sqrt, asin;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -181,7 +182,13 @@ class _MapsState extends State<Maps> {
 
                     if (restoModel.address_lat != null ||
                         restoModel.address_lon != null) {
-                      if (Search == "") {
+                      if (Search == "" &&
+                          calculateDistance(
+                                  position.latitude,
+                                  position.longitude,
+                                  double.tryParse(restoModel.address_lat),
+                                  double.tryParse(restoModel.address_lon)) ==
+                              10) {
                         return Container(
                           margin: EdgeInsets.symmetric(horizontal: 10.0),
                           child: _boxes(
@@ -194,8 +201,14 @@ class _MapsState extends State<Maps> {
                         );
                       } else {
                         if (restoModel.name
-                            .toLowerCase()
-                            .contains(Search.toLowerCase()))
+                                .toLowerCase()
+                                .contains(Search.toLowerCase()) &&
+                            calculateDistance(
+                                    position.latitude,
+                                    position.longitude,
+                                    double.tryParse(restoModel.address_lat),
+                                    double.tryParse(restoModel.address_lon)) ==
+                                10)
                           return Container(
                             margin: EdgeInsets.symmetric(horizontal: 10.0),
                             child: _boxes(
@@ -222,6 +235,15 @@ class _MapsState extends State<Maps> {
         ),
       ),
     );
+  }
+
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
   }
 
   reloadData(RestoModel restoModel) {
@@ -357,16 +379,6 @@ class _MapsState extends State<Maps> {
           ),
         )),
         SizedBox(height: 5.0),
-        Container(
-            child: Text(
-          restaurantName.status +
-              " \u00B7 Opens at" +
-              restaurantName.opening_hours_from,
-          style: TextStyle(
-              color: Colors.black54,
-              fontSize: 10.0,
-              fontWeight: FontWeight.bold),
-        )),
       ],
     );
   }

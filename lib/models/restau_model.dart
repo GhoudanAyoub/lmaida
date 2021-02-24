@@ -72,7 +72,7 @@ class RestoModel {
     location_id = json['location_id'];
     user_id = json['user_id'];
     list = json['list'];
-    filters = json['filters'];
+    filters = json['filter'];
     special_offer = json['special_offer'];
     itemphotos = json['itemphotos'];
     locationModel = json['location'];
