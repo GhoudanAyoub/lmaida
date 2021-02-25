@@ -123,7 +123,7 @@ class LmaidaCard extends StatelessWidget {
                                 alignment: Alignment.topLeft,
                                 child: Container(
                                   child: Text(
-                                    distance + " KM From You",
+                                    distance.toString() + " KM From You",
                                     textAlign: TextAlign.left,
                                     style: Styles.customNormalTextStyle(
                                       color: Colors.grey[600],

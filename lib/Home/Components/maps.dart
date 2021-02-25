@@ -1,18 +1,19 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math' show cos, sqrt, asin;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart' as http;
+import 'package:lmaida/Home/Components/map_model.dart';
 import 'package:lmaida/Resto/componant/new_resto_details.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/restau_model.dart';
-import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
+import 'package:provider/provider.dart';
 
 class Maps extends StatefulWidget with NavigationStates {
   final position;
@@ -23,50 +24,56 @@ class Maps extends StatefulWidget with NavigationStates {
 }
 
 class _MapsState extends State<Maps> {
+  GoogleMapController mapController;
   Completer<GoogleMapController> _controller = Completer();
   TextEditingController searchController = TextEditingController();
   Set<Marker> markerlist = {};
-  final String apiUrl2 = StringConst.URI_RESTAU + 'all';
   RestoModel restoModel;
   String Search = "";
   Position position;
   bool submitted = false;
   static CameraPosition _myPosition;
-  Future<List<dynamic>> fetResto() async {
-    var result = await http.get(apiUrl2);
-    return json.decode(result.body);
-  }
+  var resdata;
+  Timer timer;
+
+  final double _infoWindowWidth = 250;
+  final double _markerOffset = 170;
+
+  MyModel myModel;
 
   double zoomVal = 5.0;
+
   @override
   void initState() {
     getLastLocation();
-    if (restoModel != null) {
-      if (restoModel.address_lat != null || restoModel.address_lon != null) {
-        markerlist.add(_createMarker(
-            double.tryParse(restoModel.address_lat),
-            double.tryParse(restoModel.address_lon),
-            restoModel.name,
-            restoModel));
-      }
-    }
-    Timer.periodic(Duration(milliseconds: 500), (_) {
-      if (restoModel != null) reloadData(restoModel);
-    });
     super.initState();
   }
 
   @override
   void dispose() {
+    timer?.cancel();
     super.dispose();
   }
 
-  Marker _createMarker(lat, lon, name, restoModel) {
+  Marker _createMarker(lat, lon, name, RestoModel restoModel) {
     return Marker(
       markerId: MarkerId(name),
       position: LatLng(lat, lon),
+      onTap: () {
+        myModel.updateInfoWindow(
+            context,
+            mapController,
+            LatLng(lat, lon),
+            _infoWindowWidth,
+            _markerOffset,
+            restoModel.name,
+            restoModel.address);
+        myModel.updateVisibility(true);
+        myModel.rebuildInfoWindow();
+      },
       infoWindow: InfoWindow(
           title: name,
+          snippet: restoModel.address,
           onTap: () => {
                 Navigator.push(
                   context,
@@ -87,11 +94,12 @@ class _MapsState extends State<Maps> {
 
   @override
   Widget build(BuildContext context) {
+    myModel = Provider.of<MyModel>(context);
     return _myPosition != null
         ? Scaffold(
             body: Stack(
               children: <Widget>[
-                _buildGoogleMap(context),
+                _buildContainer2(),
                 Align(
                     alignment: Alignment.topCenter,
                     child: Container(
@@ -123,7 +131,56 @@ class _MapsState extends State<Maps> {
                         ),
                       ),
                     )),
-                _buildContainer(),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(40, 100, 50, 20),
+                    height: 60.0,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Card(
+                          elevation: 8,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          color: Colors.blue[700],
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              GestureDetector(
+                                onTap: () {
+                                  BlocProvider.of<NavigationBloc>(context).add(
+                                      NavigationEvents.RestaurantPageEvent);
+                                },
+                                child:
+                                    buildCount("List View", Icons.list_rounded),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: 5.0, top: 5.0),
+                                child: Container(
+                                  height: 40.0,
+                                  width: 0.5,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  BlocProvider.of<NavigationBloc>(context).add(
+                                      NavigationEvents
+                                          .RestaurantPageEventWithParam);
+                                },
+                                child: buildCount(
+                                    "Special Offers", Icons.offline_bolt),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
           )
@@ -163,71 +220,187 @@ class _MapsState extends State<Maps> {
           );
   }
 
-  Widget _buildContainer() {
+  buildshit(RestoModel restoModel) {
+    return Container(
+      child: Consumer<MyModel>(
+        builder: (context, model, child) {
+          return Stack(
+            children: <Widget>[
+              child,
+              Positioned(
+                left: 120,
+                top: 150,
+                child: Visibility(
+                  visible: myModel.showInfoWindow,
+                  child: (restoModel == null && !myModel.showInfoWindow)
+                      ? Container()
+                      : Container(
+                          margin: EdgeInsets.only(
+                            left: 5,
+                            top: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: new LinearGradient(
+                              colors: [
+                                Colors.white,
+                                Colors.white,
+                              ],
+                              end: Alignment.bottomCenter,
+                              begin: Alignment.topCenter,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey,
+                                offset: Offset(0.0, 1.0),
+                                blurRadius: 6.0,
+                              ),
+                            ],
+                          ),
+                          height: 100,
+                          width: 250,
+                          padding: EdgeInsets.all(15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Image.network(
+                                restoModel.pictures != null
+                                    ? "https://lmaida.com/storage/gallery/" +
+                                        restoModel.pictures
+                                    : "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
+                                height: 75,
+                              ),
+                              Column(
+                                children: <Widget>[
+                                  Text(
+                                    myModel.Placename,
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black45,
+                                    ),
+                                  ),
+                                  IconTheme(
+                                    data: IconThemeData(
+                                      color: Colors.yellow[800],
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: List.generate(
+                                        5,
+                                        (index) {
+                                          return Icon(
+                                            index < 1
+                                                ? Icons.star
+                                                : Icons.star_border,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          );
+        },
+        child: Positioned(
+          child: GoogleMap(
+            mapType: MapType.normal,
+            initialCameraPosition: _myPosition,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+              mapController = controller;
+            },
+            markers: markerlist,
+            myLocationEnabled: true,
+          ),
+        ),
+      ),
+    );
+  }
+
+  buildCount(String label, final icons) {
+    return Row(
+      children: <Widget>[
+        Icon(
+          icons,
+          color: Colors.white,
+          size: 20,
+        ),
+        SizedBox(width: 5.0),
+        Text(
+          label,
+          style: TextStyle(
+              fontSize: 14,
+              color: Colors.white,
+              fontWeight: FontWeight.normal,
+              fontFamily: 'Ubuntu-Regular'),
+        )
+      ],
+    );
+  }
+
+  Widget _buildContainer2() {
     return Align(
       alignment: Alignment.bottomLeft,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 20.0),
-        height: 150.0,
+        margin: EdgeInsets.symmetric(vertical: 0),
+        height: MediaQuery.of(context).size.height,
         child: FutureBuilder<List<dynamic>>(
-          future: fetResto(),
+          future: myModel.fetResto(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.hasData) {
-              return ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.all(5),
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    restoModel = RestoModel.fromJson(snapshot.data[index]);
+              for (dynamic d in snapshot.data) {
+                restoModel = RestoModel.fromJson(d);
 
-                    if (restoModel.address_lat != null ||
-                        restoModel.address_lon != null) {
-                      if (Search == "" &&
-                          calculateDistance(
-                                  position.latitude,
-                                  position.longitude,
-                                  double.tryParse(restoModel.address_lat),
-                                  double.tryParse(restoModel.address_lon)) ==
-                              10) {
-                        return Container(
-                          margin: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: _boxes(
-                              restoModel.pictures == null
-                                  ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
-                                  : restoModel.pictures,
+                if (Search == "" &&
+                    calculateDistance(
+                            position.latitude,
+                            position.longitude,
+                            double.tryParse(restoModel.address_lat),
+                            double.tryParse(restoModel.address_lon)) <=
+                        10) {
+                  markerlist.add(_createMarker(
+                      double.tryParse(restoModel.address_lat),
+                      double.tryParse(restoModel.address_lon),
+                      restoModel.name,
+                      restoModel));
+                } else {
+                  if (restoModel.name
+                          .toLowerCase()
+                          .contains(searchController.text.toLowerCase()) &&
+                      calculateDistance(
+                              position.latitude,
+                              position.longitude,
                               double.tryParse(restoModel.address_lat),
-                              double.tryParse(restoModel.address_lon),
-                              restoModel),
-                        );
-                      } else {
-                        if (restoModel.name
-                                .toLowerCase()
-                                .contains(Search.toLowerCase()) &&
-                            calculateDistance(
-                                    position.latitude,
-                                    position.longitude,
-                                    double.tryParse(restoModel.address_lat),
-                                    double.tryParse(restoModel.address_lon)) ==
-                                10)
-                          return Container(
-                            margin: EdgeInsets.symmetric(horizontal: 10.0),
-                            child: _boxes(
-                                restoModel.pictures == null
-                                    ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
-                                    : restoModel.pictures,
-                                double.tryParse(restoModel.address_lat),
-                                double.tryParse(restoModel.address_lon),
-                                restoModel),
-                          );
-                        else
-                          return Container(
-                            width: 0,
-                          );
-                      }
-                    } else {
-                      return Divider();
-                    }
-                  });
+                              double.tryParse(restoModel.address_lon)) <=
+                          10) {
+                    markerlist.clear();
+                    markerlist.add(_createMarker(
+                        double.tryParse(restoModel.address_lat),
+                        double.tryParse(restoModel.address_lon),
+                        restoModel.name,
+                        restoModel));
+                  } else
+                    print('No DataFound');
+                }
+              }
+              return GoogleMap(
+                mapType: MapType.normal,
+                initialCameraPosition: _myPosition,
+                onMapCreated: (GoogleMapController controller) {
+                  _controller.complete(controller);
+                  mapController = controller;
+                },
+                markers: markerlist,
+                myLocationEnabled: true,
+              );
             } else {
               return Center(child: circularProgress(context));
             }
@@ -240,20 +413,16 @@ class _MapsState extends State<Maps> {
   double calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
     var c = cos;
-    var a = 0.5 -
-        c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-    return 12742 * asin(sqrt(a));
-  }
+    var a;
 
-  reloadData(RestoModel restoModel) {
-    setState(() {
-      markerlist.add(_createMarker(
-          double.tryParse(restoModel.address_lat),
-          double.tryParse(restoModel.address_lon),
-          restoModel.name,
-          restoModel));
-    });
+    if (lon2 != null && lat2 != null && lat2 != "" && lon2 != "")
+      a = 0.5 -
+          c((lat2 - lat1) * p) / 2 +
+          c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    if (a != null)
+      return 12742 * asin(sqrt(a));
+    else
+      return 1000000;
   }
 
   Widget _boxes(
@@ -380,22 +549,6 @@ class _MapsState extends State<Maps> {
         )),
         SizedBox(height: 5.0),
       ],
-    );
-  }
-
-  Widget _buildGoogleMap(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      child: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: _myPosition,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-        markers: markerlist,
-        myLocationEnabled: true,
-      ),
     );
   }
 

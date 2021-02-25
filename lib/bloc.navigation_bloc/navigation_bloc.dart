@@ -11,6 +11,7 @@ enum NavigationEvents {
   MyOrdersClickedEvent,
   MapClickedEvent,
   RestaurantPageEvent,
+  RestaurantPageEventWithParam,
 }
 
 abstract class NavigationStates {}
@@ -29,6 +30,11 @@ class NavigationBloc extends Bloc<NavigationEvents, NavigationStates> {
         break;
       case NavigationEvents.RestaurantPageEvent:
         yield RestaurantPage();
+        break;
+      case NavigationEvents.RestaurantPageEventWithParam:
+        yield RestaurantPage(
+          offers: true,
+        );
         break;
       case NavigationEvents.MyAccountClickedEvent:
         yield ProfilePage();
