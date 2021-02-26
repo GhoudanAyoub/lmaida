@@ -79,6 +79,55 @@ class _RestaurantState extends State<RestaurantPage> {
     filter = false;
     checkedLocationValue = false;
     super.initState();
+    populateMultiselect();
+  }
+
+  List<MultiSelectDialogItem<int>> multiItem = List();
+  final valuestopopulate = {
+    1: 'WIFI',
+    2: 'Accepte animaux',
+    3: 'Zone fumeur',
+    4: 'emporter',
+    5: 'Alcool',
+    6: 'Buffet',
+    7: 'Happy Hours',
+    8: 'Bars sportifs',
+    9: 'Brunch',
+    10: 'Terrasse',
+    11: 'Acc\u00e8s en fauteuil roulant',
+    12: 'Restauration de luxe',
+    13: 'Cartes de cr\u00e9dit'
+  };
+
+  void populateMultiselect() {
+    for (int v in valuestopopulate.keys) {
+      multiItem.add(MultiSelectDialogItem(v, valuestopopulate[v]));
+    }
+  }
+
+  void _showMultiSelect(BuildContext context) async {
+    final selectedValues = await showDialog<Set<int>>(
+      context: context,
+      builder: (BuildContext context) {
+        return MultiSelectDialog(
+          items: multiItem,
+          initialSelectedValues: [
+            1,
+          ].toSet(),
+        );
+      },
+    );
+
+    print(selectedValues);
+    getvaluefromkey(selectedValues);
+  }
+
+  void getvaluefromkey(Set selection) {
+    if (selection != null) {
+      for (int x in selection.toList()) {
+        print(valuestopopulate[x]);
+      }
+    }
   }
 
   getLastLocation() async {
@@ -474,7 +523,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                 address: restoModel.address,
                               );
                           } else {
-                            if (restoModel.special_offer != null)
+                            if (restoModel.special_offer.length != 0)
                               return LmaidaCard(
                                 onTap: () => {
                                   Navigator.push(
@@ -658,65 +707,11 @@ class _RestaurantState extends State<RestaurantPage> {
                                     },
                                   ),
                                 ),
-                                CheckboxListTile(
-                                  title: Text("Filter With Your Location",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      )),
-                                  value: checkedLocationValue,
-                                  onChanged: (bool newValue) {
-                                    setState(() {
-                                      checkedLocationValue = newValue;
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                DropdownButton<String>(
-                                  value: FilterdropdownValue ??
-                                      FilterdropdownValue,
-                                  icon: Icon(
-                                    Icons.filter_alt,
-                                    color: Colors.red[900],
-                                    size: 20,
-                                  ),
-                                  iconSize: 24,
-                                  elevation: 16,
-                                  style: TextStyle(color: Colors.red[900]),
-                                  onChanged: (String newValue) {
-                                    setState(() {
-                                      FilterdropdownValue = newValue;
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                  items: <String>[
-                                    'WIFI',
-                                    'Accepte animaux',
-                                    'Zone fumeur',
-                                    'emporter',
-                                    'Alcool',
-                                    'Buffet',
-                                    'Happy Hours',
-                                    'Bars sportifs',
-                                    'Brunch',
-                                    'Terrasse',
-                                    'Acc\u00e8s en fauteuil roulant',
-                                    'Restauration de luxe',
-                                    'Cartes de cr\u00e9dit'
-                                  ].map<DropdownMenuItem<String>>(
-                                      (String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text("Filter With " + value,
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          )),
-                                    );
-                                  }).toList(),
-                                ),
+                                RaisedButton(
+                                    child: Text("Filter With"),
+                                    onPressed: () {
+                                      _showMultiSelect(context);
+                                    }),
                               ],
                             ),
                           ),
@@ -753,6 +748,7 @@ class _RestaurantState extends State<RestaurantPage> {
                           categ = null;
                           FilterdropdownValue = "WIFI";
                           checkedLocationValue = false;
+                          Navigator.pop(context);
                         },
                         child: Text('clean',
                             style: TextStyle(
@@ -907,5 +903,91 @@ class _RestaurantState extends State<RestaurantPage> {
     );
   }
 }
+
+// ================== coped from stakeoverflow
+
+class MultiSelectDialogItem<V> {
+  const MultiSelectDialogItem(this.value, this.label);
+
+  final V value;
+  final String label;
+}
+
+class MultiSelectDialog<V> extends StatefulWidget {
+  MultiSelectDialog({Key key, this.items, this.initialSelectedValues})
+      : super(key: key);
+
+  final List<MultiSelectDialogItem<V>> items;
+  final Set<V> initialSelectedValues;
+
+  @override
+  State<StatefulWidget> createState() => _MultiSelectDialogState<V>();
+}
+
+class _MultiSelectDialogState<V> extends State<MultiSelectDialog<V>> {
+  final _selectedValues = Set<V>();
+
+  void initState() {
+    super.initState();
+    if (widget.initialSelectedValues != null) {
+      _selectedValues.addAll(widget.initialSelectedValues);
+    }
+  }
+
+  void _onItemCheckedChange(V itemValue, bool checked) {
+    setState(() {
+      if (checked) {
+        _selectedValues.add(itemValue);
+      } else {
+        _selectedValues.remove(itemValue);
+      }
+    });
+  }
+
+  void _onCancelTap() {
+    Navigator.pop(context);
+  }
+
+  void _onSubmitTap() {
+    Navigator.pop(context, _selectedValues);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Select Country'),
+      contentPadding: EdgeInsets.only(top: 5.0),
+      content: SingleChildScrollView(
+        child: ListTileTheme(
+          child: ListBody(
+            children: widget.items.map(_buildItem).toList(),
+          ),
+        ),
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('CANCEL'),
+          onPressed: _onCancelTap,
+        ),
+        FlatButton(
+          child: Text('OK'),
+          onPressed: _onSubmitTap,
+        )
+      ],
+    );
+  }
+
+  Widget _buildItem(MultiSelectDialogItem<V> item) {
+    final checked = _selectedValues.contains(item.value);
+    return CheckboxListTile(
+      value: checked,
+      title: Text(item.label),
+      controlAffinity: ListTileControlAffinity.leading,
+      onChanged: (checked) => _onItemCheckedChange(item.value, checked),
+    );
+  }
+}
+
+// ===================
 
 /**/

@@ -252,7 +252,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   }
 
   buildOffer() {
-    if (widget.restoModel.special_offer == null) {
+    if (widget.restoModel.special_offer.length == 0) {
       return Padding(
         padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: Container(
@@ -323,7 +323,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                     Icon(Icons.card_giftcard_outlined,
                         size: 30, color: Colors.blue[800]),
                     Text(
-                      widget.restoModel.special_offer["name"] +
+                      widget.restoModel.special_offer[0]["name"] +
                           " off the " +
                           widget.restoModel.name +
                           " menu!",
@@ -343,8 +343,8 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                           MaterialPageRoute(
                               builder: (context) => BookedScreen(
                                     restoModel: widget.restoModel,
-                                    offer:
-                                        widget.restoModel.special_offer["name"],
+                                    offer: widget.restoModel.special_offer[0]
+                                        ["name"],
                                     dropdownValue: widget.dropdownValue,
                                     selectedTimeTxt: widget.selectedTimeTxt,
                                     selectedDateTxt: widget.selectedDateTxt,

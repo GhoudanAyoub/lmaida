@@ -25,7 +25,7 @@ class RestoModel {
   List itemphotos;
   Map<String, dynamic> locationModel;
   double rating;
-  Map<String, dynamic> special_offer;
+  List special_offer;
   Users user;
   List menus;
 

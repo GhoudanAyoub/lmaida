@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
@@ -14,9 +15,51 @@ class Book extends StatefulWidget with NavigationStates {
 }
 
 class _BookState extends State<Book> {
-  getbook() async {
-    var result = await http
-        .get("https://lmaida.com/api/booking/" + firebaseAuth.currentUser.uid);
+  DocumentSnapshot user1;
+
+  @override
+  void initState() {
+    getUsers();
+  }
+
+  getUsers() async {
+    DocumentSnapshot snap =
+        await usersRef.doc(firebaseAuth.currentUser.uid).get();
+    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
+  }
+
+  Future<List<dynamic>> userLog() async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': firebaseAuth.currentUser.email,
+      'password': user1.data()["password"],
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    return getPorf(message["token"]);
+  }
+
+  Future<List<dynamic>> getPorf(Token) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/profile';
+    var response = await http.post(Uri.encodeFull(url), headers: header);
+    var message = jsonDecode(response.body);
+    print(message[0]["id"]);
+    return getbook(message[0]["id"]);
+  }
+
+  Future<List<dynamic>> getbook(id) async {
+    var result =
+        await http.get("https://lmaida.com/api/booking/" + id.toString());
     return json.decode(result.body);
   }
 
@@ -59,7 +102,7 @@ class _BookState extends State<Book> {
             Container(
               margin: EdgeInsets.fromLTRB(0, 100, 0, 20),
               child: FutureBuilder(
-                future: getbook(),
+                future: userLog(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) {
                     return ListView.builder(

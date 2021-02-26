@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lmaida/components/rater.dart';
 import 'package:lmaida/models/restau_model.dart';
@@ -135,39 +136,54 @@ class LmaidaCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                          restoModel.special_offer != null &&
-                                  DateTime.now().isBefore(DateTime.parse(
-                                      restoModel.special_offer["date_to"]))
-                              ? Row(
-                                  children: <Widget>[
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Container(
-                                        child: Text(
-                                          restoModel.special_offer["name"],
-                                          textAlign: TextAlign.left,
-                                          style: Styles.customNormalTextStyle(
-                                            color: Colors.red[900],
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Container(
-                                        child: Text(
-                                          restoModel.special_offer["date_to"],
-                                          textAlign: TextAlign.left,
-                                          style: Styles.customNormalTextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
+                          restoModel.special_offer.length != 0
+                              ? ListView.builder(
+                                  scrollDirection: Axis.vertical,
+                                  itemCount: restoModel.special_offer.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return DateTime.now().isBefore(
+                                            DateTime.parse(
+                                                restoModel.special_offer[index]
+                                                    ["date_to"]))
+                                        ? Row(
+                                            children: <Widget>[
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Container(
+                                                  child: Text(
+                                                    restoModel.special_offer[0]
+                                                        ["name"],
+                                                    textAlign: TextAlign.left,
+                                                    style: Styles
+                                                        .customNormalTextStyle(
+                                                      color: Colors.red[900],
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Container(
+                                                  child: Text(
+                                                    restoModel.special_offer[0]
+                                                        ["date_to"],
+                                                    textAlign: TextAlign.left,
+                                                    style: Styles
+                                                        .customNormalTextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : SizedBox(
+                                            height: 0,
+                                          );
+                                  })
                               : SizedBox(
                                   height: 0,
                                 ),

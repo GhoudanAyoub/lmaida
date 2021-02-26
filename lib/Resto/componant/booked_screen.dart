@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:lmaida/components/default_button.dart';
@@ -42,11 +43,12 @@ class _BookedScreenState extends State<BookedScreen> {
   var selectedTimeTxt;
   DateTime selectedDate = DateTime.now();
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm');
-
   DocumentSnapshot user1;
   bool loading = true;
-
+  bool sub = false;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+  String booking_msg;
   @override
   void initState() {
     getUsers();
@@ -275,30 +277,70 @@ class _BookedScreenState extends State<BookedScreen> {
     );
   }
 
-  book(id, userid, date, person, offer, c_at, u_at, item, user) async {
-    String UrL = "https://lmaida.com/api/booking";
-    final msg = jsonEncode({
-      "mode": "urlencoded",
-      "urlencoded": [
-        {"key": "id", "value": id, "type": "text"},
-        {"key": "iduser", "value": userid.toString(), "type": "text"},
-        {"key": "iditem", "value": id.toString(), "type": "text"},
-        {"key": "dataes", "value": date.toString(), "type": "text"},
-        {"key": "person", "value": person.toString(), "type": "text"},
-        {"key": "offer", "value": offer.toString(), "type": "text"},
-        {"key": "created_at", "value": c_at.toString(), "type": "text"},
-        {"key": "updated_at", "value": u_at, "type": "text"},
-        {"key": "item", "value": item.toString(), "type": "text"},
-        {"key": "user", "value": user.toString(), "type": "text"}
-      ]
+  Future book() async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': firebaseAuth.currentUser.email,
+      'password': user1.data()["password"],
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    print(message["token"]);
+    getPorf(message["token"]);
+  }
+
+  Future getPorf(Token) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/profile';
+    var response = await http.post(Uri.encodeFull(url), headers: header);
+    var message = jsonDecode(response.body);
+    print(message[0]["name"]);
+    AddBook(Token, message[0]["id"], widget.restoModel.id, dropdownValue,
+        widget.offer);
+  }
+
+  Future AddBook(Token, userid, itemid, person, offer) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/booking';
+
+    var data = {
+      'iduser': userid,
+      'iditem': itemid,
+      'dates':
+          "${widget.selectedDateTxt != null ? "${widget.selectedDateTxt.year}-${widget.selectedDateTxt.month}-${widget.selectedDateTxt.day}" : "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}"}" +
+              " / " +
+              "${widget.selectedTimeTxt != null ? "${widget.selectedTimeTxt.hour} : ${widget.selectedTimeTxt.minute}" : "${selectedDate.hour} : ${selectedDate.minute}"}",
+      'person': int.parse(person),
+      'offre': offer
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    print(message);
+    setState(() {
+      booking_msg = message["message"];
     });
-    var res = await http
-        .post(
-          Uri.encodeFull(UrL),
-          body: msg,
-        )
-        .then((value) => {showInSnackBar("Done")});
-    print("Response ==>" + res.toString());
+    Fluttertoast.showToast(
+        msg: message["message"],
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 
   Future<TimeOfDay> _selectTime(BuildContext context) {
@@ -418,18 +460,12 @@ class _BookedScreenState extends State<BookedScreen> {
               children: [
                 DefaultButton(
                   text: "CONFIRM YOUR TABLE",
-                  submitted: false,
+                  submitted: sub,
                   press: () {
-                    book(
-                        widget.restoModel.id,
-                        user1.data()["id"],
-                        DateTime.now(),
-                        widget.dropdownValue,
-                        widget.offer,
-                        DateTime.now(),
-                        "",
-                        widget.restoModel,
-                        user1.data());
+                    setState(() {
+                      sub = true;
+                    });
+                    book();
                   },
                 ),
                 SizedBox(height: 15.0),
@@ -519,21 +555,32 @@ class _BookedScreenState extends State<BookedScreen> {
               children: [
                 DefaultButton(
                   text: "CONFIRM YOUR TABLE",
-                  submitted: false,
+                  submitted: sub,
                   press: () {
-                    book(
-                        widget.restoModel.id,
-                        user1.data()["id"],
-                        DateTime.now(),
-                        widget.dropdownValue,
-                        widget.offer,
-                        DateTime.now(),
-                        "",
-                        widget.restoModel.name,
-                        user1.data()["name"]);
+                    setState(() {
+                      sub = true;
+                    });
+                    book();
                   },
                 ),
                 SizedBox(height: 15.0),
+                booking_msg != null
+                    ? Text('booking_msg',
+                        textAlign: TextAlign.center,
+                        style: Styles.customTitleTextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 14,
+                        ))
+                    : Text(
+                        '',
+                        textAlign: TextAlign.center,
+                        style: Styles.customTitleTextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 14,
+                        ),
+                      ),
                 Text(
                   'Immediate confirmation + Free Service + Possibility of cancellation',
                   textAlign: TextAlign.center,

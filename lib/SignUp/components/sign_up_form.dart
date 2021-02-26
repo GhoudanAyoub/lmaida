@@ -4,10 +4,12 @@ import 'package:lmaida/Home/HomePage.dart';
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/form_error2.dart';
+import 'package:lmaida/profile/user_view_model.dart';
 import 'package:lmaida/service/auth_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/theme.dart';
+import 'package:provider/provider.dart';
 
 class SignUpForm extends StatefulWidget {
   @override
@@ -60,6 +62,8 @@ class _SignUpFormState extends State<SignUpForm> {
 
   @override
   Widget build(BuildContext context) {
+    UserViewModel viewModel = Provider.of<UserViewModel>(context);
+
     return Form(
       key: _formKey,
       child: Column(
@@ -96,14 +100,15 @@ class _SignUpFormState extends State<SignUpForm> {
                   submitted = true;
                   Scaffold.of(context)
                       .showSnackBar(SnackBar(content: Text('Please Wait...')));
-                  bool success = await authService.createUser(
+                  String success = await authService.createUser(
                     name: _namentoller.text,
                     email: _emailContoller.text,
                     password: _passwordController.text,
                     country: _countryContoller.text,
                   );
                   print(success);
-                  if (success) {
+                  if (success != null) {
+                    viewModel.setToken(success);
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -116,18 +121,15 @@ class _SignUpFormState extends State<SignUpForm> {
                 }
               } catch (e) {
                 print(e);
-                showInSnackBar(
-                    '${authService.handleFirebaseAuthError(e.toString())}');
+                var r = e.toString().split(']');
+                Scaffold.of(context)
+                    .showSnackBar(SnackBar(content: Text(r[1])));
               }
             },
           ),
         ],
       ),
     );
-  }
-
-  void showInSnackBar(String value) {
-    scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));
   }
 
   void emailExists() {
