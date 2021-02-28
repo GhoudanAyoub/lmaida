@@ -48,7 +48,6 @@ class _BookedScreenState extends State<BookedScreen> {
   bool sub = false;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String booking_msg;
   @override
   void initState() {
     getUsers();
@@ -315,7 +314,6 @@ class _BookedScreenState extends State<BookedScreen> {
       "Content-Type": "application/json"
     };
     var url = 'https://lmaida.com/api/booking';
-
     var data = {
       'iduser': userid,
       'iditem': itemid,
@@ -323,24 +321,36 @@ class _BookedScreenState extends State<BookedScreen> {
           "${widget.selectedDateTxt != null ? "${widget.selectedDateTxt.year}-${widget.selectedDateTxt.month}-${widget.selectedDateTxt.day}" : "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}"}" +
               " / " +
               "${widget.selectedTimeTxt != null ? "${widget.selectedTimeTxt.hour} : ${widget.selectedTimeTxt.minute}" : "${selectedDate.hour} : ${selectedDate.minute}"}",
-      'person': int.parse(person),
+      'person': int.parse(person) ?? null,
       'offre': offer
     };
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
     print(message);
-    setState(() {
-      booking_msg = message["message"];
-    });
-    Fluttertoast.showToast(
-        msg: message["message"],
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
+    if (message["errors"] != null) {
+      Fluttertoast.showToast(
+          msg: message["errors"],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red[900],
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      Fluttertoast.showToast(
+          msg: message["message"],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+      setState(() {
+        sub = true;
+      });
+    }
   }
 
   Future<TimeOfDay> _selectTime(BuildContext context) {
@@ -510,7 +520,7 @@ class _BookedScreenState extends State<BookedScreen> {
             ),
           ),
           Text(
-            firebaseAuth.currentUser.email??"",
+            firebaseAuth.currentUser.email ?? "",
             textAlign: TextAlign.center,
             style: Styles.customTitleTextStyle(
               color: Colors.black,
@@ -564,23 +574,6 @@ class _BookedScreenState extends State<BookedScreen> {
                   },
                 ),
                 SizedBox(height: 15.0),
-                booking_msg != null
-                    ? Text('booking_msg',
-                        textAlign: TextAlign.center,
-                        style: Styles.customTitleTextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.normal,
-                          fontSize: 14,
-                        ))
-                    : Text(
-                        '',
-                        textAlign: TextAlign.center,
-                        style: Styles.customTitleTextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.normal,
-                          fontSize: 14,
-                        ),
-                      ),
                 Text(
                   'Immediate confirmation + Free Service + Possibility of cancellation',
                   textAlign: TextAlign.center,
