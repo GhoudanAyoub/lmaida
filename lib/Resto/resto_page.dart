@@ -40,15 +40,25 @@ class _RestaurantState extends State<RestaurantPage> {
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm');
   TextEditingController searchController = TextEditingController();
   String Search = "";
-
+  ScrollController _controller;
   Position position;
   String categ;
-
-  bool filter;
-  bool checkedLocationValue = false;
   List<bool> checkList = [];
 
   String restolenght;
+  String catId;
+
+  Set<int> selectedValues;
+
+  dynamic Adv_Filter = false;
+  var fetRestoAdvanceResult;
+
+  Future<List<dynamic>> fetRestoAdvance(location_id) async {
+    print('************');
+    var result = await http.get(StringConst.URI_RESTAU_ADV +
+        "${selectedValues.join(",").toString()}/$catId/${location_id}");
+    return json.decode(result.body);
+  }
 
   Future<List<dynamic>> fetResto() async {
     var result = await http.get(apiUrl);
@@ -75,9 +85,9 @@ class _RestaurantState extends State<RestaurantPage> {
 
   @override
   void initState() {
+    _controller = ScrollController();
     getLastLocation();
-    filter = false;
-    checkedLocationValue = false;
+    fetRestoAdvanceResult = fetResto();
     super.initState();
     populateMultiselect();
   }
@@ -106,7 +116,7 @@ class _RestaurantState extends State<RestaurantPage> {
   }
 
   void _showMultiSelect(BuildContext context) async {
-    final selectedValues = await showDialog<Set<int>>(
+    selectedValues = await showDialog<Set<int>>(
       context: context,
       builder: (BuildContext context) {
         return MultiSelectDialog(
@@ -118,7 +128,8 @@ class _RestaurantState extends State<RestaurantPage> {
       },
     );
 
-    print(selectedValues);
+    print("===> $selectedValues");
+    print('****>${selectedValues.join(",").toString()} ');
     getvaluefromkey(selectedValues);
   }
 
@@ -307,7 +318,7 @@ class _RestaurantState extends State<RestaurantPage> {
                 ? Container(
                     margin: EdgeInsets.fromLTRB(10, 170, 10, 20),
                     child: FutureBuilder<List<dynamic>>(
-                        future: fetResto(),
+                        future: fetRestoAdvanceResult,
                         builder:
                             (BuildContext context, AsyncSnapshot snapshot) {
                           if (snapshot.hasData) {
@@ -347,151 +358,55 @@ class _RestaurantState extends State<RestaurantPage> {
             Container(
               margin: EdgeInsets.fromLTRB(10, 180, 10, 20),
               child: FutureBuilder<List<dynamic>>(
-                future: fetResto(),
+                future: fetRestoAdvanceResult,
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) {
                     return ListView.builder(
+                        controller: _controller, //new line
                         padding: EdgeInsets.all(20),
                         itemCount: snapshot.data.length,
                         itemBuilder: (BuildContext context, int index) {
                           RestoModel restoModel =
                               RestoModel.fromJson(snapshot.data[index]);
-                          String resName, dis;
+                          String dis;
                           if (widget.offers == null) {
-                            if (restoModel.categories.length != 0)
-                              resName = restoModel.categories[0]["name"];
-
-                            if (!checkedLocationValue) if (FilterdropdownValue ==
-                                "WIFI") if (((categ != null &&
-                                    resName == categ) &&
-                                (restoModel.name
-                                        .toLowerCase()
-                                        .contains(Search.toLowerCase()) ||
-                                    restoModel.locationModel["name"]
-                                        .toLowerCase()
-                                        .contains(Search.toLowerCase())))) {
-                              dis = calculateDistance(
-                                      position.latitude,
-                                      position.longitude,
-                                      double.tryParse(restoModel.address_lat),
-                                      double.tryParse(restoModel.address_lon))
-                                  .toStringAsFixed(2);
-                              return LmaidaCard(
-                                onTap: () => {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => NewRestoDetails(
-                                              restoModel: restoModel,
-                                              dropdownValue: dropdownValue,
-                                              selectedDateTxt: selectedDateTxt,
-                                              selectedTimeTxt: selectedTimeTxt,
-                                            )),
-                                  )
-                                },
-                                restoModel: restoModel,
-                                time: restoModel.opening_hours_from == null ||
-                                        restoModel.opening_hours_from == ''
-                                    ? " "
-                                    : "Opening from " +
-                                        restoModel.opening_hours_from +
-                                        " to " +
-                                        restoModel.opening_hours_to,
-                                imagePath: restoModel.pictures,
-                                status: restoModel.status,
-                                cardTitle: restoModel.name,
-                                category: restoModel.categories[0]["name"],
-                                distance: dis,
-                                address: restoModel.address,
-                              );
-                            } else if (position != null && categ == null ||
-                                searchController.text == null) {
-                              dis = calculateDistance(
-                                      position.latitude,
-                                      position.longitude,
-                                      double.tryParse(restoModel.address_lat),
-                                      double.tryParse(restoModel.address_lon))
-                                  .toStringAsFixed(2);
-                              return LmaidaCard(
-                                onTap: () => {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => NewRestoDetails(
-                                              restoModel: restoModel,
-                                              dropdownValue: dropdownValue,
-                                              selectedDateTxt: selectedDateTxt,
-                                              selectedTimeTxt: selectedTimeTxt,
-                                            )),
-                                  )
-                                },
-                                restoModel: restoModel,
-                                time: restoModel.opening_hours_from == null ||
-                                        restoModel.opening_hours_from == ''
-                                    ? " "
-                                    : "Opening from " +
-                                        restoModel.opening_hours_from +
-                                        " to " +
-                                        restoModel.opening_hours_to,
-                                imagePath: restoModel.pictures,
-                                status: restoModel.status,
-                                cardTitle: restoModel.name,
-                                category: restoModel.categories[0]["name"],
-                                distance: dis,
-                                address: restoModel.address,
-                              );
-                            } else
-                              return Container(
-                                width: 0,
-                              );
-                            else if (restoModel.filters[0]["name"]
-                                .toLowerCase()
-                                .contains(FilterdropdownValue.toLowerCase()))
-                              return LmaidaCard(
-                                onTap: () => {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => NewRestoDetails(
-                                              restoModel: restoModel,
-                                              dropdownValue: dropdownValue,
-                                              selectedDateTxt: selectedDateTxt,
-                                              selectedTimeTxt: selectedTimeTxt,
-                                            )),
-                                  )
-                                },
-                                restoModel: restoModel,
-                                time: restoModel.opening_hours_from == null ||
-                                        restoModel.opening_hours_from == ''
-                                    ? " "
-                                    : "Opening from " +
-                                        restoModel.opening_hours_from +
-                                        " to " +
-                                        restoModel.opening_hours_to,
-                                imagePath: restoModel.pictures,
-                                status: restoModel.status,
-                                cardTitle: restoModel.name,
-                                category: restoModel.categories[0]["name"],
-                                distance: calculateDistance(
-                                        position.latitude,
-                                        position.longitude,
-                                        double.tryParse(restoModel.address_lat),
-                                        double.tryParse(restoModel.address_lon))
-                                    .toStringAsFixed(2),
-                                address: restoModel.address,
-                              );
-                            else
-                              return Container(
-                                width: 0,
-                              );
-                            else if (calculateDistance(
+                            dis = calculateDistance(
                                     position.latitude,
                                     position.longitude,
                                     double.tryParse(restoModel.address_lat),
-                                    double.tryParse(restoModel.address_lon)) >
-                                10)
-                              return Container(
-                                width: 0,
+                                    double.tryParse(restoModel.address_lon))
+                                .toStringAsFixed(2);
+                            if (Search != null &&
+                                restoModel.name
+                                    .toLowerCase()
+                                    .contains(Search.toLowerCase()))
+                              return LmaidaCard(
+                                onTap: () => {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => NewRestoDetails(
+                                              restoModel: restoModel,
+                                              dropdownValue: dropdownValue,
+                                              selectedDateTxt: selectedDateTxt,
+                                              selectedTimeTxt: selectedTimeTxt,
+                                            )),
+                                  )
+                                },
+                                restoModel: restoModel,
+                                time: restoModel.opening_hours_from == null ||
+                                        restoModel.opening_hours_from == ''
+                                    ? " "
+                                    : "Opening from " +
+                                        restoModel.opening_hours_from +
+                                        " to " +
+                                        restoModel.opening_hours_to,
+                                imagePath: restoModel.pictures,
+                                status: restoModel.status,
+                                cardTitle: restoModel.name,
+                                category: restoModel.categories[0]["name"],
+                                distance: dis,
+                                address: restoModel.address,
                               );
                             else
                               return LmaidaCard(
@@ -523,7 +438,12 @@ class _RestaurantState extends State<RestaurantPage> {
                                 address: restoModel.address,
                               );
                           } else {
-                            if (restoModel.special_offer.length != 0)
+                            if (restoModel.special_offer.length !=
+                                0) if (Search !=
+                                    null &&
+                                restoModel.name
+                                    .toLowerCase()
+                                    .contains(Search.toLowerCase()))
                               return LmaidaCard(
                                 onTap: () => {
                                   Navigator.push(
@@ -549,12 +469,36 @@ class _RestaurantState extends State<RestaurantPage> {
                                 status: restoModel.status,
                                 cardTitle: restoModel.name,
                                 category: restoModel.categories[0]["name"],
-                                distance: calculateDistance(
-                                        position.latitude,
-                                        position.longitude,
-                                        double.tryParse(restoModel.address_lat),
-                                        double.tryParse(restoModel.address_lon))
-                                    .toStringAsFixed(2),
+                                distance: dis,
+                                address: restoModel.address,
+                              );
+                            else
+                              return LmaidaCard(
+                                onTap: () => {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => NewRestoDetails(
+                                              restoModel: restoModel,
+                                              dropdownValue: dropdownValue,
+                                              selectedDateTxt: selectedDateTxt,
+                                              selectedTimeTxt: selectedTimeTxt,
+                                            )),
+                                  )
+                                },
+                                restoModel: restoModel,
+                                time: restoModel.opening_hours_from == null ||
+                                        restoModel.opening_hours_from == ''
+                                    ? " "
+                                    : "Opening from " +
+                                        restoModel.opening_hours_from +
+                                        " to " +
+                                        restoModel.opening_hours_to,
+                                imagePath: restoModel.pictures,
+                                status: restoModel.status,
+                                cardTitle: restoModel.name,
+                                category: restoModel.categories[0]["name"],
+                                distance: dis,
                                 address: restoModel.address,
                               );
                             else {
@@ -654,7 +598,7 @@ class _RestaurantState extends State<RestaurantPage> {
                 children: <Widget>[
                   Container(
                     width: double.infinity,
-                    height: 300,
+                    height: 330,
                     child: Card(
                         elevation: 8,
                         shape: RoundedRectangleBorder(
@@ -697,6 +641,8 @@ class _RestaurantState extends State<RestaurantPage> {
                                                   onPressed: () {
                                                 setState(() {
                                                   categ = categoraiemodel.name;
+                                                  catId = categoraiemodel.id
+                                                      .toString();
                                                 });
                                               });
                                             });
@@ -718,14 +664,17 @@ class _RestaurantState extends State<RestaurantPage> {
                         )),
                   ),
                   Positioned(
-                      top: 300,
+                      top: 250,
                       left: 30,
                       width: 150,
-                      child: FlatButton(
+                      child: RaisedButton(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
                         color: Colors.red[900],
                         onPressed: () {
+                          setState(() {
+                            fetRestoAdvanceResult = fetRestoAdvance(21);
+                          });
                           Navigator.pop(context);
                         },
                         child: Text('APPLY',
@@ -736,7 +685,7 @@ class _RestaurantState extends State<RestaurantPage> {
                             )),
                       )),
                   Positioned(
-                      top: 300,
+                      top: 250,
                       right: 30,
                       width: 150,
                       child: FlatButton(
@@ -744,10 +693,11 @@ class _RestaurantState extends State<RestaurantPage> {
                             borderRadius: BorderRadius.circular(20)),
                         color: Colors.red[900],
                         onPressed: () {
+                          setState(() {
+                            fetRestoAdvanceResult = fetResto();
+                          });
                           searchController.text = null;
                           categ = null;
-                          FilterdropdownValue = "WIFI";
-                          checkedLocationValue = false;
                           Navigator.pop(context);
                         },
                         child: Text('clean',
@@ -886,7 +836,10 @@ class _RestaurantState extends State<RestaurantPage> {
                 cursorColor: black,
                 controller: searchController,
                 onChanged: (value) {
-                  Search = value;
+                  setState(() {
+                    Search = value;
+                    print(Search);
+                  });
                 },
                 decoration: InputDecoration(
                   hintText: 'Search',

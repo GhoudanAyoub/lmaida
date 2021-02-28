@@ -54,6 +54,7 @@ class StringConst {
   //API
   static const String URL_API = 'https://lmaida.com/';
   static const String URI_RESTAU = URL_API + 'api/resturants/';
+  static const String URI_RESTAU_ADV = URL_API + 'api/advancedfilter/';
   static const String URI_CATEGORY = URL_API + 'api/category';
   static const String URI_FILTERS = URL_API + 'api/filter';
   static const String URI_LOGIN = URL_API + 'api/login';

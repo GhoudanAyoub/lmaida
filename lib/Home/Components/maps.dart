@@ -359,7 +359,7 @@ class _MapsState extends State<Maps> {
               for (dynamic d in snapshot.data) {
                 restoModel = RestoModel.fromJson(d);
 
-                if (Search == "" &&
+                if (Search == "" && position != null &&
                     calculateDistance(
                             position.latitude,
                             position.longitude,

@@ -510,7 +510,7 @@ class _BookedScreenState extends State<BookedScreen> {
             ),
           ),
           Text(
-            firebaseAuth.currentUser.email,
+            firebaseAuth.currentUser.email??"",
             textAlign: TextAlign.center,
             style: Styles.customTitleTextStyle(
               color: Colors.black,
