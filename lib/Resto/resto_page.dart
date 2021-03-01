@@ -44,14 +44,14 @@ class _RestaurantState extends State<RestaurantPage> {
   Position position;
   String categ;
   List<bool> checkList = [];
-
+  List<MultiSelectDialogItem<int>> catMultiItem = List();
   String restolenght;
   String catId;
 
-  Set<int> selectedValues;
+  Set<int> selectedValues, catSelectedValues, catFetchData;
 
   dynamic Adv_Filter = false;
-  var fetRestoAdvanceResult;
+  var fetRestoAdvanceResult, fetLocationResult;
 
   Future<List<dynamic>> fetRestoAdvance(location_id) async {
     print('************');
@@ -60,8 +60,13 @@ class _RestaurantState extends State<RestaurantPage> {
     return json.decode(result.body);
   }
 
-  Future<List<dynamic>> fetResto() async {
-    var result = await http.get(apiUrl);
+  Future<List<dynamic>> fetLocation() async {
+    var result = await http.get(StringConst.URI_LOCATION);
+    return json.decode(result.body);
+  }
+
+  Future<List<dynamic>> fetResto(id) async {
+    var result = await http.get("$apiUrl/$id");
     return json.decode(result.body);
   }
 
@@ -87,12 +92,21 @@ class _RestaurantState extends State<RestaurantPage> {
   void initState() {
     _controller = ScrollController();
     getLastLocation();
-    fetRestoAdvanceResult = fetResto();
+    fetLocationResult = fetLocation();
+    fetRestoAdvanceResult = fetResto(22);
+    preparLocationId();
     super.initState();
     populateMultiselect();
   }
 
+  void preparLocationId() async {
+    if (position != null) {
+      print("***********$fetLocationResult");
+    }
+  }
+
   List<MultiSelectDialogItem<int>> multiItem = List();
+
   final valuestopopulate = {
     1: 'WIFI',
     2: 'Accepte animaux',
@@ -131,6 +145,24 @@ class _RestaurantState extends State<RestaurantPage> {
     print("===> $selectedValues");
     print('****>${selectedValues.join(",").toString()} ');
     getvaluefromkey(selectedValues);
+  }
+
+  void _showCatMultiSelect(BuildContext context) async {
+    catSelectedValues = await showDialog<Set<int>>(
+      context: context,
+      builder: (BuildContext context) {
+        return MultiSelectDialog(
+          items: catMultiItem,
+          initialSelectedValues: [
+            1,
+          ].toSet(),
+        );
+      },
+    );
+
+    print("===> $catSelectedValues");
+    print('****>${catSelectedValues.join(",").toString()} ');
+    getvaluefromkey(catSelectedValues);
   }
 
   void getvaluefromkey(Set selection) {
@@ -369,7 +401,10 @@ class _RestaurantState extends State<RestaurantPage> {
                           RestoModel restoModel =
                               RestoModel.fromJson(snapshot.data[index]);
                           String dis;
-                          if (widget.offers == null) {
+                          if (widget.offers == null &&
+                              position != null &&
+                              restoModel.address_lat != null &&
+                              restoModel.address_lon != null) {
                             dis = calculateDistance(
                                     position.latitude,
                                     position.longitude,
@@ -404,7 +439,9 @@ class _RestaurantState extends State<RestaurantPage> {
                                 imagePath: restoModel.pictures,
                                 status: restoModel.status,
                                 cardTitle: restoModel.name,
-                                category: restoModel.categories[0]["name"],
+                                category: restoModel.categories.length != 0
+                                    ? restoModel.categories[0]["name"]
+                                    : "",
                                 distance: dis,
                                 address: restoModel.address,
                               );
@@ -433,7 +470,9 @@ class _RestaurantState extends State<RestaurantPage> {
                                 imagePath: restoModel.pictures,
                                 status: restoModel.status,
                                 cardTitle: restoModel.name,
-                                category: restoModel.categories[0]["name"],
+                                category: restoModel.categories.length != 0
+                                    ? restoModel.categories[0]["name"]
+                                    : "",
                                 distance: dis,
                                 address: restoModel.address,
                               );
@@ -468,7 +507,9 @@ class _RestaurantState extends State<RestaurantPage> {
                                 imagePath: restoModel.pictures,
                                 status: restoModel.status,
                                 cardTitle: restoModel.name,
-                                category: restoModel.categories[0]["name"],
+                                category: restoModel.categories.length != 0
+                                    ? restoModel.categories[0]["name"]
+                                    : "",
                                 distance: dis,
                                 address: restoModel.address,
                               );
@@ -497,7 +538,9 @@ class _RestaurantState extends State<RestaurantPage> {
                                 imagePath: restoModel.pictures,
                                 status: restoModel.status,
                                 cardTitle: restoModel.name,
-                                category: restoModel.categories[0]["name"],
+                                category: restoModel.categories.length != 0
+                                    ? restoModel.categories[0]["name"]
+                                    : "",
                                 distance: dis,
                                 address: restoModel.address,
                               );
@@ -598,7 +641,7 @@ class _RestaurantState extends State<RestaurantPage> {
                 children: <Widget>[
                   Container(
                     width: double.infinity,
-                    height: 330,
+                    height: 320,
                     child: Card(
                         elevation: 8,
                         shape: RoundedRectangleBorder(
@@ -635,6 +678,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                               CategorieModel categoraiemodel =
                                                   CategorieModel.fromJson(
                                                       snapshot.data[index]);
+
                                               return headerCategoryItem(
                                                   categoraiemodel.picture,
                                                   categoraiemodel.name,
@@ -666,7 +710,7 @@ class _RestaurantState extends State<RestaurantPage> {
                   Positioned(
                       top: 250,
                       left: 30,
-                      width: 150,
+                      width: 100,
                       child: RaisedButton(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
@@ -687,14 +731,14 @@ class _RestaurantState extends State<RestaurantPage> {
                   Positioned(
                       top: 250,
                       right: 30,
-                      width: 150,
+                      width: 100,
                       child: FlatButton(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
                         color: Colors.red[900],
                         onPressed: () {
                           setState(() {
-                            fetRestoAdvanceResult = fetResto();
+                            fetRestoAdvanceResult = fetResto(22);
                           });
                           searchController.text = null;
                           categ = null;
@@ -792,12 +836,14 @@ class _RestaurantState extends State<RestaurantPage> {
         children: <Widget>[
           Container(
               margin: EdgeInsets.only(bottom: 5, top: 10),
-              width: 55,
-              height: 40,
+              width: 60,
+              height: 60,
               child: FloatingActionButton(
                 shape: CircleBorder(),
                 heroTag: name,
-                onPressed: onPressed,
+                onPressed: () {
+                  onPressed;
+                },
                 backgroundColor: white,
                 child: im != null
                     ? CachedNetworkImage(
@@ -908,7 +954,7 @@ class _MultiSelectDialogState<V> extends State<MultiSelectDialog<V>> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Select Country'),
+      title: Text('Select Filters'),
       contentPadding: EdgeInsets.only(top: 5.0),
       content: SingleChildScrollView(
         child: ListTileTheme(

@@ -13,8 +13,8 @@ class MyModel extends ChangeNotifier {
   String adr = "";
   Future<List> value;
 
-  Future<List<dynamic>> fetResto() async {
-    var result = await http.get(apiUrl2);
+  Future<List<dynamic>> fetResto(id) async {
+    var result = await http.get("$apiUrl2/$id");
     return json.decode(result.body);
   }
 

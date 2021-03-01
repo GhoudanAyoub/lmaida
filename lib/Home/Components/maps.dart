@@ -353,13 +353,14 @@ class _MapsState extends State<Maps> {
         margin: EdgeInsets.symmetric(vertical: 0),
         height: MediaQuery.of(context).size.height,
         child: FutureBuilder<List<dynamic>>(
-          future: myModel.fetResto(),
+          future: myModel.fetResto(22),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.hasData) {
               for (dynamic d in snapshot.data) {
                 restoModel = RestoModel.fromJson(d);
 
-                if (Search == "" && position != null &&
+                if (Search == "" &&
+                    position != null &&
                     calculateDistance(
                             position.latitude,
                             position.longitude,

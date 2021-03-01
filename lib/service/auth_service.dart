@@ -89,7 +89,7 @@ class AuthService {
         result = Token;
       }
     } catch (e) {
-      switch (e.message) {
+      switch (e) {
         case 'There is no user record corresponding to this identifier. The user may have been deleted.':
           errorType = "No Account For This Email";
 
