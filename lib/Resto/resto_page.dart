@@ -404,7 +404,14 @@ class _RestaurantState extends State<RestaurantPage> {
                           if (widget.offers == null &&
                               position != null &&
                               restoModel.address_lat != null &&
-                              restoModel.address_lon != null) {
+                              restoModel.address_lon != null &&
+                              calculateDistance(
+                                      position.latitude,
+                                      position.longitude,
+                                      double.tryParse(restoModel.address_lat),
+                                      double.tryParse(
+                                          restoModel.address_lon)) <=
+                                  10) {
                             dis = calculateDistance(
                                     position.latitude,
                                     position.longitude,
@@ -560,12 +567,12 @@ class _RestaurantState extends State<RestaurantPage> {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                margin: EdgeInsets.fromLTRB(20, 100, 20, 20),
+                margin: EdgeInsets.fromLTRB(10, 100, 5, 20),
                 height: 60.0,
                 child: Align(
                   alignment: Alignment.center,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
                     child: Card(
                       elevation: 8,
                       shape: RoundedRectangleBorder(
@@ -574,12 +581,16 @@ class _RestaurantState extends State<RestaurantPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
-                          GestureDetector(
-                            onTap: () {
-                              BlocProvider.of<NavigationBloc>(context)
-                                  .add(NavigationEvents.MapClickedEvent);
-                            },
-                            child: buildCount2("Map View", Icons.map),
+                          SizedBox(
+                            width: 120,
+                            child: FlatButton(
+                              color: Colors.grey.withOpacity(0.1),
+                              onPressed: () {
+                                BlocProvider.of<NavigationBloc>(context)
+                                    .add(NavigationEvents.MapClickedEvent);
+                              },
+                              child: buildCount2("Map View", Icons.map),
+                            ),
                           ),
                           Padding(
                             padding:
@@ -590,12 +601,17 @@ class _RestaurantState extends State<RestaurantPage> {
                               color: Colors.white,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              BlocProvider.of<NavigationBloc>(context)
-                                  .add(NavigationEvents.RestaurantPageEvent);
-                            },
-                            child: buildCount2("List View", Icons.list_rounded),
+                          SizedBox(
+                            width: 120,
+                            child: FlatButton(
+                              color: Colors.grey.withOpacity(0.1),
+                              onPressed: () {
+                                BlocProvider.of<NavigationBloc>(context)
+                                    .add(NavigationEvents.RestaurantPageEvent);
+                              },
+                              child:
+                                  buildCount2("List View", Icons.list_rounded),
+                            ),
                           ),
                           Padding(
                             padding:
@@ -606,14 +622,18 @@ class _RestaurantState extends State<RestaurantPage> {
                               color: Colors.white,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              BlocProvider.of<NavigationBloc>(context).add(
-                                  NavigationEvents
-                                      .RestaurantPageEventWithParam);
-                            },
-                            child: buildCount2(
-                                "Special Offers", Icons.offline_bolt),
+                          SizedBox(
+                            width: 120,
+                            child: FlatButton(
+                              color: Colors.grey.withOpacity(0.1),
+                              onPressed: () {
+                                BlocProvider.of<NavigationBloc>(context).add(
+                                    NavigationEvents
+                                        .RestaurantPageEventWithParam);
+                              },
+                              child:
+                                  buildCount2("Specials", Icons.offline_bolt),
+                            ),
                           ),
                         ],
                       ),

@@ -29,7 +29,7 @@ class _MapsState extends State<Maps> {
   TextEditingController searchController = TextEditingController();
   Set<Marker> markerlist = {};
   RestoModel restoModel;
-  String Search = "";
+  String Search;
   Position position;
   bool submitted = false;
   static CameraPosition _myPosition;
@@ -148,13 +148,18 @@ class _MapsState extends State<Maps> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              GestureDetector(
-                                onTap: () {
-                                  BlocProvider.of<NavigationBloc>(context).add(
-                                      NavigationEvents.RestaurantPageEvent);
-                                },
-                                child:
-                                    buildCount("List View", Icons.list_rounded),
+                              SizedBox(
+                                width: 120,
+                                child: FlatButton(
+                                  color: Colors.grey.withOpacity(0.1),
+                                  onPressed: () {
+                                    BlocProvider.of<NavigationBloc>(context)
+                                        .add(NavigationEvents
+                                            .RestaurantPageEvent);
+                                  },
+                                  child: buildCount(
+                                      "List View", Icons.list_rounded),
+                                ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(
@@ -165,14 +170,18 @@ class _MapsState extends State<Maps> {
                                   color: Colors.white,
                                 ),
                               ),
-                              GestureDetector(
-                                onTap: () {
-                                  BlocProvider.of<NavigationBloc>(context).add(
-                                      NavigationEvents
-                                          .RestaurantPageEventWithParam);
-                                },
-                                child: buildCount(
-                                    "Special Offers", Icons.offline_bolt),
+                              SizedBox(
+                                width: 120,
+                                child: FlatButton(
+                                  color: Colors.grey.withOpacity(0.1),
+                                  onPressed: () {
+                                    BlocProvider.of<NavigationBloc>(context)
+                                        .add(NavigationEvents
+                                            .RestaurantPageEventWithParam);
+                                  },
+                                  child: buildCount(
+                                      "Specials Offers", Icons.offline_bolt),
+                                ),
                               ),
                             ],
                           ),
@@ -359,7 +368,7 @@ class _MapsState extends State<Maps> {
               for (dynamic d in snapshot.data) {
                 restoModel = RestoModel.fromJson(d);
 
-                if (Search == "" &&
+                if (Search == null &&
                     position != null &&
                     calculateDistance(
                             position.latitude,

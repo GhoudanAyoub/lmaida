@@ -303,8 +303,8 @@ class _BookedScreenState extends State<BookedScreen> {
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
     print(message[0]["name"]);
-    AddBook(Token, message[0]["id"], widget.restoModel.id, dropdownValue,
-        widget.offer);
+    AddBook(Token, message[0]["id"], widget.restoModel.id,
+        widget.dropdownValue ?? dropdownValue, widget.offer);
   }
 
   Future AddBook(Token, userid, itemid, person, offer) async {
@@ -337,6 +337,9 @@ class _BookedScreenState extends State<BookedScreen> {
           backgroundColor: Colors.red[900],
           textColor: Colors.white,
           fontSize: 16.0);
+      setState(() {
+        sub = true;
+      });
     } else {
       Fluttertoast.showToast(
           msg: message["message"],
