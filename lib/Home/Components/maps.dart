@@ -1,17 +1,21 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' show cos, sqrt, asin;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:lmaida/Home/Components/map_model.dart';
 import 'package:lmaida/Resto/componant/new_resto_details.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/restau_model.dart';
+import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -40,8 +44,9 @@ class _MapsState extends State<Maps> {
   final double _markerOffset = 170;
 
   MyModel myModel;
-
+  int locationId;
   double zoomVal = 5.0;
+  var fetRestoAdvanceResult, fetLocationResult;
 
   @override
   void initState() {
@@ -180,7 +185,7 @@ class _MapsState extends State<Maps> {
                                             .RestaurantPageEventWithParam);
                                   },
                                   child: buildCount(
-                                      "Specials Offers", Icons.offline_bolt),
+                                      "Specials", Icons.offline_bolt),
                                 ),
                               ),
                             ],
@@ -362,7 +367,7 @@ class _MapsState extends State<Maps> {
         margin: EdgeInsets.symmetric(vertical: 0),
         height: MediaQuery.of(context).size.height,
         child: FutureBuilder<List<dynamic>>(
-          future: myModel.fetResto(22),
+          future: fetRestoAdvanceResult,
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             if (snapshot.hasData) {
               for (dynamic d in snapshot.data) {
@@ -562,9 +567,27 @@ class _MapsState extends State<Maps> {
     );
   }
 
+  Future<List<dynamic>> fetLocation() async {
+    var result = await http.get(StringConst.URI_LOCATION);
+    return json.decode(result.body);
+  }
+
   getLastLocation() async {
+    fetLocationResult = await fetLocation();
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
+
+    var addresses = await Geocoder.local.findAddressesFromCoordinates(
+        new Coordinates(position.latitude, position.longitude));
+    print(
+        " ====>${addresses.first.featureName} : ${addresses.first.addressLine} / ${addresses.first.addressLine.contains("Rabat")} ");
+    for (var location in fetLocationResult) {
+      if (addresses.first.addressLine.contains(location["name"])) {
+        fetRestoAdvanceResult = myModel.fetResto(location["id"]);
+        print(" ====> done");
+      }
+    }
+
     setState(() {
       _myPosition = CameraPosition(
         target: LatLng(position.latitude, position.longitude),

@@ -29,7 +29,7 @@ dependencies:
   firebase_storage: "any"
   google_sign_in: "^4.5.1"
   cached_network_image:
-
+  geocoder: ^0.2.1
   flutter_icons: ^1.1.0
   percent_indicator: ^2.1.8
   fluttertoast: ^7.1.1

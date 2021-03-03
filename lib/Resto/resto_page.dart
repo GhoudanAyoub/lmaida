@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -44,19 +45,26 @@ class _RestaurantState extends State<RestaurantPage> {
   Position position;
   String categ;
   List<bool> checkList = [];
-  List<MultiSelectDialogItem<int>> catMultiItem = List();
+  List<MultiSelectDialogItem<int>> locMultiItem = List();
   String restolenght;
   String catId;
 
-  Set<int> selectedValues, catSelectedValues, catFetchData;
+  Set<int> selectedValues, locSelectedValues, filterSelectedValues;
 
   dynamic Adv_Filter = false;
-  var fetRestoAdvanceResult, fetLocationResult;
+  var fetRestoAdvanceResult, fetLocationResult, fetFiltersResult;
+
+  var locationId;
 
   Future<List<dynamic>> fetRestoAdvance(location_id) async {
     print('************');
     var result = await http.get(StringConst.URI_RESTAU_ADV +
         "${selectedValues.join(",").toString()}/$catId/${location_id}");
+    return json.decode(result.body);
+  }
+
+  Future<List<dynamic>> fetFilters() async {
+    var result = await http.get(StringConst.URI_FILTERS);
     return json.decode(result.body);
   }
 
@@ -79,24 +87,12 @@ class _RestaurantState extends State<RestaurantPage> {
     return json.decode(result.body);
   }
 
-  final String apiUrl3 = StringConst.URI_FILTERS;
-  Future<List<dynamic>> fetchFilters() async {
-    Map<String, String> headers = {
-      "Content-type": "application/json",
-    };
-    var result = await http.get(apiUrl3, headers: headers);
-    return json.decode(result.body);
-  }
-
   @override
   void initState() {
     _controller = ScrollController();
     getLastLocation();
-    fetLocationResult = fetLocation();
-    fetRestoAdvanceResult = fetResto(22);
     preparLocationId();
     super.initState();
-    populateMultiselect();
   }
 
   void preparLocationId() async {
@@ -106,28 +102,6 @@ class _RestaurantState extends State<RestaurantPage> {
   }
 
   List<MultiSelectDialogItem<int>> multiItem = List();
-
-  final valuestopopulate = {
-    1: 'WIFI',
-    2: 'Accepte animaux',
-    3: 'Zone fumeur',
-    4: 'emporter',
-    5: 'Alcool',
-    6: 'Buffet',
-    7: 'Happy Hours',
-    8: 'Bars sportifs',
-    9: 'Brunch',
-    10: 'Terrasse',
-    11: 'Acc\u00e8s en fauteuil roulant',
-    12: 'Restauration de luxe',
-    13: 'Cartes de cr\u00e9dit'
-  };
-
-  void populateMultiselect() {
-    for (int v in valuestopopulate.keys) {
-      multiItem.add(MultiSelectDialogItem(v, valuestopopulate[v]));
-    }
-  }
 
   void _showMultiSelect(BuildContext context) async {
     selectedValues = await showDialog<Set<int>>(
@@ -141,41 +115,44 @@ class _RestaurantState extends State<RestaurantPage> {
         );
       },
     );
-
-    print("===> $selectedValues");
     print('****>${selectedValues.join(",").toString()} ');
-    getvaluefromkey(selectedValues);
   }
 
-  void _showCatMultiSelect(BuildContext context) async {
-    catSelectedValues = await showDialog<Set<int>>(
+  void _showLocMultiSelect(BuildContext context) async {
+    locSelectedValues = await showDialog<Set<int>>(
       context: context,
       builder: (BuildContext context) {
         return MultiSelectDialog(
-          items: catMultiItem,
-          initialSelectedValues: [
-            1,
-          ].toSet(),
+          items: locMultiItem,
+          initialSelectedValues: null,
         );
       },
     );
 
-    print("===> $catSelectedValues");
-    print('****>${catSelectedValues.join(",").toString()} ');
-    getvaluefromkey(catSelectedValues);
-  }
-
-  void getvaluefromkey(Set selection) {
-    if (selection != null) {
-      for (int x in selection.toList()) {
-        print(valuestopopulate[x]);
-      }
-    }
+    print("===> ${locSelectedValues.join(",")[2]}");
   }
 
   getLastLocation() async {
+    fetFiltersResult = await fetFilters();
+    fetLocationResult = await fetLocation();
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
+
+    var addresses = await Geocoder.local.findAddressesFromCoordinates(
+        new Coordinates(position.latitude, position.longitude));
+    print(
+        " ====> resto ${addresses.first.featureName} : ${addresses.first.addressLine} / ${addresses.first.addressLine.contains("Rabat")} ");
+    for (var filter in fetFiltersResult) {
+      multiItem.add(MultiSelectDialogItem(filter["id"], filter["name"]));
+    }
+    for (var location in fetLocationResult) {
+      locMultiItem.add(MultiSelectDialogItem(location["id"], location["name"]));
+      if (addresses.first.addressLine.contains(location["name"])) {
+        fetRestoAdvanceResult = fetResto(location["id"]);
+        locationId = location["id"];
+        print(" ====> done");
+      }
+    }
   }
 
   @override
@@ -378,7 +355,7 @@ class _RestaurantState extends State<RestaurantPage> {
                     margin: EdgeInsets.fromLTRB(10, 150, 10, 20),
                     child: Container(
                       child: Center(
-                        child: Text("No Special Offers Found For The Moments",
+                        child: Text("No Special Offers Found For The Moment",
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -675,8 +652,12 @@ class _RestaurantState extends State<RestaurantPage> {
                               bottom: TabBar(
                                 tabs: <Widget>[
                                   Tab(
-                                    text: 'Filters',
-                                  ),
+                                      child: Text("Filters",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                          ))),
                                 ],
                               ),
                             ),
@@ -717,60 +698,103 @@ class _RestaurantState extends State<RestaurantPage> {
                                     },
                                   ),
                                 ),
-                                RaisedButton(
-                                    child: Text("Filter With"),
-                                    onPressed: () {
-                                      _showMultiSelect(context);
-                                    }),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                        margin:
+                                            EdgeInsets.only(bottom: 5, top: 10),
+                                        width: 60,
+                                        height: 60,
+                                        child: FloatingActionButton(
+                                          shape: CircleBorder(),
+                                          onPressed: () {
+                                            _showMultiSelect(context);
+                                          },
+                                          backgroundColor: white,
+                                          child: Icon(Icons.filter_center_focus,
+                                              size: 35, color: Colors.black87),
+                                        )),
+                                    Container(
+                                        margin:
+                                            EdgeInsets.only(bottom: 5, top: 10),
+                                        width: 60,
+                                        height: 60,
+                                        child: FloatingActionButton(
+                                          shape: CircleBorder(),
+                                          onPressed: () {
+                                            _showLocMultiSelect(context);
+                                          },
+                                          backgroundColor: white,
+                                          child: Icon(Icons.add_location,
+                                              size: 35, color: Colors.black87),
+                                        )),
+                                  ],
+                                ),
                               ],
+                            ),
+                            bottomSheet: Container(
+                              height: 40,
+                              color: Colors.red[900],
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  RaisedButton(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)),
+                                    color: Colors.red[900],
+                                    onPressed: () {
+                                      setState(() {
+                                        fetRestoAdvanceResult = fetRestoAdvance(
+                                            "${locSelectedValues.join(",")[1]}");
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('APPLY',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 5.0),
+                                    child: Container(
+                                      height: 30.0,
+                                      width: 0.8,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  RaisedButton(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)),
+                                    color: Colors.red[900],
+                                    onPressed: () {
+                                      setState(() {
+                                        fetRestoAdvanceResult =
+                                            fetResto(locationId);
+                                      });
+                                      searchController.text = null;
+                                      categ = null;
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('CLEAN',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                                  )
+                                ],
+                              ),
                             ),
                           ),
                         )),
                   ),
-                  Positioned(
-                      top: 250,
-                      left: 30,
-                      width: 100,
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        color: Colors.red[900],
-                        onPressed: () {
-                          setState(() {
-                            fetRestoAdvanceResult = fetRestoAdvance(21);
-                          });
-                          Navigator.pop(context);
-                        },
-                        child: Text('APPLY',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            )),
-                      )),
-                  Positioned(
-                      top: 250,
-                      right: 30,
-                      width: 100,
-                      child: FlatButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        color: Colors.red[900],
-                        onPressed: () {
-                          setState(() {
-                            fetRestoAdvanceResult = fetResto(22);
-                          });
-                          searchController.text = null;
-                          categ = null;
-                          Navigator.pop(context);
-                        },
-                        child: Text('clean',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            )),
-                      ))
                 ],
               ));
         });
@@ -923,7 +947,7 @@ class _RestaurantState extends State<RestaurantPage> {
   }
 }
 
-// ================== coped from stakeoverflow
+// ================== copied from stakeOverFlow
 
 class MultiSelectDialogItem<V> {
   const MultiSelectDialogItem(this.value, this.label);
@@ -974,7 +998,7 @@ class _MultiSelectDialogState<V> extends State<MultiSelectDialog<V>> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Select Filters'),
+      title: Text('Select :'),
       contentPadding: EdgeInsets.only(top: 5.0),
       content: SingleChildScrollView(
         child: ListTileTheme(
@@ -1006,7 +1030,3 @@ class _MultiSelectDialogState<V> extends State<MultiSelectDialog<V>> {
     );
   }
 }
-
-// ===================
-
-/**/

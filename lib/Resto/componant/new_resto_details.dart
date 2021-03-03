@@ -402,7 +402,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                       if (widget.restoModel.itemphotos == null) {
                         return Container(
                           child: Center(
-                            child: Text("No Photos For the Moments "),
+                            child: Text("No Photos For the Moment "),
                           ),
                         );
                       } else {
@@ -456,7 +456,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Text(
-                      "No Pictures For The Moments",
+                      "No Pictures For The Moment",
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 20.0,
