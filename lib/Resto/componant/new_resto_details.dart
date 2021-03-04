@@ -13,13 +13,15 @@ class NewRestoDetails extends StatefulWidget {
   final dropdownValue;
   final selectedDateTxt;
   final selectedTimeTxt;
+  final int locationId;
 
   const NewRestoDetails(
       {Key key,
       this.restoModel,
       this.dropdownValue,
       this.selectedDateTxt,
-      this.selectedTimeTxt})
+      this.selectedTimeTxt,
+      @required this.locationId})
       : super(key: key);
 
   @override
@@ -195,6 +197,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                 restoModel: widget.restoModel,
                                 data: widget.restoModel.menus,
                                 index: widget.restoModel.id,
+                                locationId: widget.locationId,
                               )),
                     );
                   },
@@ -224,7 +227,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                   ),
                                 ),
                                 Text(
-                                  "See The Full Menu",
+                                  "See The Full Menu ",
                                   style: TextStyle(
                                     fontWeight: FontWeight.normal,
                                     fontSize: 14.0,
@@ -399,6 +402,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                     scrollDirection: Axis.horizontal,
                     itemCount: widget.restoModel.itemphotos.length,
                     itemBuilder: (context, index) {
+                      print('++' + widget.restoModel.name.toString());
                       if (widget.restoModel.itemphotos == null) {
                         return Container(
                           child: Center(

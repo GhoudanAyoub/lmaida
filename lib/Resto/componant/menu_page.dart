@@ -11,8 +11,10 @@ class MenuPage extends StatefulWidget {
   final RestoModel restoModel;
   final List<dynamic> data;
   final int index;
+  final int locationId;
 
-  const MenuPage({Key key, this.restoModel, this.data, this.index})
+  const MenuPage(
+      {Key key, this.restoModel, this.data, this.index, this.locationId})
       : super(key: key);
 
   @override
@@ -23,8 +25,8 @@ class _MenuPageState extends State<MenuPage> {
   final String apiUrl = StringConst.URI_RESTAU + 'all';
   String type;
 
-  Future<List<dynamic>> fetResto() async {
-    var result = await http.get(apiUrl);
+  Future<List<dynamic>> fetResto(id) async {
+    var result = await http.get("$apiUrl/$id");
     return json.decode(result.body);
   }
 
@@ -87,9 +89,65 @@ class _MenuPageState extends State<MenuPage> {
             Container(
               margin: EdgeInsets.fromLTRB(0, 80, 0, 20),
               child: FutureBuilder<List<dynamic>>(
-                future: fetResto(),
+                future: fetResto(widget.locationId),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) {
+                    if (widget.data == null)
+                      return Stack(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.fromLTRB(10, 20, 10, 30),
+                            height: 60.0,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0),
+                                child: FlatButton(
+                                  padding: EdgeInsets.all(10),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15)),
+                                  color: Color(0xFFF5F6F9),
+                                  onPressed: () {},
+                                  child: FlatButton(
+                                    padding: EdgeInsets.all(10),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    color: Color(0xFFF5F6F9),
+                                    onPressed: () {},
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        buildCount("Starter"),
+                                        Divider(
+                                          height: 30,
+                                        ),
+                                        buildCount("Main Course"),
+                                        Divider(),
+                                        buildCount("Dessert"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              "This Restaurant Didn't Upload There Menu Yet",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        ],
+                      );
                     if (widget.data.isNotEmpty) {
                       return Stack(
                         children: [

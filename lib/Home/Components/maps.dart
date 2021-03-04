@@ -88,6 +88,7 @@ class _MapsState extends State<Maps> {
                             selectedDateTxt: null,
                             selectedTimeTxt: null,
                             dropdownValue: null,
+                            locationId: locationId,
                           )),
                 )
               }),
@@ -584,6 +585,7 @@ class _MapsState extends State<Maps> {
     for (var location in fetLocationResult) {
       if (addresses.first.addressLine.contains(location["name"])) {
         fetRestoAdvanceResult = myModel.fetResto(location["id"]);
+        locationId = location["id"];
         print(" ====> done");
       }
     }

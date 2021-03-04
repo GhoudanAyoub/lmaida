@@ -76,6 +76,7 @@ class _BodyState extends State<Body> {
                                   MaterialPageRoute(
                                       builder: (context) => NewRestoDetails(
                                             restoModel: restoModel,
+                                            locationId: 22,
                                           )),
                                 );
                               },

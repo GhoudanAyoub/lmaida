@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 import 'package:lmaida/Home/HomePage.dart';
+import 'package:lmaida/SignUp/sign_up_screen.dart';
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/form_error.dart';
@@ -8,6 +13,7 @@ import 'package:lmaida/helper/keyboard.dart';
 import 'package:lmaida/service/auth_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
+import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/utils/theme.dart';
 
 class SignForm extends StatefulWidget {
@@ -23,6 +29,7 @@ class _SignFormState extends State<SignForm> {
   TextEditingController _passwordController = TextEditingController();
   bool remember = false;
   final List<String> errors = [];
+  AuthService auth = AuthService();
 
   var submitted = false;
   var buttonText = "Continue";
@@ -145,13 +152,23 @@ class _SignFormState extends State<SignForm> {
                 submitted = true;
                 KeyboardUtil.hideKeyboard(context);
                 var success;
+                var Token;
                 try {
                   success = await auth.loginUser(
                     email: _emailContoller.text,
                     password: _passwordController.text,
                   );
-                  print(success);
-                  if (success != null) {
+                  Token = await userLog(
+                      email: _emailContoller.text,
+                      password: _passwordController.text);
+                  print(Token);
+                  if (Token != null && success == null) {
+                    var res = await firebaseAuth.createUserWithEmailAndPassword(
+                        email: _emailContoller.text,
+                        password: _passwordController.text);
+                    String cc = await getPorf(Token);
+                    await auth.saveUserToFirestore(cc, res.user,
+                        _emailContoller.text, "", _passwordController.text);
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -160,6 +177,20 @@ class _SignFormState extends State<SignForm> {
                                 )));
                     Scaffold.of(context)
                         .showSnackBar(SnackBar(content: Text('Welcome Back')));
+                  } else if (success != null && Token != null) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomePage(
+                                  position: position,
+                                )));
+                    Scaffold.of(context)
+                        .showSnackBar(SnackBar(content: Text('Welcome Back')));
+                  } else if (Token == null &&
+                      success == firebaseAuth.currentUser.uid) {
+                    Scaffold.of(context).showSnackBar(
+                        SnackBar(content: Text("You Don't Have Account Yet")));
+                    Navigator.pushNamed(context, SignUpScreen.routeName);
                   } else {
                     addError(error: success);
                     submitted = false;
@@ -167,10 +198,10 @@ class _SignFormState extends State<SignForm> {
                 } catch (e) {
                   submitted = false;
                   addError(error: success);
+                  print(success);
                   print('${auth.handleFirebaseAuthError(e.toString())}');
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text(
-                          '${auth.handleFirebaseAuthError(e.toString())}')));
+                  Scaffold.of(context).showSnackBar(
+                      SnackBar(content: Text("You Don't Have Account Yet")));
                 }
               }
             },
@@ -178,6 +209,62 @@ class _SignFormState extends State<SignForm> {
         ],
       ),
     );
+  }
+
+  Future loginUser({String email, String password}) async {
+    UserCredential result;
+    var errorType;
+    try {
+      result = await firebaseAuth.signInWithEmailAndPassword(
+        email: '$email',
+        password: '$password',
+      );
+    } catch (e) {
+      switch (e) {
+        case 'There is no user record corresponding to this identifier. The user may have been deleted.':
+          errorType = "No Account For This Email";
+          break;
+        case 'The password is invalid or the user does not have a password.':
+          errorType = "Password Invalid";
+          break;
+        case 'A network error (interrupted connection or unreachable host) has occurred.':
+          errorType = "Connection Error";
+          break;
+        default:
+          print('Case ${errorType} is not yet implemented');
+      }
+    }
+    if (errorType != null) return errorType;
+    return result.user.uid;
+  }
+
+  Future userLog({String email, String password}) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': email,
+      'password': password,
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var res = jsonDecode(response.body);
+    return res['token'];
+  }
+
+  Future<String> getPorf(Token) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/profile';
+    var response = await http.post(Uri.encodeFull(url), headers: header);
+    var message = jsonDecode(response.body);
+    print(message['name']);
+    return message['name'];
   }
 
   void showInSnackBar(String value) {

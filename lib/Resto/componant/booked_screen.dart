@@ -5,10 +5,12 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/restau_model.dart';
@@ -16,7 +18,7 @@ import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/values/values.dart';
 
-class BookedScreen extends StatefulWidget {
+class BookedScreen extends StatefulWidget with NavigationStates {
   final RestoModel restoModel;
   final String offer;
   final dropdownValue;
@@ -84,7 +86,8 @@ class _BookedScreenState extends State<BookedScreen> {
                           child: CachedNetworkImage(
                             imageUrl: widget.restoModel.pictures == null
                                 ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
-                                : widget.restoModel.pictures,
+                                : "https://lmaida.com/storage/gallery/" +
+                                    widget.restoModel.pictures,
                             fit: BoxFit.cover,
                             width: MediaQuery.of(context).size.width,
                             height: 180,
@@ -97,7 +100,7 @@ class _BookedScreenState extends State<BookedScreen> {
                         Positioned(
                           left: 0.0,
                           top: 0.0,
-                          width: getProportionateScreenWidth(350),
+                          width: MediaQuery.of(context).size.width,
                           height: getProportionateScreenHeight(300),
                           child: Container(
                             decoration: BoxDecoration(
@@ -261,7 +264,7 @@ class _BookedScreenState extends State<BookedScreen> {
                           horizontal: 16.0, vertical: 16.0),
                       child: Column(
                         children: <Widget>[
-                          buildbody(),
+                          buildbody(context),
                           SizedBox(height: 10.0),
                         ],
                       ),
@@ -338,7 +341,7 @@ class _BookedScreenState extends State<BookedScreen> {
           textColor: Colors.white,
           fontSize: 16.0);
       setState(() {
-        sub = true;
+        sub = false;
       });
     } else {
       Fluttertoast.showToast(
@@ -351,7 +354,7 @@ class _BookedScreenState extends State<BookedScreen> {
           fontSize: 16.0);
 
       setState(() {
-        sub = true;
+        sub = false;
       });
     }
   }
@@ -407,7 +410,7 @@ class _BookedScreenState extends State<BookedScreen> {
     );
   }
 
-  buildbody() {
+  buildbody(context) {
     if (!loading && user1 != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -570,10 +573,9 @@ class _BookedScreenState extends State<BookedScreen> {
                   text: "CONFIRM YOUR TABLE",
                   submitted: sub,
                   press: () {
-                    setState(() {
-                      sub = true;
-                    });
                     book();
+                    BlocProvider.of<NavigationBloc>(context)
+                        .add(NavigationEvents.MyOrdersClickedEvent);
                   },
                 ),
                 SizedBox(height: 15.0),

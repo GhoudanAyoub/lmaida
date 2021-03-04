@@ -59,7 +59,7 @@ class _RestaurantState extends State<RestaurantPage> {
   Future<List<dynamic>> fetRestoAdvance(location_id) async {
     print('************');
     var result = await http.get(StringConst.URI_RESTAU_ADV +
-        "${selectedValues.join(",").toString()}/$catId/${location_id}");
+        "${selectedValues != null ? selectedValues.join(",") : 1}/${catId != null ? catId : 14}/${location_id ?? locationId}");
     return json.decode(result.body);
   }
 
@@ -129,7 +129,7 @@ class _RestaurantState extends State<RestaurantPage> {
       },
     );
 
-    print("===> ${locSelectedValues.join(",")[2]}");
+    print("===> ${locSelectedValues.join(",")}");
   }
 
   getLastLocation() async {
@@ -148,8 +148,10 @@ class _RestaurantState extends State<RestaurantPage> {
     for (var location in fetLocationResult) {
       locMultiItem.add(MultiSelectDialogItem(location["id"], location["name"]));
       if (addresses.first.addressLine.contains(location["name"])) {
-        fetRestoAdvanceResult = fetResto(location["id"]);
-        locationId = location["id"];
+        setState(() {
+          fetRestoAdvanceResult = fetResto(location["id"]);
+          locationId = location["id"];
+        });
         print(" ====> done");
       }
     }
@@ -369,7 +371,7 @@ class _RestaurantState extends State<RestaurantPage> {
               child: FutureBuilder<List<dynamic>>(
                 future: fetRestoAdvanceResult,
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
+                  if (snapshot != null && snapshot.data != null) {
                     return ListView.builder(
                         controller: _controller, //new line
                         padding: EdgeInsets.all(20),
@@ -381,14 +383,7 @@ class _RestaurantState extends State<RestaurantPage> {
                           if (widget.offers == null &&
                               position != null &&
                               restoModel.address_lat != null &&
-                              restoModel.address_lon != null &&
-                              calculateDistance(
-                                      position.latitude,
-                                      position.longitude,
-                                      double.tryParse(restoModel.address_lat),
-                                      double.tryParse(
-                                          restoModel.address_lon)) <=
-                                  10) {
+                              restoModel.address_lon != null) {
                             dis = calculateDistance(
                                     position.latitude,
                                     position.longitude,
@@ -409,6 +404,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                               dropdownValue: dropdownValue,
                                               selectedDateTxt: selectedDateTxt,
                                               selectedTimeTxt: selectedTimeTxt,
+                                              locationId: locationId,
                                             )),
                                   )
                                 },
@@ -440,6 +436,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                               dropdownValue: dropdownValue,
                                               selectedDateTxt: selectedDateTxt,
                                               selectedTimeTxt: selectedTimeTxt,
+                                              locationId: locationId,
                                             )),
                                   )
                                 },
@@ -477,6 +474,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                               dropdownValue: dropdownValue,
                                               selectedDateTxt: selectedDateTxt,
                                               selectedTimeTxt: selectedTimeTxt,
+                                              locationId: locationId,
                                             )),
                                   )
                                 },
@@ -508,6 +506,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                               dropdownValue: dropdownValue,
                                               selectedDateTxt: selectedDateTxt,
                                               selectedTimeTxt: selectedTimeTxt,
+                                              locationId: locationId,
                                             )),
                                   )
                                 },
@@ -750,7 +749,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                     onPressed: () {
                                       setState(() {
                                         fetRestoAdvanceResult = fetRestoAdvance(
-                                            "${locSelectedValues.join(",")[1]}");
+                                            "${locSelectedValues.join(",")}");
                                       });
                                       Navigator.pop(context);
                                     },
