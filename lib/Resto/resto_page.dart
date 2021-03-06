@@ -49,6 +49,7 @@ class _RestaurantState extends State<RestaurantPage> {
   String restolenght;
   String catId;
 
+  bool show = false;
   Set<int> selectedValues, locSelectedValues, filterSelectedValues;
 
   dynamic Adv_Filter = false;
@@ -59,7 +60,7 @@ class _RestaurantState extends State<RestaurantPage> {
   Future<List<dynamic>> fetRestoAdvance(location_id) async {
     print('************');
     var result = await http.get(StringConst.URI_RESTAU_ADV +
-        "${selectedValues != null ? selectedValues.join(",") : 1}/${catId != null ? catId : 14}/${location_id ?? locationId}");
+        "${selectedValues != null ? selectedValues.join(",") : 1}/${catId != null ? catId : 14}/${location_id != null ? location_id : locationId}");
     return json.decode(result.body);
   }
 
@@ -75,6 +76,12 @@ class _RestaurantState extends State<RestaurantPage> {
 
   Future<List<dynamic>> fetResto(id) async {
     var result = await http.get("$apiUrl/$id");
+    return json.decode(result.body);
+  }
+
+  Future<List<dynamic>> fetSearch(name) async {
+    var result =
+        await http.get("${StringConst.URI_SEARCH}/${name != "" ? name : "r"}");
     return json.decode(result.body);
   }
 
@@ -749,7 +756,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                     onPressed: () {
                                       setState(() {
                                         fetRestoAdvanceResult = fetRestoAdvance(
-                                            "${locSelectedValues.join(",")}");
+                                            "${locSelectedValues != null ? locSelectedValues.join(",") : null}");
                                       });
                                       Navigator.pop(context);
                                     },
@@ -882,12 +889,13 @@ class _RestaurantState extends State<RestaurantPage> {
               width: 60,
               height: 60,
               child: FloatingActionButton(
+                elevation: 8,
                 shape: CircleBorder(),
                 heroTag: name,
                 onPressed: () {
                   onPressed;
                 },
-                backgroundColor: white,
+                backgroundColor: Colors.white,
                 child: im != null
                     ? CachedNetworkImage(
                         imageUrl: "https://lmaida.com/storage/categories/" + im,
@@ -927,6 +935,7 @@ class _RestaurantState extends State<RestaurantPage> {
                 onChanged: (value) {
                   setState(() {
                     Search = value;
+                    fetRestoAdvanceResult = fetSearch(searchController.text);
                     print(Search);
                   });
                 },

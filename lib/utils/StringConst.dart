@@ -4,6 +4,8 @@ class StringConst {
 
   //API
   static const String URL_API = 'https://lmaida.com/';
+  static const String URI_DELETE = URL_API + 'api/canceledbooking';
+  static const String URI_SEARCH = URL_API + 'api/search';
   static const String URI_LOCATION = URL_API + 'api/locations';
   static const String URI_RESTAU = URL_API + 'api/resturants/';
   static const String URI_RESTAU1 = URL_API + 'api/resturant/';

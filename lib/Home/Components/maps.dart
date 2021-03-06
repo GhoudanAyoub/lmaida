@@ -98,6 +98,12 @@ class _MapsState extends State<Maps> {
     );
   }
 
+  Future<List<dynamic>> fetSearch(name) async {
+    var result =
+        await http.get("${StringConst.URI_SEARCH}/${name != "" ? name : "r"}");
+    return json.decode(result.body);
+  }
+
   @override
   Widget build(BuildContext context) {
     myModel = Provider.of<MyModel>(context);
@@ -121,7 +127,11 @@ class _MapsState extends State<Maps> {
                             cursorColor: black,
                             controller: searchController,
                             onChanged: (value) {
-                              Search = value;
+                              setState(() {
+                                Search = value;
+                                fetRestoAdvanceResult =
+                                    fetSearch(searchController.text);
+                              });
                             },
                             decoration: InputDecoration(
                               hintText: 'Search',
@@ -388,9 +398,8 @@ class _MapsState extends State<Maps> {
                       restoModel.name,
                       restoModel));
                 } else {
-                  if (restoModel.name
-                          .toLowerCase()
-                          .contains(searchController.text.toLowerCase()) &&
+                  if (Search != null &&
+                      position != null &&
                       calculateDistance(
                               position.latitude,
                               position.longitude,
@@ -403,8 +412,9 @@ class _MapsState extends State<Maps> {
                         double.tryParse(restoModel.address_lon),
                         restoModel.name,
                         restoModel));
-                  } else
+                  } else {
                     print('No DataFound');
+                  }
                 }
               }
               return GoogleMap(

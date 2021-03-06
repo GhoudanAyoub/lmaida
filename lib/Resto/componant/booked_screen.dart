@@ -39,6 +39,7 @@ class BookedScreen extends StatefulWidget with NavigationStates {
 }
 
 class _BookedScreenState extends State<BookedScreen> {
+  TextEditingController Controller = TextEditingController();
   final String apiUrl = StringConst.URI_RESTAU + 'all';
   String dropdownValue;
   var selectedDateTxt;
@@ -324,8 +325,9 @@ class _BookedScreenState extends State<BookedScreen> {
           "${widget.selectedDateTxt != null ? "${widget.selectedDateTxt.year}-${widget.selectedDateTxt.month}-${widget.selectedDateTxt.day}" : "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}"}" +
               " / " +
               "${widget.selectedTimeTxt != null ? "${widget.selectedTimeTxt.hour} : ${widget.selectedTimeTxt.minute}" : "${selectedDate.hour} : ${selectedDate.minute}"}",
-      'person': int.parse(person) ?? null,
-      'offre': offer
+      'person': person != null ? int.parse(person) : 1,
+      'offre': offer,
+      'specialrequest': Controller.text != null ? Controller.text : ""
     };
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
@@ -462,6 +464,7 @@ class _BookedScreenState extends State<BookedScreen> {
           SizedBox(height: 20.0),
           SizedBox(height: 16.0),
           TextFormBuilder(
+            controller: Controller,
             enabled: true,
             suffix: Feather.inbox,
             hintText: "Special Requests",

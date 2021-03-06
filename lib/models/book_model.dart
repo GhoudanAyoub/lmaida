@@ -1,4 +1,5 @@
 class BookModel {
+  int id;
   int iduser;
   int iditem;
   String dates;
@@ -10,7 +11,8 @@ class BookModel {
   String created_at;
   String updated_at;
   BookModel(
-      {this.iduser,
+      {this.id,
+      this.iduser,
       this.iditem,
       this.dates,
       this.person,
@@ -22,6 +24,7 @@ class BookModel {
       this.user});
 
   BookModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
     iduser = json['iduser'];
     iditem = json['iditem'];
     dates = json['dates'];

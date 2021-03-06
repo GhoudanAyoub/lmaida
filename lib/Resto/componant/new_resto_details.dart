@@ -137,6 +137,22 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                           ),
                                           SizedBox(height: 10.0),
                                           Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text(
+                                                  widget.restoModel.filters
+                                                      .map((e) => e["name"])
+                                                      .join(","),
+                                                  textAlign: TextAlign.left,
+                                                  style: Styles
+                                                      .customNormalTextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 14,
+                                                  )),
+                                            ],
+                                          ),
+                                          Row(
                                             children: <Widget>[
                                               Align(
                                                 alignment: Alignment.topLeft,

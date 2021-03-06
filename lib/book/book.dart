@@ -28,7 +28,7 @@ class _BookState extends State<Book> {
   }
 
   Future fetResto(id) async {
-    var result = await http.get("${StringConst.URI_RESTAU1}2");
+    var result = await http.get("${StringConst.URI_RESTAU1}$id");
     return json.decode(result.body);
   }
 
@@ -72,6 +72,42 @@ class _BookState extends State<Book> {
     var message = json.decode(response.body);
     print('2');
     return message[0]["bookings"];
+  }
+
+  Future<List<dynamic>> userLog2(id) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': firebaseAuth.currentUser.email,
+      'password': user1.data()["password"],
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    print('1');
+    return deleteBook(message["token"], id);
+  }
+
+  Future<List<dynamic>> deleteBook(Token, id) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var result = await http
+        .post(Uri.encodeFull("${StringConst.URI_DELETE}/$id"), headers: header);
+    var res = json.decode(result.body);
+    print(res.toString());
+    if (res["message"] == "Successfully canceled") {
+      setState(() {
+        submitted = false;
+        fetchUser = userLog();
+      });
+    }
+    return json.decode(result.body);
   }
 
   bool submitted = false;
@@ -265,37 +301,45 @@ class _BookState extends State<Book> {
                                                     ),
                                                   ),
                                                   SizedBox(height: 5),
-                                                  /*
-                                      FlatButton(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20)),
-                                        color: Colors.red[900],
-                                        disabledColor: Colors.grey[400],
-                                        disabledTextColor: Colors.white60,
-                                        onPressed: () {
-                                          submitted = true;
-                                        },
-                                        child: submitted
-                                            ? SizedBox(
-                                                height: 15,
-                                                width: 15,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation<
-                                                          Color>(Colors.white),
-                                                ),
-                                              )
-                                            : Text(
-                                                "Delete Your Booking",
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                      ),*/
+                                                  FlatButton(
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20)),
+                                                    color: Colors.red[900],
+                                                    disabledColor:
+                                                        Colors.grey[400],
+                                                    disabledTextColor:
+                                                        Colors.white60,
+                                                    onPressed: () {
+                                                      submitted = true;
+                                                      userLog2(bookmodel.id);
+                                                    },
+                                                    child: submitted
+                                                        ? SizedBox(
+                                                            height: 15,
+                                                            width: 15,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              strokeWidth: 2,
+                                                              valueColor:
+                                                                  AlwaysStoppedAnimation<
+                                                                          Color>(
+                                                                      Colors
+                                                                          .white),
+                                                            ),
+                                                          )
+                                                        : Text(
+                                                            "Delete Your Booking",
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                  ),
                                                 ],
                                               );
                                             } else {
