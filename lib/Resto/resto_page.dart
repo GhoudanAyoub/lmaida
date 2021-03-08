@@ -12,7 +12,6 @@ import 'package:intl/intl.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/LmaidaCard.dart';
 import 'package:lmaida/components/indicators.dart';
-import 'package:lmaida/models/categorie_model.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
@@ -48,17 +47,18 @@ class _RestaurantState extends State<RestaurantPage> {
   List<MultiSelectDialogItem<int>> locMultiItem = List();
   String restolenght;
   String catId;
+  List categList = List();
 
+  String _selected;
   bool show = false;
   Set<int> selectedValues, locSelectedValues, filterSelectedValues;
-
+  var color;
   dynamic Adv_Filter = false;
-  var fetRestoAdvanceResult, fetLocationResult, fetFiltersResult;
-
+  var fetRestoAdvanceResult, fetLocationResult, fetFiltersResult, fetCatResult;
   var locationId;
 
   Future<List<dynamic>> fetRestoAdvance(location_id) async {
-    print('************');
+    print('************$catId');
     var result = await http.get(StringConst.URI_RESTAU_ADV +
         "${selectedValues != null ? selectedValues.join(",") : "1"}/${catId != null ? catId : 14}/${location_id != null ? location_id : locationId}");
     return json.decode(result.body);
@@ -96,6 +96,7 @@ class _RestaurantState extends State<RestaurantPage> {
 
   @override
   void initState() {
+    color = Colors.black;
     _controller = ScrollController();
     getLastLocation();
     preparLocationId();
@@ -141,6 +142,11 @@ class _RestaurantState extends State<RestaurantPage> {
   }
 
   getLastLocation() async {
+    fetCatResult = await fetchCat();
+    for (var categ in fetCatResult) {
+      categList.add(categ);
+    }
+    print(categList.toString());
     fetFiltersResult = await fetFilters();
     fetLocationResult = await fetLocation();
     position = await Geolocator.getCurrentPosition(
@@ -401,7 +407,8 @@ class _RestaurantState extends State<RestaurantPage> {
                             if (Search != null &&
                                 restoModel.name
                                     .toLowerCase()
-                                    .contains(Search.toLowerCase()))
+                                    .contains(Search.toLowerCase())) {
+                              print(snapshot.data[index].toString());
                               return LmaidaCard(
                                 onTap: () => {
                                   Navigator.push(
@@ -433,7 +440,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                 distance: dis,
                                 address: restoModel.address,
                               );
-                            else
+                            } else
                               return LmaidaCard(
                                 onTap: () => {
                                   Navigator.push(
@@ -670,39 +677,82 @@ class _RestaurantState extends State<RestaurantPage> {
                             ),
                             body: Column(
                               children: [
-                                SizedBox(
-                                  height: 100,
-                                  child: FutureBuilder<List<dynamic>>(
-                                    future: fetchCat(),
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot snapshot) {
-                                      if (snapshot.hasData) {
-                                        return ListView.builder(
-                                            scrollDirection: Axis.horizontal,
-                                            shrinkWrap: true,
-                                            itemCount: snapshot.data.length,
-                                            itemBuilder: (BuildContext context,
-                                                int index) {
-                                              CategorieModel categoraiemodel =
-                                                  CategorieModel.fromJson(
-                                                      snapshot.data[index]);
-
-                                              return headerCategoryItem(
-                                                  categoraiemodel.picture,
-                                                  categoraiemodel.name,
-                                                  onPressed: () {
+                                Container(
+                                  margin: EdgeInsets.all(15),
+                                  padding: EdgeInsets.all(15),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          width: 1, color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: DropdownButtonHideUnderline(
+                                          child: ButtonTheme(
+                                            alignedDropdown: true,
+                                            child: DropdownButton<String>(
+                                              isDense: true,
+                                              hint: new Text("Select Category"),
+                                              value: _selected,
+                                              onChanged: (String newValue) {
                                                 setState(() {
-                                                  categ = categoraiemodel.name;
-                                                  catId = categoraiemodel.id
-                                                      .toString();
+                                                  _selected = newValue;
+                                                  catId = newValue;
                                                 });
-                                              });
-                                            });
-                                      } else {
-                                        return Center(
-                                            child: circularProgress(context));
-                                      }
-                                    },
+                                              },
+                                              items: categList
+                                                  .map((e) =>
+                                                      new DropdownMenuItem(
+                                                        value:
+                                                            e["id"].toString(),
+                                                        // value: _mySelection,
+                                                        child: Row(
+                                                          children: <Widget>[
+                                                            e["picture"] != null
+                                                                ? CachedNetworkImage(
+                                                                    imageUrl:
+                                                                        "https://lmaida.com/storage/categories/" +
+                                                                            e["picture"],
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    width: 35,
+                                                                    fadeInDuration:
+                                                                        Duration(
+                                                                            milliseconds:
+                                                                                500),
+                                                                    fadeInCurve:
+                                                                        Curves
+                                                                            .easeIn,
+                                                                    placeholder: (context,
+                                                                            progressText) =>
+                                                                        Center(
+                                                                            child:
+                                                                                circularProgress(context)),
+                                                                  )
+                                                                : Icon(
+                                                                    Icons
+                                                                        .dinner_dining,
+                                                                    size: 35,
+                                                                    color: Colors
+                                                                        .black87),
+                                                            Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            10),
+                                                                child: Text(
+                                                                    e["name"])),
+                                                          ],
+                                                        ),
+                                                      ))
+                                                  .toList(),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 Row(
@@ -878,7 +928,7 @@ class _RestaurantState extends State<RestaurantPage> {
     );
   }
 
-  Widget headerCategoryItem(String im, String name, {onPressed}) {
+  Widget headerCategoryItem(String im, String name, String id, {onPressed}) {
     return Container(
       margin: EdgeInsets.only(left: 15),
       child: Column(
@@ -895,6 +945,10 @@ class _RestaurantState extends State<RestaurantPage> {
                 heroTag: name,
                 onPressed: () {
                   onPressed;
+                  setState(() {
+                    catId = id;
+                    color = Colors.red[900];
+                  });
                 },
                 backgroundColor: Colors.white,
                 child: im != null
@@ -912,7 +966,7 @@ class _RestaurantState extends State<RestaurantPage> {
               )),
           Text(name + '',
               style: TextStyle(
-                  color: Colors.black,
+                  color: color,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Poppins'))
         ],
