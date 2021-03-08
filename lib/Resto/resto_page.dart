@@ -60,7 +60,7 @@ class _RestaurantState extends State<RestaurantPage> {
   Future<List<dynamic>> fetRestoAdvance(location_id) async {
     print('************');
     var result = await http.get(StringConst.URI_RESTAU_ADV +
-        "${selectedValues != null ? selectedValues.join(",") : 1}/${catId != null ? catId : 14}/${location_id != null ? location_id : locationId}");
+        "${selectedValues != null ? selectedValues.join(",") : "1"}/${catId != null ? catId : 14}/${location_id != null ? location_id : locationId}");
     return json.decode(result.body);
   }
 
@@ -122,7 +122,8 @@ class _RestaurantState extends State<RestaurantPage> {
         );
       },
     );
-    print('****>${selectedValues.join(",").toString()} ');
+    print(
+        '****>${selectedValues.isNotEmpty ? selectedValues.join(",") : "1"} ');
   }
 
   void _showLocMultiSelect(BuildContext context) async {
@@ -924,7 +925,7 @@ class _RestaurantState extends State<RestaurantPage> {
       children: <Widget>[
         Container(
           child: Padding(
-            padding: EdgeInsets.only(left: 40.0, right: 20.0),
+            padding: EdgeInsets.only(left: 40.0, right: 10.0),
             child: Material(
               elevation: 5.0,
               borderRadius: BorderRadius.circular(50.0),

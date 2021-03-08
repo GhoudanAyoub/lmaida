@@ -91,7 +91,7 @@ class LmaidaCard extends StatelessWidget {
                           Row(
                             children: <Widget>[
                               Text(
-                                cardTitle,
+                                cardTitle ?? '',
                                 textAlign: TextAlign.left,
                                 style: Styles.customTitleTextStyle(
                                   color: Colors.black,
@@ -107,7 +107,7 @@ class LmaidaCard extends StatelessWidget {
                                 alignment: Alignment.topLeft,
                                 child: Container(
                                   child: Text(
-                                    address,
+                                    address ?? '',
                                     textAlign: TextAlign.left,
                                     style: Styles.customNormalTextStyle(
                                       color: Colors.grey[600],
@@ -136,57 +136,6 @@ class LmaidaCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                          restoModel.special_offer.length != 0
-                              ? ListView.builder(
-                                  scrollDirection: Axis.vertical,
-                                  itemCount: restoModel.special_offer.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return DateTime.now().isBefore(
-                                            DateTime.parse(
-                                                restoModel.special_offer[index]
-                                                    ["date_to"]))
-                                        ? Row(
-                                            children: <Widget>[
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Container(
-                                                  child: Text(
-                                                    restoModel.special_offer[0]
-                                                        ["name"],
-                                                    textAlign: TextAlign.left,
-                                                    style: Styles
-                                                        .customNormalTextStyle(
-                                                      color: Colors.red[900],
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Container(
-                                                  child: Text(
-                                                    restoModel.special_offer[0]
-                                                        ["date_to"],
-                                                    textAlign: TextAlign.left,
-                                                    style: Styles
-                                                        .customNormalTextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        : SizedBox(
-                                            height: 0,
-                                          );
-                                  })
-                              : SizedBox(
-                                  height: 0,
-                                ),
                           restoModel.opening_hours_from != null &&
                                   restoModel.opening_hours_to != null
                               ? Row(
@@ -206,7 +155,7 @@ class LmaidaCard extends StatelessWidget {
                                     ),
                                   ],
                                 )
-                              : SizedBox(
+                              : Container(
                                   height: 0,
                                 ),
                           Rater(

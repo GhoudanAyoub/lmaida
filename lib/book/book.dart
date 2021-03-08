@@ -159,6 +159,12 @@ class _BookState extends State<Book> {
                               itemBuilder: (BuildContext context, int index) {
                                 BookModel bookmodel =
                                     BookModel.fromJson(snapshot.data[index]);
+                                var color;
+                                bookmodel.statut.contains("canceled")
+                                    ? color = Colors.red[900]
+                                    : bookmodel.statut.contains("accept")
+                                        ? color = Colors.green
+                                        : color = Colors.deepOrangeAccent;
                                 if (snapshot.data != null)
                                   return Padding(
                                     padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -205,8 +211,7 @@ class _BookState extends State<Book> {
                                                           fontWeight:
                                                               FontWeight.w500,
                                                           fontSize: 15.0,
-                                                          color:
-                                                              Colors.red[900],
+                                                          color: color,
                                                         ),
                                                       ),
                                                     ],
@@ -301,45 +306,53 @@ class _BookState extends State<Book> {
                                                     ),
                                                   ),
                                                   SizedBox(height: 5),
-                                                  FlatButton(
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        20)),
-                                                    color: Colors.red[900],
-                                                    disabledColor:
-                                                        Colors.grey[400],
-                                                    disabledTextColor:
-                                                        Colors.white60,
-                                                    onPressed: () {
-                                                      submitted = true;
-                                                      userLog2(bookmodel.id);
-                                                    },
-                                                    child: submitted
-                                                        ? SizedBox(
-                                                            height: 15,
-                                                            width: 15,
-                                                            child:
-                                                                CircularProgressIndicator(
-                                                              strokeWidth: 2,
-                                                              valueColor:
-                                                                  AlwaysStoppedAnimation<
-                                                                          Color>(
-                                                                      Colors
-                                                                          .white),
-                                                            ),
-                                                          )
-                                                        : Text(
-                                                            "Delete Your Booking",
-                                                            style: TextStyle(
-                                                              fontSize: 16,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                          ),
-                                                  ),
+                                                  bookmodel.statut
+                                                          .contains("canceled")
+                                                      ? Container(
+                                                          height: 0,
+                                                        )
+                                                      : FlatButton(
+                                                          shape: RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          20)),
+                                                          color:
+                                                              Colors.red[900],
+                                                          disabledColor:
+                                                              Colors.grey[400],
+                                                          disabledTextColor:
+                                                              Colors.white60,
+                                                          onPressed: () {
+                                                            submitted = true;
+                                                            userLog2(
+                                                                bookmodel.id);
+                                                          },
+                                                          child: submitted
+                                                              ? SizedBox(
+                                                                  height: 15,
+                                                                  width: 15,
+                                                                  child:
+                                                                      CircularProgressIndicator(
+                                                                    strokeWidth:
+                                                                        2,
+                                                                    valueColor: AlwaysStoppedAnimation<
+                                                                            Color>(
+                                                                        Colors
+                                                                            .white),
+                                                                  ),
+                                                                )
+                                                              : Text(
+                                                                  "Delete Your Booking",
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        16,
+                                                                    color: Colors
+                                                                        .white,
+                                                                  ),
+                                                                ),
+                                                        ),
                                                 ],
                                               );
                                             } else {

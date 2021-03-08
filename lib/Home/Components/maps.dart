@@ -100,7 +100,7 @@ class _MapsState extends State<Maps> {
 
   Future<List<dynamic>> fetSearch(name) async {
     var result =
-        await http.get("${StringConst.URI_SEARCH}/${name != "" ? name : "r"}");
+        await http.get("${StringConst.URI_SEARCH}/${name != "" ? name : "i"}");
     return json.decode(result.body);
   }
 
@@ -112,13 +112,34 @@ class _MapsState extends State<Maps> {
             body: Stack(
               children: <Widget>[
                 _buildContainer2(),
+                /*
+                Positioned(
+                  top: 75,
+                  right: 0,
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                    height: 40,
+                    child: FlatButton(
+                      onPressed: () {
+                        setState(() {
+                          fetRestoAdvanceResult = myModel.fetResto(locationId);
+                        });
+                      },
+                      child: Icon(
+                        Icons.cleaning_services,
+                        color: Colors.black,
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                ),*/
                 Align(
                     alignment: Alignment.topCenter,
                     child: Container(
                       margin:
                           EdgeInsets.symmetric(vertical: 70.0, horizontal: 35),
                       child: Padding(
-                        padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                        padding: EdgeInsets.only(left: 15.0, right: 30.0),
                         child: Material(
                           elevation: 5.0,
                           borderRadius: BorderRadius.circular(50.0),
@@ -595,7 +616,9 @@ class _MapsState extends State<Maps> {
     for (var location in fetLocationResult) {
       if (addresses.first.addressLine.contains(location["name"])) {
         fetRestoAdvanceResult = myModel.fetResto(location["id"]);
-        locationId = location["id"];
+        setState(() {
+          locationId = location["id"];
+        });
         print(" ====> done");
       }
     }

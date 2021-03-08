@@ -28,6 +28,7 @@ class RestoModel {
   List special_offer;
   Users user;
   List menus;
+  List reviews;
 
   RestoModel(
       {this.id,
@@ -53,10 +54,11 @@ class RestoModel {
       this.filters,
       this.itemphotos,
       this.locationModel,
-      this.menus});
+      this.menus,
+      this.reviews});
 
   RestoModel.fromJson(Map<dynamic, dynamic> json) {
-    id = json['id'];
+    id = json["id"];
     name = json['name'];
     description = json['description'];
     opening_hours_from = json['opening_hours_from'];
@@ -79,5 +81,6 @@ class RestoModel {
     created_at = json['created_at'];
     updated_at = json['updated_at'];
     menus = json['menus'];
+    reviews = json['reviews'];
   }
 }

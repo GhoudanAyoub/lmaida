@@ -1,11 +1,17 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:lmaida/Resto/componant/booked_screen.dart';
 import 'package:lmaida/Resto/componant/menu_page.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/rater.dart';
+import 'package:lmaida/components/reviews_card.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
+import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/values/values.dart';
 
 class NewRestoDetails extends StatefulWidget {
@@ -29,6 +35,26 @@ class NewRestoDetails extends StatefulWidget {
 }
 
 class _NewRestoDetailsState extends State<NewRestoDetails> {
+  DocumentSnapshot user1;
+  var fetchDetailsRes;
+
+  Future<List<dynamic>> fetDetails(id) async {
+    var result = await http.get("https://lmaida.com/api/resturant/$id");
+    return json.decode(result.body);
+  }
+
+  @override
+  void initState() {
+    getUsers();
+    fetchDetailsRes = fetDetails(widget.restoModel.id);
+  }
+
+  getUsers() async {
+    DocumentSnapshot snap =
+        await usersRef.doc(firebaseAuth.currentUser.uid).get();
+    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -257,9 +283,30 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                   ),
                 ),
                 Padding(
+                    padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(0, 600, 0, 0),
+                      child: Card(
+                        elevation: 10.0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        child: Container(
+                          margin: EdgeInsets.fromLTRB(20, 0, 10, 10),
+                          width: SizeConfig.screenWidth - 50,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              buildComments(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )),
+                Padding(
                   padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
                   child: Container(
-                      margin: EdgeInsets.fromLTRB(0, 600, 0, 0),
+                      margin: EdgeInsets.fromLTRB(0, 820, 0, 0),
                       child: buildImages()),
                 ),
               ],
@@ -324,61 +371,115 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
             )),
       );
     } else {
-      return Padding(
-        padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-        child: Container(
-            margin: EdgeInsets.fromLTRB(0, 400, 0, 0),
-            height: 80.0,
-            child: Card(
-              elevation: 10.0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              child: Container(
-                margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(Icons.card_giftcard_outlined,
-                        size: 30, color: Colors.blue[800]),
-                    Text(
-                      widget.restoModel.special_offer[0]["name"] +
-                          " off the " +
-                          widget.restoModel.name +
-                          " menu!",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15.0,
-                        color: Colors.blue[900],
+      if (DateTime.now().isBefore(
+          DateTime.parse(widget.restoModel.special_offer[0]["date_to"])))
+        return Padding(
+          padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+          child: Container(
+              margin: EdgeInsets.fromLTRB(0, 400, 0, 0),
+              height: 80.0,
+              child: Card(
+                elevation: 10.0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                child: Container(
+                  margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Icon(Icons.card_giftcard_outlined,
+                          size: 30, color: Colors.blue[800]),
+                      Text(
+                        widget.restoModel.special_offer[0]["name"] +
+                            " off the " +
+                            widget.restoModel.name +
+                            " menu!",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15.0,
+                          color: Colors.blue[900],
+                        ),
                       ),
-                    ),
-                    FloatingActionButton(
-                      shape: CircleBorder(),
-                      heroTag: 'book',
-                      mini: true,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => BookedScreen(
-                                    restoModel: widget.restoModel,
-                                    offer: widget.restoModel.special_offer[0]
-                                        ["name"],
-                                    dropdownValue: widget.dropdownValue,
-                                    selectedTimeTxt: widget.selectedTimeTxt,
-                                    selectedDateTxt: widget.selectedDateTxt,
-                                  )),
-                        );
-                      },
-                      backgroundColor: Colors.red[900],
-                      child: Icon(Icons.arrow_forward_ios,
-                          size: 25, color: Colors.white),
-                    )
-                  ],
+                      FloatingActionButton(
+                        shape: CircleBorder(),
+                        heroTag: 'book',
+                        mini: true,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => BookedScreen(
+                                      restoModel: widget.restoModel,
+                                      offer: widget.restoModel.special_offer[0]
+                                          ["name"],
+                                      dropdownValue: widget.dropdownValue,
+                                      selectedTimeTxt: widget.selectedTimeTxt,
+                                      selectedDateTxt: widget.selectedDateTxt,
+                                    )),
+                          );
+                        },
+                        backgroundColor: Colors.red[900],
+                        child: Icon(Icons.arrow_forward_ios,
+                            size: 25, color: Colors.white),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-            )),
-      );
+              )),
+        );
+      else
+        return Padding(
+          padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+          child: Container(
+              margin: EdgeInsets.fromLTRB(0, 400, 0, 0),
+              height: 80.0,
+              child: Card(
+                elevation: 10.0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                child: Container(
+                  margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
+                  width: SizeConfig.screenWidth - 50,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      SizedBox(height: 10),
+                      Text(
+                        "Book Without a Special offer",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15.0,
+                          color: Colors.blue[900],
+                        ),
+                      ),
+                      FloatingActionButton(
+                        shape: CircleBorder(),
+                        heroTag: 'book',
+                        mini: true,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => BookedScreen(
+                                      restoModel: widget.restoModel,
+                                      offer: "0",
+                                      dropdownValue: widget.dropdownValue,
+                                      selectedTimeTxt: widget.selectedTimeTxt,
+                                      selectedDateTxt: widget.selectedDateTxt,
+                                    )),
+                          );
+                        },
+                        backgroundColor: Colors.red[900],
+                        child: Icon(Icons.arrow_forward_ios,
+                            size: 25, color: Colors.white),
+                      )
+                    ],
+                  ),
+                ),
+              )),
+        );
     }
   }
 
@@ -508,5 +609,160 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                 ],
               ));
         });
+  }
+
+  buildComments() {
+    return FutureBuilder(
+      future: fetchDetailsRes,
+      builder: (context, snapshot) {
+        if (snapshot != null && snapshot.data != null) {
+          if (snapshot.data[0]["reviews"].length != 0) {
+            print(snapshot.data[0]["reviews"].length.toString());
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                  leading: CircleAvatar(
+                    radius: 20.0,
+                    backgroundImage:
+                        NetworkImage('assets/images/Profile Image.png'),
+                  ),
+                  title: Text(
+                    "none",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700, color: Colors.red[900]),
+                  ),
+                  subtitle: Text(
+                    "${snapshot.data[0]["reviews"][0]["created_at"].toString()}",
+                    style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.thumb_up,
+                            color: Colors.green,
+                            size: 20,
+                          ),
+                          SizedBox(width: 5.0),
+                          Text(
+                            "POSITIVE",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                color: Colors.green),
+                          )
+                        ],
+                      ),
+                      Text(
+                        "${snapshot.data[0]["reviews"][0]['positivtag']}",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400, color: Colors.black),
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.thumb_down,
+                            color: Colors.red[900],
+                            size: 20,
+                          ),
+                          SizedBox(width: 5.0),
+                          Text(
+                            "NEGATIVE",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                color: Colors.red[900]),
+                          )
+                        ],
+                      ),
+                      Text(
+                        "${snapshot.data[0]["reviews"][0]['negativetag']}",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400, color: Colors.black),
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
+                  child: Text(
+                    "${snapshot.data[0]["reviews"][0]['reviews']}",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w400, color: Colors.black),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    snapshot.data[0]["reviews"].length > 0
+                        ? GestureDetector(
+                            child: Text(
+                                'SEE The ${snapshot.data[0]["reviews"].length} reviews',
+                                style: TextStyle(
+                                    fontSize: 12.0,
+                                    fontFamily: 'Quicksand',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red[900])),
+                            onTap: () => {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ReviewsCard(
+                                          restoModel: widget.restoModel,
+                                          reviews: snapshot.data[0]["reviews"],
+                                        )),
+                              )
+                            },
+                          )
+                        : Container(
+                            height: 0,
+                          )
+                  ],
+                ),
+              ],
+            );
+          } else
+            return Padding(
+              padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+              child: Container(
+                  margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                  height: 50.0,
+                  child: Container(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(
+                          "No Reviews For The Moment",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20.0,
+                            color: Colors.blue[900],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+            );
+        } else {
+          return Center(child: circularProgress(context));
+        }
+      },
+    );
   }
 }
