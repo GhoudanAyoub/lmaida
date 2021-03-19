@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>837867310679-h8ouphc6ugsqig1fjv6mb2ad72f2vv5e.apps.googleusercontent.com</string>
+	<string>350813235755-roik5qp2g18t40n4iegs9cs1og9re712.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.837867310679-h8ouphc6ugsqig1fjv6mb2ad72f2vv5e</string>
+	<string>com.googleusercontent.apps.350813235755-roik5qp2g18t40n4iegs9cs1og9re712</string>
 	<key>API_KEY</key>
-	<string>AIzaSyAWN-fUyDotdJA7r4Qk-ioezdSXm3BVLxk</string>
+	<string>AIzaSyDaw1oSuxYQQxiZSQarKZStKIL0RHg5woQ</string>
 	<key>GCM_SENDER_ID</key>
-	<string>837867310679</string>
+	<string>350813235755</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.ghoudan.lmaida</string>
 	<key>PROJECT_ID</key>
-	<string>lmaida-23326</string>
+	<string>draripfe</string>
 	<key>STORAGE_BUCKET</key>
-	<string>lmaida-23326.appspot.com</string>
+	<string>draripfe.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:837867310679:ios:acb3c8182ba6f5e0691d12</string>
+	<string>1:350813235755:ios:316ff345afabeb8b40d86e</string>
 </dict>
 </plist>

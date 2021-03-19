@@ -154,21 +154,31 @@ class _SignFormState extends State<SignForm> {
                 var success;
                 var Token;
                 try {
-                  success = await auth.loginUser(
-                    email: _emailContoller.text,
-                    password: _passwordController.text,
-                  );
+                  success = await loginUser(
+                      email: _emailContoller.text,
+                      password: _passwordController.text);
+                  print("1 $success");
                   Token = await userLog(
                       email: _emailContoller.text,
                       password: _passwordController.text);
-                  print(Token);
+                  print("2 $Token");
                   if (Token != null && success == null) {
                     var res = await firebaseAuth.createUserWithEmailAndPassword(
                         email: _emailContoller.text,
                         password: _passwordController.text);
                     String cc = await getPorf(Token);
-                    await auth.saveUserToFirestore(cc, res.user,
-                        _emailContoller.text, "", _passwordController.text);
+                    try {
+                      await usersRef.doc(res.user.uid).set({
+                        'username': cc,
+                        'email': _emailContoller.text,
+                        'id': res.user.uid,
+                        'contact': "",
+                        'photoUrl': res.user.photoURL,
+                        'password': _passwordController.text
+                      });
+                    } catch (e) {
+                      print(e);
+                    }
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -186,8 +196,7 @@ class _SignFormState extends State<SignForm> {
                                 )));
                     Scaffold.of(context)
                         .showSnackBar(SnackBar(content: Text('Welcome Back')));
-                  } else if (Token == null &&
-                      success == firebaseAuth.currentUser.uid) {
+                  } else if (Token == null && success == null) {
                     Scaffold.of(context).showSnackBar(
                         SnackBar(content: Text("You Don't Have Account Yet")));
                     Navigator.pushNamed(context, SignUpScreen.routeName);
@@ -198,10 +207,10 @@ class _SignFormState extends State<SignForm> {
                 } catch (e) {
                   submitted = false;
                   addError(error: success);
-                  print(success);
                   print('${auth.handleFirebaseAuthError(e.toString())}');
-                  Scaffold.of(context).showSnackBar(
-                      SnackBar(content: Text("You Don't Have Account Yet")));
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                          "${auth.handleFirebaseAuthError(e.toString())}")));
                 }
               }
             },
@@ -235,7 +244,7 @@ class _SignFormState extends State<SignForm> {
       }
     }
     if (errorType != null) return errorType;
-    return result.user.uid;
+    if (result != null) return result.user.uid;
   }
 
   Future userLog({String email, String password}) async {
@@ -263,7 +272,7 @@ class _SignFormState extends State<SignForm> {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
-    print(message['name']);
+    print("---${message}");
     return message['name'];
   }
 
