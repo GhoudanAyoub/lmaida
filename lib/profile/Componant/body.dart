@@ -48,7 +48,6 @@ class _BodyState extends State<Body> {
 
     return Scaffold(
       key: viewModel.scaffoldKey,
-      resizeToAvoidBottomPadding: false,
       backgroundColor: Color(0xfff2f3f7),
       appBar: AppBar(
         automaticallyImplyLeading: false,

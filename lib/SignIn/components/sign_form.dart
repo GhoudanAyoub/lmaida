@@ -167,18 +167,22 @@ class _SignFormState extends State<SignForm> {
                         email: _emailContoller.text,
                         password: _passwordController.text);
                     String cc = await getPorf(Token);
+                    print("before");
                     try {
-                      await usersRef.doc(res.user.uid).set({
+                      print("in");
+                      await usersRef.doc(firebaseAuth.currentUser.uid).set({
                         'username': cc,
                         'email': _emailContoller.text,
-                        'id': res.user.uid,
+                        'id': firebaseAuth.currentUser.uid,
                         'contact': "",
-                        'photoUrl': res.user.photoURL,
+                        'photoUrl': firebaseAuth.currentUser.photoURL,
                         'password': _passwordController.text
                       });
+                      print("out");
                     } catch (e) {
                       print(e);
                     }
+                    print("jumped");
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -273,7 +277,7 @@ class _SignFormState extends State<SignForm> {
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
     print("---${message}");
-    return message['name'];
+    return message[0]['name'];
   }
 
   void showInSnackBar(String value) {

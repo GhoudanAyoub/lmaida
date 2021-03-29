@@ -175,7 +175,6 @@ class _RestaurantState extends State<RestaurantPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        resizeToAvoidBottomPadding: false,
         backgroundColor: Color(0xfff2f3f7),
         body: Stack(
           children: <Widget>[
