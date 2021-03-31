@@ -112,7 +112,7 @@ class _SideBarState extends State<SideBar>
                                   radius: 65.0,
                                   backgroundImage: NetworkImage(
                                       data['photoUrl'] ??
-                                          'assets/images/Profile Image.png'),
+                                          'assets/images/proim.png'),
                                 ),
                               );
                             else

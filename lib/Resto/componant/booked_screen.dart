@@ -358,6 +358,8 @@ class _BookedScreenState extends State<BookedScreen> {
       setState(() {
         sub = false;
       });
+      BlocProvider.of<NavigationBloc>(context)
+          .add(NavigationEvents.MyOrdersClickedEvent);
     }
   }
 
@@ -577,8 +579,6 @@ class _BookedScreenState extends State<BookedScreen> {
                   submitted: sub,
                   press: () {
                     book();
-                    BlocProvider.of<NavigationBloc>(context)
-                        .add(NavigationEvents.MyOrdersClickedEvent);
                   },
                 ),
                 SizedBox(height: 15.0),

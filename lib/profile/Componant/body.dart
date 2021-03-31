@@ -149,9 +149,9 @@ class _BodyState extends State<Body> {
                                                   const EdgeInsets.all(1.0),
                                               child: CircleAvatar(
                                                 radius: 65.0,
-                                                backgroundImage: NetworkImage(user1
-                                                        .data()["photoUrl"] ??
-                                                    'assets/images/Profile Image.png'),
+                                                backgroundImage: NetworkImage(
+                                                    user1.data()["photoUrl"] ??
+                                                        'assets/images/proim.png'),
                                               ),
                                             )
                                           : Padding(

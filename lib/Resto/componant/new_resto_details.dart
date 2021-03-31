@@ -605,7 +605,21 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                 children: <Widget>[
                   Positioned(
                       top: 100,
-                      child: Image.network(image, width: 500, height: 500))
+                      child: Image.network(image, width: 600, height: 600)),
+                  Positioned(
+                    top: 100,
+                    right: 10,
+                    child: FloatingActionButton(
+                      shape: CircleBorder(),
+                      heroTag: 'book',
+                      mini: true,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      backgroundColor: Colors.grey.withOpacity(0.1),
+                      child: Icon(Icons.clear, size: 25, color: Colors.white),
+                    ),
+                  ),
                 ],
               ));
         });
@@ -617,7 +631,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
       builder: (context, snapshot) {
         if (snapshot != null && snapshot.data != null) {
           if (snapshot.data[0]["reviews"].length != 0) {
-            print(snapshot.data[0]["reviews"].length.toString());
+            print('${snapshot.data[0]["reviews"][0]}');
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -626,8 +640,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                   contentPadding: EdgeInsets.symmetric(horizontal: 0),
                   leading: CircleAvatar(
                     radius: 20.0,
-                    backgroundImage:
-                        NetworkImage('assets/images/Profile Image.png'),
+                    backgroundImage: NetworkImage('assets/images/proim.png'),
                   ),
                   title: Text(
                     "none",

@@ -70,7 +70,7 @@ class _BookState extends State<Book> {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = json.decode(response.body);
-    print('2');
+    print('${message[0]["bookings"]}');
     return message[0]["bookings"];
   }
 

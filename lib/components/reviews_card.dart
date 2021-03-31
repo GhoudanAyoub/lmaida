@@ -91,7 +91,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                     leading: CircleAvatar(
                                       radius: 20.0,
                                       backgroundImage: NetworkImage(
-                                          'assets/images/Profile Image.png'),
+                                          'assets/images/proim.png'),
                                     ),
                                     title: Text(
                                       "none",
