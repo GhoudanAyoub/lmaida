@@ -88,10 +88,12 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                   ListTile(
                                     contentPadding:
                                         EdgeInsets.symmetric(horizontal: 0),
-                                    leading: CircleAvatar(
-                                      radius: 20.0,
-                                      backgroundImage: NetworkImage(
-                                          'assets/images/proim.png'),
+                                    leading: Opacity(
+                                      opacity: 1.0,
+                                      child: Image.asset(
+                                        "assets/images/proim.png",
+                                        width: 50.0,
+                                      ),
                                     ),
                                     title: Text(
                                       "none",

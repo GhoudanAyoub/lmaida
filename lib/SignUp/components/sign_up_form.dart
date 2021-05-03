@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:lmaida/Home/HomePage.dart';
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/form_error2.dart';
@@ -109,12 +108,13 @@ class _SignUpFormState extends State<SignUpForm> {
                   print(success);
                   if (success != null) {
                     viewModel.setToken(success);
-                    Navigator.push(
+                    /*Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => HomePage(
                                   position: position,
-                                )));
+                                )));*/
+                    Navigator.pop(context);
                     Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text('Congratulation Your Account Created')));
                   }

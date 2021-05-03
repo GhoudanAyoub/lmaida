@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/LmaidaCard.dart';
+import 'package:lmaida/components/custom_card.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
@@ -48,7 +49,7 @@ class _RestaurantState extends State<RestaurantPage> {
   String restolenght;
   String catId;
   List categList = List();
-
+  bool open = false;
   String _selected;
   bool show = false;
   Set<int> selectedValues, locSelectedValues, filterSelectedValues;
@@ -56,6 +57,7 @@ class _RestaurantState extends State<RestaurantPage> {
   dynamic Adv_Filter = false;
   var fetRestoAdvanceResult, fetLocationResult, fetFiltersResult, fetCatResult;
   var locationId;
+  String locationName = "", SpectName = "";
 
   Future<List<dynamic>> fetRestoAdvance(location_id) async {
     print('************$catId');
@@ -123,6 +125,9 @@ class _RestaurantState extends State<RestaurantPage> {
         );
       },
     );
+    setState(() {
+      SpectName = selectedValues.join(",");
+    });
     print(
         '****>${selectedValues.isNotEmpty ? selectedValues.join(",") : "1"} ');
   }
@@ -137,7 +142,9 @@ class _RestaurantState extends State<RestaurantPage> {
         );
       },
     );
-
+    setState(() {
+      locationName = locSelectedValues.join(",");
+    });
     print("===> ${locSelectedValues.join(",")}");
   }
 
@@ -176,80 +183,76 @@ class _RestaurantState extends State<RestaurantPage> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Color(0xfff2f3f7),
-        body: Stack(
-          children: <Widget>[
-            Container(
-              height: getProportionateScreenHeight(300),
-              width: MediaQuery.of(context).size.width,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.red[900],
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: const Radius.circular(150),
-                    bottomRight: const Radius.circular(150),
+        body: Container(
+          child: Stack(
+            children: <Widget>[
+              Positioned(
+                bottom: 300.0,
+                left: 100.0,
+                child: Opacity(
+                  opacity: 0.1,
+                  child: Image.asset(
+                    "assets/images/coffee2.png",
+                    width: 150.0,
                   ),
                 ),
               ),
-            ),
-            Positioned(
-              top: 35,
-              right: 10,
-              child: Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                height: 40,
-                child: FlatButton(
-                  onPressed: () {
-                    fl3(context);
-                  },
-                  child: Icon(
-                    Icons.filter_alt,
-                    color: Colors.white,
-                    size: 30,
+              Positioned(
+                top: 200.0,
+                right: -180.0,
+                child: Image.asset(
+                  "assets/images/square.png",
+                ),
+              ),
+              Positioned(
+                child: Image.asset(
+                  "assets/images/drum.png",
+                ),
+                left: -70.0,
+                bottom: -40.0,
+              ),
+              Container(
+                height: getProportionateScreenHeight(300),
+                width: MediaQuery.of(context).size.width,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red[900],
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: const Radius.circular(150),
+                      bottomRight: const Radius.circular(150),
+                    ),
                   ),
                 ),
               ),
-            ),
-            Container(
-              margin: EdgeInsets.fromLTRB(10, 30, 80, 20),
-              height: 200.0,
-              child: Center(
-                child: headerTopCategories(),
-              ),
-            ),
-            GestureDetector(
-              onTap: () async {
-                selectedDateTxt = await _selectDateTime(context);
-                if (selectedDateTxt == null) return;
-
-                print(selectedDateTxt);
-
-                selectedTimeTxt = await _selectTime(context);
-                if (selectedTimeTxt == null) return;
-                print(selectedTimeTxt);
-
-                setState(() {
-                  this.selectedDate = DateTime(
-                    selectedDateTxt.year,
-                    selectedDateTxt.month,
-                    selectedDateTxt.day,
-                    selectedTimeTxt.hour,
-                    selectedTimeTxt.minute,
-                  );
-                });
-              },
-              child: Container(
-                margin: EdgeInsets.fromLTRB(10, 100, 10, 20),
-                height: 60.0,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: FlatButton(
-                      padding: EdgeInsets.all(10),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      color: Color(0xFFF5F6F9),
-                      onPressed: () async {
+              Container(
+                height: SizeConfig.screenHeight,
+                padding: EdgeInsets.fromLTRB(20, 40, 20, 20),
+                child: ListView(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                          height: 30,
+                          child: FlatButton(
+                            onPressed: () {
+                              //fl3(context);
+                              setState(() {
+                                open = !open;
+                              });
+                            },
+                            child: Icon(
+                              Icons.filter_alt,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () async {
                         selectedDateTxt = await _selectDateTime(context);
                         if (selectedDateTxt == null) return;
 
@@ -269,370 +272,717 @@ class _RestaurantState extends State<RestaurantPage> {
                           );
                         });
                       },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          buildCount(
-                              selectedDateTxt != null
-                                  ? "${selectedDateTxt.year}-${selectedDateTxt.month}-${selectedDateTxt.day}"
-                                  : "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
-                              Icons.calendar_today_sharp),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 5.0),
-                            child: Container(
-                              height: 30.0,
-                              width: 0.5,
-                              color: Colors.grey,
+                      child: Container(
+                        margin: EdgeInsets.fromLTRB(10, 40, 10, 20),
+                        height: 60.0,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: FlatButton(
+                              padding: EdgeInsets.all(10),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              color: Color(0xFFF5F6F9),
+                              onPressed: () async {
+                                selectedDateTxt =
+                                    await _selectDateTime(context);
+                                if (selectedDateTxt == null) return;
+
+                                print(selectedDateTxt);
+
+                                selectedTimeTxt = await _selectTime(context);
+                                if (selectedTimeTxt == null) return;
+                                print(selectedTimeTxt);
+
+                                setState(() {
+                                  this.selectedDate = DateTime(
+                                    selectedDateTxt.year,
+                                    selectedDateTxt.month,
+                                    selectedDateTxt.day,
+                                    selectedTimeTxt.hour,
+                                    selectedTimeTxt.minute,
+                                  );
+                                });
+                              },
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: <Widget>[
+                                  buildCount(
+                                      selectedDateTxt != null
+                                          ? "${selectedDateTxt.year}-${selectedDateTxt.month}-${selectedDateTxt.day}"
+                                          : "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}",
+                                      Icons.calendar_today_sharp),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 5.0),
+                                    child: Container(
+                                      height: 30.0,
+                                      width: 0.5,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  buildCount(
+                                      selectedTimeTxt != null
+                                          ? "${selectedTimeTxt.hour} : ${selectedTimeTxt.minute}"
+                                          : "${selectedDate.hour} : ${selectedDate.minute}",
+                                      Icons.watch_later_outlined),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 5.0),
+                                    child: Container(
+                                      height: 30.0,
+                                      width: 0.5,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  DropdownButton<String>(
+                                    value: dropdownValue ?? dropdownValue,
+                                    icon: Icon(
+                                      Icons.person_outline,
+                                      color: Colors.red[900],
+                                      size: 20,
+                                    ),
+                                    iconSize: 24,
+                                    elevation: 16,
+                                    style: TextStyle(color: Colors.red[900]),
+                                    onChanged: (String newValue) {
+                                      setState(() {
+                                        dropdownValue = newValue;
+                                      });
+                                    },
+                                    items: <String>[
+                                      '1',
+                                      '2',
+                                      '3',
+                                      '4',
+                                      '5',
+                                      '6',
+                                      '7',
+                                      '8',
+                                      '9',
+                                      '10'
+                                    ].map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value + " pers"),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          buildCount(
-                              selectedTimeTxt != null
-                                  ? "${selectedTimeTxt.hour} : ${selectedTimeTxt.minute}"
-                                  : "${selectedDate.hour} : ${selectedDate.minute}",
-                              Icons.watch_later_outlined),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 5.0),
-                            child: Container(
-                              height: 30.0,
-                              width: 0.5,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          DropdownButton<String>(
-                            value: dropdownValue ?? dropdownValue,
-                            icon: Icon(
-                              Icons.person_outline,
-                              color: Colors.red[900],
-                              size: 20,
-                            ),
-                            iconSize: 24,
-                            elevation: 16,
-                            style: TextStyle(color: Colors.red[900]),
-                            onChanged: (String newValue) {
-                              setState(() {
-                                dropdownValue = newValue;
-                              });
-                            },
-                            items: <String>[
-                              '1',
-                              '2',
-                              '3',
-                              '4',
-                              '5',
-                              '6',
-                              '7',
-                              '8',
-                              '9',
-                              '10'
-                            ].map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value + " pers"),
-                              );
-                            }).toList(),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ),
-            widget.offers == null
-                ? Container(
-                    margin: EdgeInsets.fromLTRB(10, 170, 10, 20),
-                    child: FutureBuilder<List<dynamic>>(
+                    widget.offers == null
+                        ? Container(
+                            margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                            child: FutureBuilder<List<dynamic>>(
+                                future: fetRestoAdvanceResult,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot snapshot) {
+                                  if (snapshot.hasData) {
+                                    restolenght =
+                                        snapshot.data.length.toString();
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                            restolenght +
+                                                " Restaurants In General",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ))
+                                      ],
+                                    );
+                                  } else
+                                    return Container(
+                                      child: Center(
+                                        child: Text(""),
+                                      ),
+                                    );
+                                }),
+                          )
+                        : Container(
+                            margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                            child: Container(
+                              child: Center(
+                                child: Text(
+                                    "No Special Offers Found For The Moment",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                              ),
+                            ),
+                          ),
+                    open != false
+                        ? Card(
+                            elevation: 5,
+                            margin: EdgeInsets.fromLTRB(10, 30, 10, 20),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0)),
+                            child: Column(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.all(15),
+                                  padding: EdgeInsets.all(15),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          width: 1, color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: DropdownButtonHideUnderline(
+                                          child: ButtonTheme(
+                                            alignedDropdown: true,
+                                            child: DropdownButton<String>(
+                                              isDense: true,
+                                              hint: new Text("Select Category"),
+                                              value: _selected,
+                                              onChanged: (String newValue) {
+                                                setState(() {
+                                                  _selected = newValue;
+                                                  catId = newValue;
+                                                });
+                                              },
+                                              items: categList
+                                                  .map((e) =>
+                                                      new DropdownMenuItem(
+                                                        value:
+                                                            e["id"].toString(),
+                                                        // value: _mySelection,
+                                                        child: Row(
+                                                          children: <Widget>[
+                                                            e["picture"] != null
+                                                                ? CachedNetworkImage(
+                                                                    imageUrl:
+                                                                        "https://lmaida.com/storage/categories/" +
+                                                                            e["picture"],
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    width: 35,
+                                                                    fadeInDuration:
+                                                                        Duration(
+                                                                            milliseconds:
+                                                                                500),
+                                                                    fadeInCurve:
+                                                                        Curves
+                                                                            .easeIn,
+                                                                    placeholder: (context,
+                                                                            progressText) =>
+                                                                        Center(
+                                                                            child:
+                                                                                circularProgress(context)),
+                                                                  )
+                                                                : Icon(
+                                                                    Icons
+                                                                        .dinner_dining,
+                                                                    size: 35,
+                                                                    color: Colors
+                                                                        .black87),
+                                                            Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            10),
+                                                                child: Text(
+                                                                    e["name"])),
+                                                          ],
+                                                        ),
+                                                      ))
+                                                  .toList(),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Restaurants Spects :",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            CustomCard(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10.0),
+                                                child: Theme(
+                                                  data: ThemeData(
+                                                    primaryColor:
+                                                        Theme.of(context)
+                                                            .accentColor,
+                                                    accentColor:
+                                                        Theme.of(context)
+                                                            .accentColor,
+                                                  ),
+                                                  child: FlatButton(
+                                                    onPressed: () {
+                                                      _showMultiSelect(context);
+                                                    },
+                                                    child: Text(
+                                                        selectedValues == null
+                                                            ? 'Choose'
+                                                            : SpectName),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Location :",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            CustomCard(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10.0),
+                                                child: Theme(
+                                                  data: ThemeData(
+                                                    primaryColor:
+                                                        Theme.of(context)
+                                                            .accentColor,
+                                                    accentColor:
+                                                        Theme.of(context)
+                                                            .accentColor,
+                                                  ),
+                                                  child: FlatButton(
+                                                    onPressed: () {
+                                                      _showLocMultiSelect(
+                                                          context);
+                                                    },
+                                                    child: Text(
+                                                        locSelectedValues ==
+                                                                null
+                                                            ? 'Choose'
+                                                            : locationName),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      FlatButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        color: Colors.red[900],
+                                        onPressed: () {
+                                          setState(() {
+                                            fetRestoAdvanceResult = fetRestoAdvance(
+                                                "${locSelectedValues != null ? locSelectedValues.join(",") : null}");
+
+                                            open = false;
+                                          });
+                                        },
+                                        child: Text('APPLY',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            )),
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      FlatButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        color: Colors.red[900],
+                                        onPressed: () {
+                                          setState(() {
+                                            fetRestoAdvanceResult =
+                                                fetResto(locationId);
+                                            open = false;
+                                          });
+                                          searchController.text = null;
+                                          categ = null;
+                                        },
+                                        child: Text('CLEAN',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            )),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(
+                            height: 2,
+                          ),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                      height: SizeConfig.screenHeight - 40,
+                      child: FutureBuilder<List<dynamic>>(
                         future: fetRestoAdvanceResult,
                         builder:
                             (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot.hasData) {
-                            restolenght = snapshot.data.length.toString();
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(restolenght + " Restaurants In General",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ))
-                              ],
-                            );
-                          } else
-                            return Container(
-                              child: Center(
-                                child: Text(""),
-                              ),
-                            );
-                        }),
-                  )
-                : Container(
-                    margin: EdgeInsets.fromLTRB(10, 150, 10, 20),
-                    child: Container(
-                      child: Center(
-                        child: Text("No Special Offers Found For The Moment",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            )),
+                          if (snapshot != null && snapshot.data != null) {
+                            return ListView.builder(
+                                controller: _controller, //new line
+                                padding: EdgeInsets.all(20),
+                                itemCount: snapshot.data.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  RestoModel restoModel =
+                                      RestoModel.fromJson(snapshot.data[index]);
+                                  String dis;
+                                  if (widget.offers == null &&
+                                      position != null &&
+                                      restoModel.address_lat != null &&
+                                      restoModel.address_lon != null) {
+                                    dis = calculateDistance(
+                                            position.latitude,
+                                            position.longitude,
+                                            double.tryParse(
+                                                restoModel.address_lat),
+                                            double.tryParse(
+                                                restoModel.address_lon))
+                                        .toStringAsFixed(2);
+                                    if (Search != null &&
+                                        restoModel.name
+                                            .toLowerCase()
+                                            .contains(Search.toLowerCase())) {
+                                      print(snapshot.data[index].toString());
+                                      return LmaidaCard(
+                                        onTap: () => {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    NewRestoDetails(
+                                                      restoModel: restoModel,
+                                                      dropdownValue:
+                                                          dropdownValue,
+                                                      selectedDateTxt:
+                                                          selectedDateTxt,
+                                                      selectedTimeTxt:
+                                                          selectedTimeTxt,
+                                                      locationId: locationId,
+                                                    )),
+                                          )
+                                        },
+                                        restoModel: restoModel,
+                                        time: restoModel.opening_hours_from ==
+                                                    null ||
+                                                restoModel.opening_hours_from ==
+                                                    ''
+                                            ? " "
+                                            : "Opening from " +
+                                                restoModel.opening_hours_from +
+                                                " to " +
+                                                restoModel.opening_hours_to,
+                                        imagePath: restoModel.pictures,
+                                        status: restoModel.status,
+                                        cardTitle: restoModel.name,
+                                        category:
+                                            restoModel.categories.length != 0
+                                                ? restoModel.categories[0]
+                                                    ["name"]
+                                                : "",
+                                        distance: dis,
+                                        address: restoModel.address,
+                                      );
+                                    } else
+                                      return LmaidaCard(
+                                        onTap: () => {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    NewRestoDetails(
+                                                      restoModel: restoModel,
+                                                      dropdownValue:
+                                                          dropdownValue,
+                                                      selectedDateTxt:
+                                                          selectedDateTxt,
+                                                      selectedTimeTxt:
+                                                          selectedTimeTxt,
+                                                      locationId: locationId,
+                                                    )),
+                                          )
+                                        },
+                                        restoModel: restoModel,
+                                        time: restoModel.opening_hours_from ==
+                                                    null ||
+                                                restoModel.opening_hours_from ==
+                                                    ''
+                                            ? " "
+                                            : "Opening from " +
+                                                restoModel.opening_hours_from +
+                                                " to " +
+                                                restoModel.opening_hours_to,
+                                        imagePath: restoModel.pictures,
+                                        status: restoModel.status,
+                                        cardTitle: restoModel.name,
+                                        category:
+                                            restoModel.categories.length != 0
+                                                ? restoModel.categories[0]
+                                                    ["name"]
+                                                : "",
+                                        distance: dis,
+                                        address: restoModel.address,
+                                      );
+                                  } else {
+                                    if (restoModel.special_offer.length !=
+                                        0) if (Search !=
+                                            null &&
+                                        restoModel.name
+                                            .toLowerCase()
+                                            .contains(Search.toLowerCase()))
+                                      return LmaidaCard(
+                                        onTap: () => {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    NewRestoDetails(
+                                                      restoModel: restoModel,
+                                                      dropdownValue:
+                                                          dropdownValue,
+                                                      selectedDateTxt:
+                                                          selectedDateTxt,
+                                                      selectedTimeTxt:
+                                                          selectedTimeTxt,
+                                                      locationId: locationId,
+                                                    )),
+                                          )
+                                        },
+                                        restoModel: restoModel,
+                                        time: restoModel.opening_hours_from ==
+                                                    null ||
+                                                restoModel.opening_hours_from ==
+                                                    ''
+                                            ? " "
+                                            : "Opening from " +
+                                                restoModel.opening_hours_from +
+                                                " to " +
+                                                restoModel.opening_hours_to,
+                                        imagePath: restoModel.pictures,
+                                        status: restoModel.status,
+                                        cardTitle: restoModel.name,
+                                        category:
+                                            restoModel.categories.length != 0
+                                                ? restoModel.categories[0]
+                                                    ["name"]
+                                                : "",
+                                        distance: dis,
+                                        address: restoModel.address,
+                                      );
+                                    else
+                                      return LmaidaCard(
+                                        onTap: () => {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    NewRestoDetails(
+                                                      restoModel: restoModel,
+                                                      dropdownValue:
+                                                          dropdownValue,
+                                                      selectedDateTxt:
+                                                          selectedDateTxt,
+                                                      selectedTimeTxt:
+                                                          selectedTimeTxt,
+                                                      locationId: locationId,
+                                                    )),
+                                          )
+                                        },
+                                        restoModel: restoModel,
+                                        time: restoModel.opening_hours_from ==
+                                                    null ||
+                                                restoModel.opening_hours_from ==
+                                                    ''
+                                            ? " "
+                                            : "Opening from " +
+                                                restoModel.opening_hours_from +
+                                                " to " +
+                                                restoModel.opening_hours_to,
+                                        imagePath: restoModel.pictures,
+                                        status: restoModel.status,
+                                        cardTitle: restoModel.name,
+                                        category:
+                                            restoModel.categories.length != 0
+                                                ? restoModel.categories[0]
+                                                    ["name"]
+                                                : "",
+                                        distance: dis,
+                                        address: restoModel.address,
+                                      );
+                                    else {
+                                      return Container(
+                                        width: 0,
+                                      );
+                                    }
+                                  }
+                                });
+                          } else {
+                            return Center(child: circularProgress(context));
+                          }
+                        },
                       ),
                     ),
-                  ),
-            Container(
-              margin: EdgeInsets.fromLTRB(10, 180, 10, 20),
-              child: FutureBuilder<List<dynamic>>(
-                future: fetRestoAdvanceResult,
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot != null && snapshot.data != null) {
-                    return ListView.builder(
-                        controller: _controller, //new line
-                        padding: EdgeInsets.all(20),
-                        itemCount: snapshot.data.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          RestoModel restoModel =
-                              RestoModel.fromJson(snapshot.data[index]);
-                          String dis;
-                          if (widget.offers == null &&
-                              position != null &&
-                              restoModel.address_lat != null &&
-                              restoModel.address_lon != null) {
-                            dis = calculateDistance(
-                                    position.latitude,
-                                    position.longitude,
-                                    double.tryParse(restoModel.address_lat),
-                                    double.tryParse(restoModel.address_lon))
-                                .toStringAsFixed(2);
-                            if (Search != null &&
-                                restoModel.name
-                                    .toLowerCase()
-                                    .contains(Search.toLowerCase())) {
-                              print(snapshot.data[index].toString());
-                              return LmaidaCard(
-                                onTap: () => {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => NewRestoDetails(
-                                              restoModel: restoModel,
-                                              dropdownValue: dropdownValue,
-                                              selectedDateTxt: selectedDateTxt,
-                                              selectedTimeTxt: selectedTimeTxt,
-                                              locationId: locationId,
-                                            )),
-                                  )
-                                },
-                                restoModel: restoModel,
-                                time: restoModel.opening_hours_from == null ||
-                                        restoModel.opening_hours_from == ''
-                                    ? " "
-                                    : "Opening from " +
-                                        restoModel.opening_hours_from +
-                                        " to " +
-                                        restoModel.opening_hours_to,
-                                imagePath: restoModel.pictures,
-                                status: restoModel.status,
-                                cardTitle: restoModel.name,
-                                category: restoModel.categories.length != 0
-                                    ? restoModel.categories[0]["name"]
-                                    : "",
-                                distance: dis,
-                                address: restoModel.address,
-                              );
-                            } else
-                              return LmaidaCard(
-                                onTap: () => {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => NewRestoDetails(
-                                              restoModel: restoModel,
-                                              dropdownValue: dropdownValue,
-                                              selectedDateTxt: selectedDateTxt,
-                                              selectedTimeTxt: selectedTimeTxt,
-                                              locationId: locationId,
-                                            )),
-                                  )
-                                },
-                                restoModel: restoModel,
-                                time: restoModel.opening_hours_from == null ||
-                                        restoModel.opening_hours_from == ''
-                                    ? " "
-                                    : "Opening from " +
-                                        restoModel.opening_hours_from +
-                                        " to " +
-                                        restoModel.opening_hours_to,
-                                imagePath: restoModel.pictures,
-                                status: restoModel.status,
-                                cardTitle: restoModel.name,
-                                category: restoModel.categories.length != 0
-                                    ? restoModel.categories[0]["name"]
-                                    : "",
-                                distance: dis,
-                                address: restoModel.address,
-                              );
-                          } else {
-                            if (restoModel.special_offer.length !=
-                                0) if (Search !=
-                                    null &&
-                                restoModel.name
-                                    .toLowerCase()
-                                    .contains(Search.toLowerCase()))
-                              return LmaidaCard(
-                                onTap: () => {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => NewRestoDetails(
-                                              restoModel: restoModel,
-                                              dropdownValue: dropdownValue,
-                                              selectedDateTxt: selectedDateTxt,
-                                              selectedTimeTxt: selectedTimeTxt,
-                                              locationId: locationId,
-                                            )),
-                                  )
-                                },
-                                restoModel: restoModel,
-                                time: restoModel.opening_hours_from == null ||
-                                        restoModel.opening_hours_from == ''
-                                    ? " "
-                                    : "Opening from " +
-                                        restoModel.opening_hours_from +
-                                        " to " +
-                                        restoModel.opening_hours_to,
-                                imagePath: restoModel.pictures,
-                                status: restoModel.status,
-                                cardTitle: restoModel.name,
-                                category: restoModel.categories.length != 0
-                                    ? restoModel.categories[0]["name"]
-                                    : "",
-                                distance: dis,
-                                address: restoModel.address,
-                              );
-                            else
-                              return LmaidaCard(
-                                onTap: () => {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => NewRestoDetails(
-                                              restoModel: restoModel,
-                                              dropdownValue: dropdownValue,
-                                              selectedDateTxt: selectedDateTxt,
-                                              selectedTimeTxt: selectedTimeTxt,
-                                              locationId: locationId,
-                                            )),
-                                  )
-                                },
-                                restoModel: restoModel,
-                                time: restoModel.opening_hours_from == null ||
-                                        restoModel.opening_hours_from == ''
-                                    ? " "
-                                    : "Opening from " +
-                                        restoModel.opening_hours_from +
-                                        " to " +
-                                        restoModel.opening_hours_to,
-                                imagePath: restoModel.pictures,
-                                status: restoModel.status,
-                                cardTitle: restoModel.name,
-                                category: restoModel.categories.length != 0
-                                    ? restoModel.categories[0]["name"]
-                                    : "",
-                                distance: dis,
-                                address: restoModel.address,
-                              );
-                            else {
-                              return Container(
-                                width: 0,
-                              );
-                            }
-                          }
-                        });
-                  } else {
-                    return Center(child: circularProgress(context));
-                  }
-                },
+                  ],
+                ),
               ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                margin: EdgeInsets.fromLTRB(10, 100, 5, 20),
-                height: 60.0,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                    child: Card(
-                      elevation: 8,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      color: Colors.blue[700],
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 120,
-                            child: FlatButton(
-                              color: Colors.grey.withOpacity(0.1),
-                              onPressed: () {
-                                BlocProvider.of<NavigationBloc>(context)
-                                    .add(NavigationEvents.MapClickedEvent);
-                              },
-                              child: buildCount2("Map View", Icons.map),
+              Container(
+                margin: EdgeInsets.fromLTRB(10, 30, 80, 20),
+                height: 200.0,
+                child: Center(
+                  child: headerTopCategories(),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  margin: EdgeInsets.fromLTRB(10, 100, 5, 20),
+                  height: 60.0,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                      child: Card(
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                        color: Colors.blue[700],
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 120,
+                              child: FlatButton(
+                                color: Colors.grey.withOpacity(0.1),
+                                onPressed: () {
+                                  BlocProvider.of<NavigationBloc>(context)
+                                      .add(NavigationEvents.MapClickedEvent);
+                                },
+                                child: buildCount2("Map View", Icons.map),
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: 5.0, top: 5.0),
-                            child: Container(
-                              height: 40.0,
-                              width: 0.5,
-                              color: Colors.white,
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 5.0, top: 5.0),
+                              child: Container(
+                                height: 40.0,
+                                width: 0.5,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            width: 120,
-                            child: FlatButton(
-                              color: Colors.grey.withOpacity(0.1),
-                              onPressed: () {
-                                BlocProvider.of<NavigationBloc>(context)
-                                    .add(NavigationEvents.RestaurantPageEvent);
-                              },
-                              child:
-                                  buildCount2("List View", Icons.list_rounded),
+                            SizedBox(
+                              width: 120,
+                              child: FlatButton(
+                                color: Colors.grey.withOpacity(0.1),
+                                onPressed: () {
+                                  BlocProvider.of<NavigationBloc>(context).add(
+                                      NavigationEvents.RestaurantPageEvent);
+                                },
+                                child: buildCount2(
+                                    "List View", Icons.list_rounded),
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: 5.0, top: 5.0),
-                            child: Container(
-                              height: 40.0,
-                              width: 0.5,
-                              color: Colors.white,
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 5.0, top: 5.0),
+                              child: Container(
+                                height: 40.0,
+                                width: 0.5,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            width: 120,
-                            child: FlatButton(
-                              color: Colors.grey.withOpacity(0.1),
-                              onPressed: () {
-                                BlocProvider.of<NavigationBloc>(context).add(
-                                    NavigationEvents
-                                        .RestaurantPageEventWithParam);
-                              },
-                              child:
-                                  buildCount2("Specials", Icons.offline_bolt),
+                            SizedBox(
+                              width: 120,
+                              child: FlatButton(
+                                color: Colors.grey.withOpacity(0.1),
+                                onPressed: () {
+                                  BlocProvider.of<NavigationBloc>(context).add(
+                                      NavigationEvents
+                                          .RestaurantPageEventWithParam);
+                                },
+                                child:
+                                    buildCount2("Specials", Icons.offline_bolt),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

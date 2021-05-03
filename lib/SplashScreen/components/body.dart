@@ -1,8 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lmaida/Home/HomePage.dart';
-import 'package:lmaida/SignIn/sign_in_screen.dart';
 
 import '../components/splash_content.dart';
 
@@ -18,12 +16,8 @@ class _BodyState extends State<Body> {
   @override
   void initState() {
     new Future.delayed(Duration(seconds: 3), () {
-      if (FirebaseAuth.instance.currentUser == null) {
-        Navigator.pushNamed(context, SignInScreen.routeName);
-      } else {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
-      }
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
     });
   }
 

@@ -16,7 +16,7 @@ class SignInScreen extends StatelessWidget {
               ),
             ),
             child: new WillPopScope(
-              onWillPop: () async => false,
+              onWillPop: () async => true,
               child: Body(),
             ),
             constraints: BoxConstraints.expand()));

@@ -52,6 +52,7 @@ class _BodyState extends State<Body> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
+        elevation: 2,
         title: Text(
           "Profile",
           style: TextStyle(
@@ -147,12 +148,21 @@ class _BodyState extends State<Body> {
                                           ? Padding(
                                               padding:
                                                   const EdgeInsets.all(1.0),
-                                              child: CircleAvatar(
-                                                radius: 65.0,
-                                                backgroundImage: NetworkImage(
-                                                    user1.data()["photoUrl"] ??
-                                                        'assets/images/proim.png'),
-                                              ),
+                                              child: user1.data()["photoUrl"] !=
+                                                      null
+                                                  ? CircleAvatar(
+                                                      radius: 65.0,
+                                                      backgroundImage:
+                                                          NetworkImage(
+                                                              user1.data()[
+                                                                  "photoUrl"]))
+                                                  : Opacity(
+                                                      opacity: 1.0,
+                                                      child: Image.asset(
+                                                        "assets/images/proim.png",
+                                                        width: 120.0,
+                                                      ),
+                                                    ),
                                             )
                                           : Padding(
                                               padding:
@@ -193,7 +203,7 @@ class _BodyState extends State<Body> {
 
   buildForm(EditProfileViewModel viewModel, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Form(
         key: viewModel.formKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -202,7 +212,6 @@ class _BodyState extends State<Body> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(height: 20.0),
-            SizedBox(height: 10.0),
             TextFormBuilder(
               enabled: !viewModel.loading,
               initialValue: firebaseAuth.currentUser.email,

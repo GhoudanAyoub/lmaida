@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lmaida/SignIn/sign_in_screen.dart';
@@ -78,61 +79,74 @@ class _SideBarState extends State<SideBar>
                   child: Column(
                     children: <Widget>[
                       SizedBox(
-                        height: 100,
+                        height: 50,
                       ),
-                      FutureBuilder(
-                        future:
-                            usersRef.doc(firebaseAuth.currentUser.uid).get(),
-                        builder:
-                            (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot.hasError) {
-                            return Text("Something went wrong");
-                          }
+                      firebaseAuth.currentUser != null
+                          ? FutureBuilder(
+                              future: usersRef
+                                  .doc(firebaseAuth.currentUser.uid)
+                                  .get(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot snapshot) {
+                                if (snapshot.hasError) {
+                                  return Text("Something went wrong");
+                                }
 
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            Map<String, dynamic> data = snapshot.data.data();
-                            if (data['id'] == firebaseAuth.currentUser.uid)
-                              return ListTile(
-                                title: Text(
-                                  data['username'] ?? '',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800),
-                                ),
-                                subtitle: Text(
-                                  firebaseAuth.currentUser.email ?? '',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                leading: CircleAvatar(
-                                  radius: 65.0,
-                                  backgroundImage: NetworkImage(
-                                      data['photoUrl'] ??
-                                          'assets/images/proim.png'),
-                                ),
-                              );
-                            else
-                              return Center(
-                                child: Text(
-                                  'Username',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 15.0,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              );
-                          }
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  Map<String, dynamic> data =
+                                      snapshot.data.data();
+                                  if (data['id'] ==
+                                      firebaseAuth.currentUser.uid)
+                                    return ListTile(
+                                      title: Text(
+                                        data['username'] ?? '',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w800),
+                                      ),
+                                      subtitle: Text(
+                                        firebaseAuth.currentUser.email ?? '',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      leading: CircleAvatar(
+                                        radius: 30.0,
+                                        backgroundImage: NetworkImage(
+                                            data['photoUrl'] ??
+                                                'assets/images/proim.png'),
+                                      ),
+                                    );
+                                  else
+                                    return Center(
+                                      child: Text(
+                                        'Username',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 15.0,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    );
+                                }
 
-                          return Text("loading");
-                        },
-                      ),
+                                return Text("loading");
+                              },
+                            )
+                          : Container(
+                              child: Center(
+                                child: Text('LogIn To Access More Utility',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 20,
+                                        color: Colors.white)),
+                              ),
+                            ),
                       Divider(
-                        height: 64,
+                        height: 30,
                         thickness: 0.5,
                         color: Colors.white.withOpacity(0.3),
                         indent: 32,
@@ -156,38 +170,71 @@ class _SideBarState extends State<SideBar>
                               .add(NavigationEvents.MapClickedEvent);
                         },
                       ),
-                      MenuItem(
-                        icon: Icons.person,
-                        title: "My Account",
-                        onTap: () {
-                          onIconPressed();
-                          BlocProvider.of<NavigationBloc>(context)
-                              .add(NavigationEvents.MyAccountClickedEvent);
-                        },
-                      ),
-                      MenuItem(
-                        icon: Icons.shopping_basket,
-                        title: "My Orders",
-                        onTap: () {
-                          onIconPressed();
-                          BlocProvider.of<NavigationBloc>(context)
-                              .add(NavigationEvents.MyOrdersClickedEvent);
-                        },
-                      ),
+                      firebaseAuth.currentUser != null
+                          ? StreamBuilder(
+                              stream: usersRef
+                                  .doc(firebaseAuth.currentUser.uid)
+                                  .snapshots(),
+                              builder: (context,
+                                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                                if (snapshot.hasData) {
+                                  return Column(
+                                    children: [
+                                      MenuItem(
+                                        icon: Icons.person,
+                                        title: "My Account",
+                                        onTap: () {
+                                          onIconPressed();
+                                          BlocProvider.of<NavigationBloc>(
+                                                  context)
+                                              .add(NavigationEvents
+                                                  .MyAccountClickedEvent);
+                                        },
+                                      ),
+                                      MenuItem(
+                                        icon: Icons.shopping_basket,
+                                        title: "My Orders",
+                                        onTap: () {
+                                          onIconPressed();
+                                          BlocProvider.of<NavigationBloc>(
+                                                  context)
+                                              .add(NavigationEvents
+                                                  .MyOrdersClickedEvent);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                }
+                                return Container(
+                                  height: 0,
+                                );
+                              },
+                            )
+                          : Container(
+                              height: 10,
+                            ),
                       Divider(
-                        height: 64,
+                        height: 30,
                         thickness: 0.5,
                         color: Colors.white.withOpacity(0.3),
                         indent: 32,
                         endIndent: 32,
                       ),
-                      MenuItem(
-                        icon: Icons.exit_to_app,
-                        title: "Logout",
-                        onTap: () {
-                          logOut(context);
-                        },
-                      ),
+                      firebaseAuth.currentUser != null
+                          ? MenuItem(
+                              icon: Icons.exit_to_app,
+                              title: "Logout",
+                              onTap: () {
+                                logOut(context);
+                              },
+                            )
+                          : MenuItem(
+                              icon: Icons.login,
+                              title: "Log In",
+                              onTap: () {
+                                logIn(context);
+                              },
+                            ),
                     ],
                   ),
                 ),
@@ -235,10 +282,41 @@ class _SideBarState extends State<SideBar>
                 onPressed: () {
                   Navigator.pop(context);
                   FirebaseService().signOut();
-                  Navigator.pushNamed(context, SignInScreen.routeName);
+                  Navigator.pop(context);
                 },
                 child: Text(
                   'Log Out',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              Divider(),
+              SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Cancel', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        });
+  }
+
+  logIn(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return SimpleDialog(
+            backgroundColor: GBottomNav,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0)),
+            children: [
+              SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, SignInScreen.routeName);
+                },
+                child: Text(
+                  'Log In',
                   style: TextStyle(color: Colors.white),
                 ),
               ),

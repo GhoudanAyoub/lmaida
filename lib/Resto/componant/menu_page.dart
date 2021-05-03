@@ -6,6 +6,7 @@ import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
+import 'package:lmaida/utils/constants.dart';
 
 class MenuPage extends StatefulWidget {
   final RestoModel restoModel;
@@ -25,6 +26,7 @@ class _MenuPageState extends State<MenuPage> {
   final String apiUrl = StringConst.URI_RESTAU + 'all';
   String type;
 
+  int _activeTab = 0;
   Future<List<dynamic>> fetResto(id) async {
     var result = await http.get("$apiUrl/$id");
     return json.decode(result.body);
@@ -37,6 +39,31 @@ class _MenuPageState extends State<MenuPage> {
         backgroundColor: Color(0xfff2f3f7),
         body: Stack(
           children: <Widget>[
+            Positioned(
+              bottom: 300.0,
+              left: 100.0,
+              child: Opacity(
+                opacity: 0.1,
+                child: Image.asset(
+                  "assets/images/coffee2.png",
+                  width: 150.0,
+                ),
+              ),
+            ),
+            Positioned(
+              top: 200.0,
+              right: -180.0,
+              child: Image.asset(
+                "assets/images/square.png",
+              ),
+            ),
+            Positioned(
+              child: Image.asset(
+                "assets/images/drum.png",
+              ),
+              left: -70.0,
+              bottom: -40.0,
+            ),
             Container(
               height: getProportionateScreenHeight(250),
               width: MediaQuery.of(context).size.width,
@@ -151,35 +178,56 @@ class _MenuPageState extends State<MenuPage> {
                       return Stack(
                         children: [
                           Container(
-                            margin: EdgeInsets.fromLTRB(10, 0, 10, 30),
-                            height: 60.0,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10.0),
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15)),
-                                  color: Color(0xFFF5F6F9),
-                                  child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      shrinkWrap: true,
-                                      itemCount: widget.data.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return FlatButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                type = widget.data[index]
-                                                    ["type"]["name"];
-                                              });
-                                            },
-                                            child: buildCount(widget.data[index]
-                                                ["type"]["name"]));
-                                      }),
-                                ),
-                              ),
+                            height: 50,
+                            padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (BuildContext context, int index) {
+                                return InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _activeTab = index;
+                                      type = widget.data[index]["type"]["name"];
+                                      // CatName = categories[index].name.toLowerCase();
+                                      //search(CatName);
+                                    });
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: Duration(milliseconds: 450),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 20.0,
+                                    ),
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color: _activeTab == index
+                                          ? Colors.grey.withOpacity(0.7)
+                                          : mainColor.withOpacity(
+                                              .2,
+                                            ),
+                                      borderRadius: BorderRadius.circular(12.0),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        widget.data[index]["type"]["name"],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: _activeTab == index
+                                              ? Colors.white
+                                              : kTextColor1,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              separatorBuilder:
+                                  (BuildContext context, int index) {
+                                return SizedBox(
+                                  width: 15.0,
+                                );
+                              },
+                              itemCount: widget.data.length,
                             ),
                           ),
                           type == null

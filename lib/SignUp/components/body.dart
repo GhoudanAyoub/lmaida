@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lmaida/components/got_account_text.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
 
@@ -37,8 +36,6 @@ class Body extends StatelessWidget {
                       SizedBox(height: getProportionateScreenHeight(15)),
                       SignUpForm(),
                       SizedBox(height: getProportionateScreenHeight(15)),
-                      GotAccountText(),
-                      SizedBox(height: getProportionateScreenHeight(5)),
                       Text(
                         'By continuing your confirm that you agree \nwith our Term and Condition',
                         textAlign: TextAlign.center,

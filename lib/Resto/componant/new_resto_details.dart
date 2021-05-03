@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmaida/Resto/componant/booked_screen.dart';
-import 'package:lmaida/Resto/componant/menu_page.dart';
+import 'package:lmaida/SignIn/sign_in_screen.dart';
+import 'package:lmaida/SignUp/sign_up_screen.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/rater.dart';
 import 'package:lmaida/components/reviews_card.dart';
@@ -13,6 +15,8 @@ import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/values/values.dart';
+
+import 'menu_page.dart';
 
 class NewRestoDetails extends StatefulWidget {
   final RestoModel restoModel;
@@ -57,11 +61,35 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Color(0xfff2f3f7),
-        body: Stack(
+    return Scaffold(
+      body: Container(
+        child: Stack(
           children: <Widget>[
+            Positioned(
+              bottom: 300.0,
+              left: 100.0,
+              child: Opacity(
+                opacity: 0.1,
+                child: Image.asset(
+                  "assets/images/coffee2.png",
+                  width: 150.0,
+                ),
+              ),
+            ),
+            Positioned(
+              top: 200.0,
+              right: -180.0,
+              child: Image.asset(
+                "assets/images/square.png",
+              ),
+            ),
+            Positioned(
+              child: Image.asset(
+                "assets/images/drum.png",
+              ),
+              left: -70.0,
+              bottom: -40.0,
+            ),
             Container(
               height: getProportionateScreenHeight(250),
               width: MediaQuery.of(context).size.width,
@@ -89,228 +117,199 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                 ),
               )),
             ),
-            SingleChildScrollView(
-                child: Stack(
-              children: [
-                Container(
-                  margin: EdgeInsets.fromLTRB(0, 30, 0, 10),
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 50),
-                        Container(
-                          child: Card(
-                            elevation: 8.0,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                            child: Stack(
-                              children: [
-                                Positioned(
-                                    child: Column(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: CachedNetworkImage(
-                                        imageUrl: widget.restoModel.pictures ==
-                                                null
-                                            ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
-                                            : "https://lmaida.com/storage/gallery/" +
-                                                widget.restoModel.pictures,
-                                        fit: BoxFit.cover,
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        height: 200,
-                                        fadeInDuration:
-                                            Duration(milliseconds: 500),
-                                        fadeInCurve: Curves.easeIn,
-                                        placeholder: (context, progressText) =>
-                                            Center(
-                                                child:
-                                                    CircularProgressIndicator()),
-                                      ),
+            Container(
+              height: SizeConfig.screenHeight,
+              padding: EdgeInsets.fromLTRB(20, 80, 20, 20),
+              child: ListView(
+                children: [
+                  Container(
+                    child: Card(
+                      elevation: 8.0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                              child: Column(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: CachedNetworkImage(
+                                  imageUrl: widget.restoModel.pictures == null
+                                      ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
+                                      : "https://lmaida.com/storage/gallery/" +
+                                          widget.restoModel.pictures,
+                                  fit: BoxFit.cover,
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 200,
+                                  fadeInDuration: Duration(milliseconds: 500),
+                                  fadeInCurve: Curves.easeIn,
+                                  placeholder: (context, progressText) =>
+                                      Center(
+                                          child: CircularProgressIndicator()),
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
+                                child: Column(
+                                  children: <Widget>[
+                                    Row(
+                                      children: <Widget>[
+                                        Align(
+                                          alignment: Alignment.topLeft,
+                                          child: Container(
+                                            child: Text(
+                                              widget.restoModel.address,
+                                              textAlign: TextAlign.left,
+                                              style:
+                                                  Styles.customNormalTextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Container(
-                                      margin: EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 16,
-                                      ),
-                                      child: Column(
-                                        children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              Align(
-                                                alignment: Alignment.topLeft,
-                                                child: Container(
-                                                  child: Text(
-                                                    widget.restoModel.address,
-                                                    textAlign: TextAlign.left,
-                                                    style: Styles
-                                                        .customNormalTextStyle(
-                                                      color: Colors.grey[600],
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Rater(
+                                      rate: widget.restoModel.rating ?? 1,
+                                    ),
+                                    SizedBox(height: 10.0),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                            widget.restoModel.filters
+                                                .map((e) => e["name"])
+                                                .join(","),
+                                            textAlign: TextAlign.left,
+                                            style: Styles.customNormalTextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                            )),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        Align(
+                                          alignment: Alignment.topLeft,
+                                          child: Container(
+                                            child: Text(
+                                              widget.restoModel.opening_hours_from ==
+                                                          null ||
+                                                      widget.restoModel
+                                                              .opening_hours_from ==
+                                                          ''
+                                                  ? " "
+                                                  : "Opening from " +
+                                                      widget.restoModel
+                                                          .opening_hours_from +
+                                                      " to " +
+                                                      widget.restoModel
+                                                          .opening_hours_to,
+                                              textAlign: TextAlign.left,
+                                              style:
+                                                  Styles.customNormalTextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
                                               ),
-                                            ],
+                                            ),
                                           ),
-                                          SizedBox(
-                                            height: 5,
-                                          ),
-                                          Rater(
-                                            rate: widget.restoModel.rating ?? 1,
-                                          ),
-                                          SizedBox(height: 10.0),
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text(
-                                                  widget.restoModel.filters
-                                                      .map((e) => e["name"])
-                                                      .join(","),
-                                                  textAlign: TextAlign.left,
-                                                  style: Styles
-                                                      .customNormalTextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 14,
-                                                  )),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: <Widget>[
-                                              Align(
-                                                alignment: Alignment.topLeft,
-                                                child: Container(
-                                                  child: Text(
-                                                    widget.restoModel
-                                                                    .opening_hours_from ==
-                                                                null ||
-                                                            widget.restoModel
-                                                                    .opening_hours_from ==
-                                                                ''
-                                                        ? " "
-                                                        : "Opening from " +
-                                                            widget.restoModel
-                                                                .opening_hours_from +
-                                                            " to " +
-                                                            widget.restoModel
-                                                                .opening_hours_to,
-                                                    textAlign: TextAlign.left,
-                                                    style: Styles
-                                                        .customNormalTextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                ))
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 15),
-                      ],
+                                ),
+                              ),
+                            ],
+                          ))
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(height: SizeConfig.screenHeight * 0.01),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
-                  child: Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                    child: buildOffer(),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MenuPage(
-                                restoModel: widget.restoModel,
-                                data: widget.restoModel.menus,
-                                index: widget.restoModel.id,
-                                locationId: widget.locationId,
-                              )),
-                    );
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                  buildOffer(),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => MenuPage(
+                                  restoModel: widget.restoModel,
+                                  data: widget.restoModel.menus,
+                                  index: widget.restoModel.id,
+                                  locationId: widget.locationId,
+                                )),
+                      );
+                    },
                     child: Container(
-                        margin: EdgeInsets.fromLTRB(0, 500, 0, 0),
-                        height: 100.0,
+                        child: Card(
+                      elevation: 10.0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Container(
+                        margin: EdgeInsets.fromLTRB(20, 0, 0, 5),
+                        padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                        width: SizeConfig.screenWidth - 50,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            SizedBox(width: 10),
+                            Text(
+                              "Chef's Suggestions",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20.0,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              "See The Full Menu ",
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 14.0,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                      child: Container(
                         child: Card(
                           elevation: 10.0,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
                           child: Container(
-                            margin: EdgeInsets.fromLTRB(20, 0, 0, 10),
+                            margin: EdgeInsets.fromLTRB(20, 0, 10, 10),
                             width: SizeConfig.screenWidth - 50,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                SizedBox(width: 10),
-                                Text(
-                                  "Chef's Suggestions",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 20.0,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Text(
-                                  "See The Full Menu ",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 14.0,
-                                    color: Colors.black,
-                                  ),
-                                ),
+                                buildComments(),
                               ],
                             ),
                           ),
-                        )),
-                  ),
-                ),
-                Padding(
-                    padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
-                    child: Container(
-                      margin: EdgeInsets.fromLTRB(0, 600, 0, 0),
-                      child: Card(
-                        elevation: 10.0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        child: Container(
-                          margin: EdgeInsets.fromLTRB(20, 0, 10, 10),
-                          width: SizeConfig.screenWidth - 50,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              buildComments(),
-                            ],
-                          ),
                         ),
-                      ),
-                    )),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
-                  child: Container(
-                      margin: EdgeInsets.fromLTRB(0, 820, 0, 0),
-                      child: buildImages()),
-                ),
-              ],
-            )),
+                      )),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 10, 0, 20),
+                    child: Container(child: buildImages()),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),
@@ -322,7 +321,6 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
       return Padding(
         padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: Container(
-            margin: EdgeInsets.fromLTRB(0, 400, 0, 0),
             height: 80.0,
             child: Card(
               elevation: 10.0,
@@ -349,17 +347,21 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                       heroTag: 'book',
                       mini: true,
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => BookedScreen(
-                                    restoModel: widget.restoModel,
-                                    offer: "0",
-                                    dropdownValue: widget.dropdownValue,
-                                    selectedTimeTxt: widget.selectedTimeTxt,
-                                    selectedDateTxt: widget.selectedDateTxt,
-                                  )),
-                        );
+                        firebaseAuth.currentUser == null
+                            ? logIn(context)
+                            : Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => BookedScreen(
+                                          restoModel: widget.restoModel,
+                                          offer: "0",
+                                          dropdownValue: widget.dropdownValue,
+                                          selectedTimeTxt:
+                                              widget.selectedTimeTxt,
+                                          selectedDateTxt:
+                                              widget.selectedDateTxt,
+                                        )),
+                              );
                       },
                       backgroundColor: Colors.red[900],
                       child: Icon(Icons.arrow_forward_ios,
@@ -376,7 +378,6 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
         return Padding(
           padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
           child: Container(
-              margin: EdgeInsets.fromLTRB(0, 400, 0, 0),
               height: 80.0,
               child: Card(
                 elevation: 10.0,
@@ -406,18 +407,22 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                         heroTag: 'book',
                         mini: true,
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => BookedScreen(
-                                      restoModel: widget.restoModel,
-                                      offer: widget.restoModel.special_offer[0]
-                                          ["name"],
-                                      dropdownValue: widget.dropdownValue,
-                                      selectedTimeTxt: widget.selectedTimeTxt,
-                                      selectedDateTxt: widget.selectedDateTxt,
-                                    )),
-                          );
+                          firebaseAuth.currentUser == null
+                              ? logIn(context)
+                              : Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => BookedScreen(
+                                            restoModel: widget.restoModel,
+                                            offer: widget.restoModel
+                                                .special_offer[0]["name"],
+                                            dropdownValue: widget.dropdownValue,
+                                            selectedTimeTxt:
+                                                widget.selectedTimeTxt,
+                                            selectedDateTxt:
+                                                widget.selectedDateTxt,
+                                          )),
+                                );
                         },
                         backgroundColor: Colors.red[900],
                         child: Icon(Icons.arrow_forward_ios,
@@ -432,7 +437,6 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
         return Padding(
           padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
           child: Container(
-              margin: EdgeInsets.fromLTRB(0, 400, 0, 0),
               height: 80.0,
               child: Card(
                 elevation: 10.0,
@@ -459,17 +463,21 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                         heroTag: 'book',
                         mini: true,
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => BookedScreen(
-                                      restoModel: widget.restoModel,
-                                      offer: "0",
-                                      dropdownValue: widget.dropdownValue,
-                                      selectedTimeTxt: widget.selectedTimeTxt,
-                                      selectedDateTxt: widget.selectedDateTxt,
-                                    )),
-                          );
+                          firebaseAuth.currentUser == null
+                              ? logIn(context)
+                              : Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => BookedScreen(
+                                            restoModel: widget.restoModel,
+                                            offer: "0",
+                                            dropdownValue: widget.dropdownValue,
+                                            selectedTimeTxt:
+                                                widget.selectedTimeTxt,
+                                            selectedDateTxt:
+                                                widget.selectedDateTxt,
+                                          )),
+                                );
                         },
                         backgroundColor: Colors.red[900],
                         child: Icon(Icons.arrow_forward_ios,
@@ -562,33 +570,30 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
         ),
       );
     } else {
-      return Padding(
-        padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-        child: Container(
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-            height: 80.0,
-            child: Card(
-              elevation: 10.0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              child: Container(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text(
-                      "No Pictures For The Moment",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 20.0,
-                        color: Colors.blue[900],
-                      ),
+      return Container(
+          margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+          height: 80.0,
+          child: Card(
+            elevation: 10.0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            child: Container(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    "No Pictures For The Moment",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 20.0,
+                      color: Colors.blue[900],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            )),
-      );
+            ),
+          ));
     }
   }
 
@@ -638,9 +643,12 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
               children: [
                 ListTile(
                   contentPadding: EdgeInsets.symmetric(horizontal: 0),
-                  leading: CircleAvatar(
-                    radius: 20.0,
-                    backgroundImage: NetworkImage('assets/images/proim.png'),
+                  leading: Opacity(
+                    opacity: 1.0,
+                    child: Image.asset(
+                      "assets/images/proim.png",
+                      width: 50.0,
+                    ),
                   ),
                   title: Text(
                     "none",
@@ -753,7 +761,6 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
             return Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
               child: Container(
-                  margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
                   height: 50.0,
                   child: Container(
                     child: Row(
@@ -777,5 +784,62 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
         }
       },
     );
+  }
+
+  logIn(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return SimpleDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0)),
+            children: [
+              Icon(
+                CupertinoIcons.info,
+                color: Colors.redAccent,
+                size: 50,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Center(
+                child: Text(
+                  "You Must login before Order",
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black),
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, SignInScreen.routeName);
+                },
+                child: Center(
+                  child: Text(
+                    'Log In',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+              Divider(),
+              SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, SignUpScreen.routeName);
+                },
+                child: Center(
+                  child:
+                      Text('Register', style: TextStyle(color: Colors.black)),
+                ),
+              ),
+            ],
+          );
+        });
   }
 }

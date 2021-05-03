@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:lmaida/Home/HomePage.dart';
 import 'package:lmaida/SignUp/sign_up_screen.dart';
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
@@ -183,21 +182,23 @@ class _SignFormState extends State<SignForm> {
                       print(e);
                     }
                     print("jumped");
-                    Navigator.push(
+                    /* Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => HomePage(
                                   position: position,
-                                )));
+                                )));*/
+                    Navigator.pop(context);
                     Scaffold.of(context)
                         .showSnackBar(SnackBar(content: Text('Welcome Back')));
                   } else if (success != null && Token != null) {
-                    Navigator.push(
+                    /*Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => HomePage(
                                   position: position,
-                                )));
+                                )));*/
+                    Navigator.pop(context);
                     Scaffold.of(context)
                         .showSnackBar(SnackBar(content: Text('Welcome Back')));
                   } else if (Token == null && success == null) {
