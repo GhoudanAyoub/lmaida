@@ -23,7 +23,7 @@ class _BookState extends State<Book> {
   final String apiUrl = StringConst.URI_RESTAU1;
   var fetchUser;
   int _activeTab = 0;
-  String CatName = "accept";
+  String CatName = "";
 
   @override
   void initState() {
@@ -245,7 +245,7 @@ class _BookState extends State<Book> {
                       ),
                       fetchUser != null
                           ? Container(
-                              height: SizeConfig.screenHeight - 80,
+                              height: SizeConfig.screenHeight - 180,
                               padding: EdgeInsets.symmetric(horizontal: 10),
                               child: FutureBuilder<List<dynamic>>(
                                 future: userLog(),
@@ -253,7 +253,8 @@ class _BookState extends State<Book> {
                                     AsyncSnapshot snapshot) {
                                   if (snapshot.data != null)
                                     return ListView.builder(
-                                        padding: EdgeInsets.all(10),
+                                        padding: EdgeInsets.all(5),
+                                        shrinkWrap: true,
                                         itemCount: snapshot.data.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
@@ -269,24 +270,250 @@ class _BookState extends State<Book> {
                                                   : color =
                                                       Colors.deepOrangeAccent;
                                           if (snapshot.data != null &&
+                                              CatName == "")
+                                            return Padding(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  0, 5, 0, 5),
+                                              child: Container(
+                                                  child: Card(
+                                                elevation: 8.0,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Container(
+                                                  child: FutureBuilder(
+                                                    future: fetResto(
+                                                        bookmodel.iditem),
+                                                    builder:
+                                                        (context, snapshot) {
+                                                      if (snapshot.hasData) {
+                                                        RestoModel restoModel =
+                                                            RestoModel.fromJson(
+                                                                snapshot
+                                                                    .data[0]);
+                                                        return Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceAround,
+                                                          children: [
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Text(
+                                                                  "Your Book For ${restoModel.name} is ",
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    fontSize:
+                                                                        15.0,
+                                                                    color: Colors
+                                                                        .black,
+                                                                  ),
+                                                                ),
+                                                                Text(
+                                                                  bookmodel
+                                                                      .statut,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    fontSize:
+                                                                        15.0,
+                                                                    color:
+                                                                        color,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            SizedBox(
+                                                                height: 10),
+                                                            Container(
+                                                              height: 60.0,
+                                                              child: Align(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                child: Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .symmetric(
+                                                                      horizontal:
+                                                                          10.0),
+                                                                  child: Card(
+                                                                    shape: RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(15)),
+                                                                    color: Color(
+                                                                        0xFFF5F6F9),
+                                                                    child: Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .spaceAround,
+                                                                      children: <
+                                                                          Widget>[
+                                                                        buildCount(
+                                                                            bookmodel.dates,
+                                                                            Icons.calendar_today_sharp),
+                                                                        Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.only(bottom: 5.0),
+                                                                          child:
+                                                                              Container(
+                                                                            height:
+                                                                                40.0,
+                                                                            width:
+                                                                                0.5,
+                                                                            color:
+                                                                                Colors.grey,
+                                                                          ),
+                                                                        ),
+                                                                        buildCount(
+                                                                            bookmodel.person.toString() +
+                                                                                " person(s)",
+                                                                            Icons.person_outline),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                                'Table booked under the name \n ${user1.data()["username"]}',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  color: Colors
+                                                                      .black,
+                                                                )),
+                                                            SizedBox(height: 5),
+                                                            Text(
+                                                              '${user1.data()["email"]}',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .normal,
+                                                                fontSize: 14.0,
+                                                                color: Colors
+                                                                    .black,
+                                                              ),
+                                                            ),
+                                                            SizedBox(height: 5),
+                                                            Text(
+                                                              '${user1.data()["contact"]}',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                              style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .normal,
+                                                                fontSize: 14.0,
+                                                                color: Colors
+                                                                    .black,
+                                                              ),
+                                                            ),
+                                                            SizedBox(height: 5),
+                                                            bookmodel.statut
+                                                                    .contains(
+                                                                        "canceled")
+                                                                ? Container(
+                                                                    height: 0,
+                                                                  )
+                                                                : FlatButton(
+                                                                    shape: RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(20)),
+                                                                    color: Colors
+                                                                            .red[
+                                                                        900],
+                                                                    disabledColor:
+                                                                        Colors.grey[
+                                                                            400],
+                                                                    disabledTextColor:
+                                                                        Colors
+                                                                            .white60,
+                                                                    onPressed:
+                                                                        () {
+                                                                      submitted =
+                                                                          true;
+                                                                      userLog2(
+                                                                          bookmodel
+                                                                              .id);
+                                                                    },
+                                                                    child: submitted
+                                                                        ? SizedBox(
+                                                                            height:
+                                                                                15,
+                                                                            width:
+                                                                                15,
+                                                                            child:
+                                                                                CircularProgressIndicator(
+                                                                              strokeWidth: 2,
+                                                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                                            ),
+                                                                          )
+                                                                        : Text(
+                                                                            "Delete Your Booking",
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 16,
+                                                                              color: Colors.white,
+                                                                            ),
+                                                                          ),
+                                                                  ),
+                                                          ],
+                                                        );
+                                                      } else {
+                                                        return Center(
+                                                            child: Text(
+                                                                "You Booked restaurant will appear here ",
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 16,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  color: Colors
+                                                                      .red[900],
+                                                                )));
+                                                      }
+                                                    },
+                                                  ),
+                                                ),
+                                              )),
+                                            );
+                                          else if (snapshot.data != null &&
                                               bookmodel.statut
                                                   .contains(CatName))
                                             return Padding(
                                               padding: EdgeInsets.fromLTRB(
-                                                  0, 10, 0, 10),
+                                                  0, 5, 0, 5),
                                               child: Container(
                                                   child: Card(
-                                                elevation: 10.0,
+                                                elevation: 8.0,
                                                 shape: RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            8)),
+                                                            10)),
                                                 child: Container(
-                                                  margin: EdgeInsets.fromLTRB(
-                                                      5, 5, 0, 5),
-                                                  width:
-                                                      SizeConfig.screenWidth -
-                                                          50,
                                                   child: FutureBuilder(
                                                     future: fetResto(
                                                         bookmodel.iditem),
@@ -507,7 +734,7 @@ class _BookState extends State<Book> {
                                             );
                                           else
                                             return Container(
-                                              height: 20,
+                                              height: 0,
                                             );
                                         });
                                   else {

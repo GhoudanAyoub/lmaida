@@ -341,7 +341,7 @@ class _BookedScreenState extends State<BookedScreen> {
     var message = jsonDecode(response.body);
     print(message[0]["name"]);
     AddBook(Token, message[0]["id"], widget.restoModel.id,
-        widget.dropdownValue ?? dropdownValue, widget.offer);
+        dropdownValue ?? widget.dropdownValue, widget.offer);
   }
 
   Future AddBook(Token, userid, itemid, person, offer) async {

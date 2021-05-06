@@ -377,56 +377,56 @@ class _RestaurantState extends State<RestaurantPage> {
                         ),
                       ),
                     ),
-                    widget.offers == null
+                    /* widget.offers == null
                         ? Container(
-                            margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
-                            child: FutureBuilder<List<dynamic>>(
-                                future: fetRestoAdvanceResult,
-                                builder: (BuildContext context,
-                                    AsyncSnapshot snapshot) {
-                                  if (snapshot.hasData) {
-                                    restolenght =
-                                        snapshot.data.length.toString();
-                                    return Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                            restolenght +
-                                                " Restaurants In General",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ))
-                                      ],
-                                    );
-                                  } else
-                                    return Container(
-                                      child: Center(
-                                        child: Text(""),
-                                      ),
-                                    );
-                                }),
-                          )
+                      margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                      child: FutureBuilder<List<dynamic>>(
+                          future: fetRestoAdvanceResult,
+                          builder: (BuildContext context,
+                              AsyncSnapshot snapshot) {
+                            if (snapshot.hasData) {
+                              restolenght =
+                                  snapshot.data.length.toString();
+                              return Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                      restolenght +
+                                          " Restaurants In General",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ))
+                                ],
+                              );
+                            } else
+                              return Container(
+                                child: Center(
+                                  child: Text(""),
+                                ),
+                              );
+                          }),
+                    )
                         : Container(
-                            margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
-                            child: Container(
-                              child: Center(
-                                child: Text(
-                                    "No Special Offers Found For The Moment",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                              ),
-                            ),
-                          ),
+                      margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                      child: Container(
+                        child: Center(
+                          child: Text(
+                              "No Special Offers Found For The Moment",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              )),
+                        ),
+                      ),
+                    ),*/
                     open != false
                         ? Card(
                             elevation: 5,
-                            margin: EdgeInsets.fromLTRB(10, 30, 10, 20),
+                            margin: EdgeInsets.fromLTRB(10, 0, 10, 5),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15.0)),
                             child: Column(
@@ -980,7 +980,7 @@ class _RestaurantState extends State<RestaurantPage> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

@@ -13,7 +13,6 @@ import 'package:http/http.dart' as http;
 import 'package:lmaida/Home/Components/map_model.dart';
 import 'package:lmaida/Resto/componant/new_resto_details.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
-import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
@@ -38,11 +37,10 @@ class _MapsState extends State<Maps> {
   bool submitted = false;
   static CameraPosition _myPosition;
   var resdata;
-  Timer timer;
-
+  var addresses;
   final double _infoWindowWidth = 250;
   final double _markerOffset = 170;
-
+  bool kta3 = false;
   MyModel myModel;
   int locationId;
   double zoomVal = 5.0;
@@ -52,12 +50,6 @@ class _MapsState extends State<Maps> {
   void initState() {
     getLastLocation();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
   }
 
   Marker _createMarker(lat, lon, name, RestoModel restoModel) {
@@ -133,41 +125,45 @@ class _MapsState extends State<Maps> {
                     ),
                   ),
                 ),*/
-                Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      margin:
-                          EdgeInsets.symmetric(vertical: 70.0, horizontal: 35),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 15.0, right: 30.0),
-                        child: Material(
-                          elevation: 5.0,
-                          borderRadius: BorderRadius.circular(50.0),
-                          child: TextFormField(
-                            style: TextStyle(color: Colors.black),
-                            cursorColor: black,
-                            controller: searchController,
-                            onChanged: (value) {
-                              setState(() {
-                                Search = value;
-                                fetRestoAdvanceResult =
-                                    fetSearch(searchController.text);
-                              });
-                            },
-                            decoration: InputDecoration(
-                              hintText: 'Search',
-                              prefixIcon: Icon(Icons.search,
-                                  color: GBottomNav, size: 30.0),
-                              hintStyle: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: 'SFProDisplay-Black'),
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.always,
+                kta3 == false
+                    ? Align(
+                        alignment: Alignment.topCenter,
+                        child: Container(
+                          margin: EdgeInsets.symmetric(
+                              vertical: 70.0, horizontal: 35),
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 15.0, right: 30.0),
+                            child: Material(
+                              elevation: 5.0,
+                              borderRadius: BorderRadius.circular(50.0),
+                              child: TextFormField(
+                                style: TextStyle(color: Colors.black),
+                                cursorColor: black,
+                                controller: searchController,
+                                onChanged: (value) {
+                                  setState(() {
+                                    Search = value;
+                                    fetRestoAdvanceResult =
+                                        fetSearch(searchController.text);
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Search',
+                                  prefixIcon: Icon(Icons.search,
+                                      color: GBottomNav, size: 30.0),
+                                  hintStyle: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: 'SFProDisplay-Black'),
+                                  floatingLabelBehavior:
+                                      FloatingLabelBehavior.always,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ))
+                    : Container(
+                        height: 0,
                       ),
-                    )),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
@@ -401,7 +397,7 @@ class _MapsState extends State<Maps> {
         child: FutureBuilder<List<dynamic>>(
           future: fetRestoAdvanceResult,
           builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasData) {
+            if (snapshot.data != null) {
               for (dynamic d in snapshot.data) {
                 restoModel = RestoModel.fromJson(d);
 
@@ -412,7 +408,7 @@ class _MapsState extends State<Maps> {
                             position.longitude,
                             double.tryParse(restoModel.address_lat),
                             double.tryParse(restoModel.address_lon)) <=
-                        10) {
+                        20) {
                   markerlist.add(_createMarker(
                       double.tryParse(restoModel.address_lat),
                       double.tryParse(restoModel.address_lon),
@@ -426,7 +422,7 @@ class _MapsState extends State<Maps> {
                               position.longitude,
                               double.tryParse(restoModel.address_lat),
                               double.tryParse(restoModel.address_lon)) <=
-                          10) {
+                          20) {
                     markerlist.clear();
                     markerlist.add(_createMarker(
                         double.tryParse(restoModel.address_lat),
@@ -449,7 +445,18 @@ class _MapsState extends State<Maps> {
                 myLocationEnabled: true,
               );
             } else {
-              return Center(child: circularProgress(context));
+              return GoogleMap(
+                mapType: MapType.normal,
+                initialCameraPosition: _myPosition,
+                onMapCreated: (GoogleMapController controller) {
+                  _controller.complete(controller);
+                  mapController = controller;
+                  setState(() {
+                    kta3 = true;
+                  });
+                },
+                myLocationEnabled: true,
+              );
             }
           },
         ),
@@ -609,11 +616,12 @@ class _MapsState extends State<Maps> {
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    var addresses = await Geocoder.local.findAddressesFromCoordinates(
+    addresses = await Geocoder.local.findAddressesFromCoordinates(
         new Coordinates(position.latitude, position.longitude));
     print(
-        " ====>${addresses.first.featureName} : ${addresses.first.addressLine} / ${addresses.first.addressLine.contains("Rabat")} ");
+        " ====> ${addresses.first.addressLine} / ${addresses.first.addressLine.contains("Rabat")} ");
     for (var location in fetLocationResult) {
+      print("*********${location["name"]}");
       if (addresses.first.addressLine.contains(location["name"])) {
         fetRestoAdvanceResult = myModel.fetResto(location["id"]);
         setState(() {

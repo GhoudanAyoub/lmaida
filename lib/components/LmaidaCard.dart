@@ -29,7 +29,7 @@ class LmaidaCard extends StatelessWidget {
   final RestoModel restoModel;
   LmaidaCard({
     this.status,
-    this.rating = 1,
+    this.rating = 4,
     this.imagePath,
     this.cardTitle,
     this.category,
