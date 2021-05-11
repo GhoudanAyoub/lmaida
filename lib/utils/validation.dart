@@ -1,4 +1,14 @@
 class Validations {
+  static String validateReview(String value) {
+    if (value.isEmpty) return 'Review is Required.';
+    final RegExp nameExp = new RegExp(r'^[A-za-zğüşöçİĞÜŞÖÇ ]+$');
+    if (!nameExp.hasMatch(value))
+      return 'Please enter only alphabetical characters.';
+    if (value.length < 100)
+      return 'Review must be at least 100 character length.';
+    return null;
+  }
+
   static String validateName(String value) {
     if (value.isEmpty) return 'Username is Required.';
     final RegExp nameExp = new RegExp(r'^[A-za-zğüşöçİĞÜŞÖÇ ]+$');

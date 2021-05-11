@@ -113,12 +113,19 @@ class _SideBarState extends State<SideBar>
                                           fontSize: 14,
                                         ),
                                       ),
-                                      leading: CircleAvatar(
-                                        radius: 30.0,
-                                        backgroundImage: NetworkImage(
-                                            data['photoUrl'] ??
-                                                'assets/images/proim.png'),
-                                      ),
+                                      leading: data['photoUrl'] != null
+                                          ? CircleAvatar(
+                                              radius: 30.0,
+                                              backgroundImage: NetworkImage(
+                                                  data['photoUrl']),
+                                            )
+                                          : Opacity(
+                                              opacity: 1.0,
+                                              child: Image.asset(
+                                                "assets/images/proim.png",
+                                                width: 50.0,
+                                              ),
+                                            ),
                                     );
                                   else
                                     return Center(

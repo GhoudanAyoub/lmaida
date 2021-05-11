@@ -13,6 +13,8 @@ class StringConst {
   static const String URI_CATEGORY = URL_API + 'api/category';
   static const String URI_FILTERS = URL_API + 'api/filter';
   static const String URI_LOGIN = URL_API + 'api/login';
+  static const String URI_POSTAG = URL_API + 'api/tag/positive';
+  static const String URI_NEGTAG = URL_API + 'api/tag/negative';
 
   static const String LMAIDA = "lmaida";
   static const String FORGOT_PASSWORD_QUESTION = "Forgot Password?";
