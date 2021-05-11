@@ -51,14 +51,14 @@ class _RestaurantState extends State<RestaurantPage> {
   List categList = List();
   bool open = false;
   String _selected;
-  bool show = false;
+  bool show = true;
   Set<int> selectedValues, locSelectedValues, filterSelectedValues;
   var color;
   dynamic Adv_Filter = false;
   var fetRestoAdvanceResult, fetLocationResult, fetFiltersResult, fetCatResult;
   var locationId;
   String locationName = "", SpectName = "";
-
+  var addresses;
   Future<List<dynamic>> fetRestoAdvance(location_id) async {
     print('************$catId');
     var result = await http.get(StringConst.URI_RESTAU_ADV +
@@ -159,15 +159,23 @@ class _RestaurantState extends State<RestaurantPage> {
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    var addresses = await Geocoder.local.findAddressesFromCoordinates(
+    addresses = await Geocoder.local.findAddressesFromCoordinates(
         new Coordinates(position.latitude, position.longitude));
     print(
         " ====> resto ${addresses.first.featureName} : ${addresses.first.addressLine} / ${addresses.first.addressLine.contains("Rabat")} ");
+
     for (var filter in fetFiltersResult) {
       multiItem.add(MultiSelectDialogItem(filter["id"], filter["name"]));
     }
     for (var location in fetLocationResult) {
       locMultiItem.add(MultiSelectDialogItem(location["id"], location["name"]));
+      print(
+          "sqdqdqdq//${addresses.first.addressLine.contains(location["name"])}//${location["name"]}");
+      if (addresses.first.addressLine.contains(location["name"]))
+        setState(() {
+          show = false;
+        });
+
       if (addresses.first.addressLine.contains(location["name"])) {
         setState(() {
           fetRestoAdvanceResult = fetResto(location["id"]);
@@ -638,7 +646,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                           setState(() {
                                             fetRestoAdvanceResult = fetRestoAdvance(
                                                 "${locSelectedValues != null ? locSelectedValues.join(",") : null}");
-
+                                            show = true;
                                             open = false;
                                           });
                                         },
@@ -682,220 +690,275 @@ class _RestaurantState extends State<RestaurantPage> {
                         : Container(
                             height: 2,
                           ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                      height: SizeConfig.screenHeight - 40,
-                      child: FutureBuilder<List<dynamic>>(
-                        future: fetRestoAdvanceResult,
-                        builder:
-                            (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot != null && snapshot.data != null) {
-                            return ListView.builder(
-                                controller: _controller, //new line
-                                padding: EdgeInsets.all(20),
-                                itemCount: snapshot.data.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  RestoModel restoModel =
-                                      RestoModel.fromJson(snapshot.data[index]);
-                                  String dis;
-                                  if (widget.offers == null &&
-                                      position != null &&
-                                      restoModel.address_lat != null &&
-                                      restoModel.address_lon != null) {
-                                    dis = calculateDistance(
-                                            position.latitude,
-                                            position.longitude,
-                                            double.tryParse(
-                                                restoModel.address_lat),
-                                            double.tryParse(
-                                                restoModel.address_lon))
-                                        .toStringAsFixed(2);
-                                    if (Search != null &&
-                                        restoModel.name
-                                            .toLowerCase()
-                                            .contains(Search.toLowerCase())) {
-                                      print(snapshot.data[index].toString());
-                                      return LmaidaCard(
-                                        onTap: () => {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    NewRestoDetails(
-                                                      restoModel: restoModel,
-                                                      dropdownValue:
-                                                          dropdownValue,
-                                                      selectedDateTxt:
-                                                          selectedDateTxt,
-                                                      selectedTimeTxt:
-                                                          selectedTimeTxt,
-                                                      locationId: locationId,
-                                                    )),
-                                          )
-                                        },
-                                        restoModel: restoModel,
-                                        time: restoModel.opening_hours_from ==
-                                                    null ||
-                                                restoModel.opening_hours_from ==
-                                                    ''
-                                            ? " "
-                                            : "Opening from " +
-                                                restoModel.opening_hours_from +
-                                                " to " +
-                                                restoModel.opening_hours_to,
-                                        imagePath: restoModel.pictures,
-                                        status: restoModel.status,
-                                        cardTitle: restoModel.name,
-                                        category:
-                                            restoModel.categories.length != 0
-                                                ? restoModel.categories[0]
-                                                    ["name"]
-                                                : "",
-                                        distance: dis,
-                                        address: restoModel.address,
-                                      );
-                                    } else
-                                      return LmaidaCard(
-                                        onTap: () => {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    NewRestoDetails(
-                                                      restoModel: restoModel,
-                                                      dropdownValue:
-                                                          dropdownValue,
-                                                      selectedDateTxt:
-                                                          selectedDateTxt,
-                                                      selectedTimeTxt:
-                                                          selectedTimeTxt,
-                                                      locationId: locationId,
-                                                    )),
-                                          )
-                                        },
-                                        restoModel: restoModel,
-                                        time: restoModel.opening_hours_from ==
-                                                    null ||
-                                                restoModel.opening_hours_from ==
-                                                    ''
-                                            ? " "
-                                            : "Opening from " +
-                                                restoModel.opening_hours_from +
-                                                " to " +
-                                                restoModel.opening_hours_to,
-                                        imagePath: restoModel.pictures,
-                                        status: restoModel.status,
-                                        cardTitle: restoModel.name,
-                                        category:
-                                            restoModel.categories.length != 0
-                                                ? restoModel.categories[0]
-                                                    ["name"]
-                                                : "",
-                                        distance: dis,
-                                        address: restoModel.address,
-                                      );
-                                  } else {
-                                    if (restoModel.special_offer.length !=
-                                        0) if (Search !=
-                                            null &&
-                                        restoModel.name
-                                            .toLowerCase()
-                                            .contains(Search.toLowerCase()))
-                                      return LmaidaCard(
-                                        onTap: () => {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    NewRestoDetails(
-                                                      restoModel: restoModel,
-                                                      dropdownValue:
-                                                          dropdownValue,
-                                                      selectedDateTxt:
-                                                          selectedDateTxt,
-                                                      selectedTimeTxt:
-                                                          selectedTimeTxt,
-                                                      locationId: locationId,
-                                                    )),
-                                          )
-                                        },
-                                        restoModel: restoModel,
-                                        time: restoModel.opening_hours_from ==
-                                                    null ||
-                                                restoModel.opening_hours_from ==
-                                                    ''
-                                            ? " "
-                                            : "Opening from " +
-                                                restoModel.opening_hours_from +
-                                                " to " +
-                                                restoModel.opening_hours_to,
-                                        imagePath: restoModel.pictures,
-                                        status: restoModel.status,
-                                        cardTitle: restoModel.name,
-                                        category:
-                                            restoModel.categories.length != 0
-                                                ? restoModel.categories[0]
-                                                    ["name"]
-                                                : "",
-                                        distance: dis,
-                                        address: restoModel.address,
-                                      );
-                                    else
-                                      return LmaidaCard(
-                                        onTap: () => {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    NewRestoDetails(
-                                                      restoModel: restoModel,
-                                                      dropdownValue:
-                                                          dropdownValue,
-                                                      selectedDateTxt:
-                                                          selectedDateTxt,
-                                                      selectedTimeTxt:
-                                                          selectedTimeTxt,
-                                                      locationId: locationId,
-                                                    )),
-                                          )
-                                        },
-                                        restoModel: restoModel,
-                                        time: restoModel.opening_hours_from ==
-                                                    null ||
-                                                restoModel.opening_hours_from ==
-                                                    ''
-                                            ? " "
-                                            : "Opening from " +
-                                                restoModel.opening_hours_from +
-                                                " to " +
-                                                restoModel.opening_hours_to,
-                                        imagePath: restoModel.pictures,
-                                        status: restoModel.status,
-                                        cardTitle: restoModel.name,
-                                        category:
-                                            restoModel.categories.length != 0
-                                                ? restoModel.categories[0]
-                                                    ["name"]
-                                                : "",
-                                        distance: dis,
-                                        address: restoModel.address,
-                                      );
-                                    else {
-                                      return Container(
-                                        width: 0,
-                                      );
-                                    }
-                                  }
-                                });
-                          } else {
-                            return Center(child: circularProgress(context));
-                          }
-                        },
-                      ),
-                    ),
+                    show == false
+                        ? Container(
+                            margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                            height: SizeConfig.screenHeight - 40,
+                            child: FutureBuilder<List<dynamic>>(
+                              future: fetRestoAdvanceResult,
+                              builder: (BuildContext context,
+                                  AsyncSnapshot snapshot) {
+                                if (snapshot != null && snapshot.data != null) {
+                                  return ListView.builder(
+                                      controller: _controller, //new line
+                                      padding: EdgeInsets.all(20),
+                                      itemCount: snapshot.data.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        RestoModel restoModel =
+                                            RestoModel.fromJson(
+                                                snapshot.data[index]);
+                                        String dis;
+                                        if (widget.offers == null &&
+                                            position != null &&
+                                            restoModel.address_lat != null &&
+                                            restoModel.address_lon != null) {
+                                          dis = calculateDistance(
+                                                  position.latitude,
+                                                  position.longitude,
+                                                  double.tryParse(
+                                                      restoModel.address_lat),
+                                                  double.tryParse(
+                                                      restoModel.address_lon))
+                                              .toStringAsFixed(2);
+                                          if (Search != null &&
+                                              restoModel.name
+                                                  .toLowerCase()
+                                                  .contains(
+                                                      Search.toLowerCase())) {
+                                            print(snapshot.data[index]
+                                                .toString());
+                                            return LmaidaCard(
+                                              onTap: () => {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          NewRestoDetails(
+                                                            restoModel:
+                                                                restoModel,
+                                                            dropdownValue:
+                                                                dropdownValue,
+                                                            selectedDateTxt:
+                                                                selectedDateTxt,
+                                                            selectedTimeTxt:
+                                                                selectedTimeTxt,
+                                                            locationId:
+                                                                locationId,
+                                                          )),
+                                                )
+                                              },
+                                              restoModel: restoModel,
+                                              time: restoModel.opening_hours_from ==
+                                                          null ||
+                                                      restoModel
+                                                              .opening_hours_from ==
+                                                          ''
+                                                  ? " "
+                                                  : "Opening from " +
+                                                      restoModel
+                                                          .opening_hours_from +
+                                                      " to " +
+                                                      restoModel
+                                                          .opening_hours_to,
+                                              imagePath: restoModel.pictures,
+                                              status: restoModel.status,
+                                              cardTitle: restoModel.name,
+                                              category: restoModel
+                                                          .categories.length !=
+                                                      0
+                                                  ? restoModel.categories[0]
+                                                      ["name"]
+                                                  : "",
+                                              distance: dis,
+                                              address: restoModel.address,
+                                            );
+                                          } else
+                                            return LmaidaCard(
+                                              onTap: () => {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          NewRestoDetails(
+                                                            restoModel:
+                                                                restoModel,
+                                                            dropdownValue:
+                                                                dropdownValue,
+                                                            selectedDateTxt:
+                                                                selectedDateTxt,
+                                                            selectedTimeTxt:
+                                                                selectedTimeTxt,
+                                                            locationId:
+                                                                locationId,
+                                                          )),
+                                                )
+                                              },
+                                              restoModel: restoModel,
+                                              time: restoModel.opening_hours_from ==
+                                                          null ||
+                                                      restoModel
+                                                              .opening_hours_from ==
+                                                          ''
+                                                  ? " "
+                                                  : "Opening from " +
+                                                      restoModel
+                                                          .opening_hours_from +
+                                                      " to " +
+                                                      restoModel
+                                                          .opening_hours_to,
+                                              imagePath: restoModel.pictures,
+                                              status: restoModel.status,
+                                              cardTitle: restoModel.name,
+                                              category: restoModel
+                                                          .categories.length !=
+                                                      0
+                                                  ? restoModel.categories[0]
+                                                      ["name"]
+                                                  : "",
+                                              distance: dis,
+                                              address: restoModel.address,
+                                            );
+                                        } else {
+                                          if (restoModel.special_offer.length !=
+                                              0) if (Search !=
+                                                  null &&
+                                              restoModel.name
+                                                  .toLowerCase()
+                                                  .contains(
+                                                      Search.toLowerCase()))
+                                            return LmaidaCard(
+                                              onTap: () => {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          NewRestoDetails(
+                                                            restoModel:
+                                                                restoModel,
+                                                            dropdownValue:
+                                                                dropdownValue,
+                                                            selectedDateTxt:
+                                                                selectedDateTxt,
+                                                            selectedTimeTxt:
+                                                                selectedTimeTxt,
+                                                            locationId:
+                                                                locationId,
+                                                          )),
+                                                )
+                                              },
+                                              restoModel: restoModel,
+                                              time: restoModel.opening_hours_from ==
+                                                          null ||
+                                                      restoModel
+                                                              .opening_hours_from ==
+                                                          ''
+                                                  ? " "
+                                                  : "Opening from " +
+                                                      restoModel
+                                                          .opening_hours_from +
+                                                      " to " +
+                                                      restoModel
+                                                          .opening_hours_to,
+                                              imagePath: restoModel.pictures,
+                                              status: restoModel.status,
+                                              cardTitle: restoModel.name,
+                                              category: restoModel
+                                                          .categories.length !=
+                                                      0
+                                                  ? restoModel.categories[0]
+                                                      ["name"]
+                                                  : "",
+                                              distance: dis,
+                                              address: restoModel.address,
+                                            );
+                                          else
+                                            return LmaidaCard(
+                                              onTap: () => {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          NewRestoDetails(
+                                                            restoModel:
+                                                                restoModel,
+                                                            dropdownValue:
+                                                                dropdownValue,
+                                                            selectedDateTxt:
+                                                                selectedDateTxt,
+                                                            selectedTimeTxt:
+                                                                selectedTimeTxt,
+                                                            locationId:
+                                                                locationId,
+                                                          )),
+                                                )
+                                              },
+                                              restoModel: restoModel,
+                                              time: restoModel.opening_hours_from ==
+                                                          null ||
+                                                      restoModel
+                                                              .opening_hours_from ==
+                                                          ''
+                                                  ? " "
+                                                  : "Opening from " +
+                                                      restoModel
+                                                          .opening_hours_from +
+                                                      " to " +
+                                                      restoModel
+                                                          .opening_hours_to,
+                                              imagePath: restoModel.pictures,
+                                              status: restoModel.status,
+                                              cardTitle: restoModel.name,
+                                              category: restoModel
+                                                          .categories.length !=
+                                                      0
+                                                  ? restoModel.categories[0]
+                                                      ["name"]
+                                                  : "",
+                                              distance: dis,
+                                              address: restoModel.address,
+                                            );
+                                          else {
+                                            return Container(
+                                              width: 0,
+                                            );
+                                          }
+                                        }
+                                      });
+                                } else {
+                                  return Center(
+                                      child: circularProgress(context));
+                                }
+                              },
+                            ),
+                          )
+                        : Container(
+                            height: 0,
+                          )
                   ],
                 ),
               ),
+              show == true && addresses != null
+                  ? Container(
+                      height: SizeConfig.screenHeight,
+                      padding: EdgeInsets.fromLTRB(20, 250, 20, 20),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Center(
+                          child: Text(
+                            'No Restaurants Near ${addresses.first.addressLine}  Yet ',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ))
+                  : Container(
+                      height: 0,
+                    ),
               Container(
                 margin: EdgeInsets.fromLTRB(10, 30, 80, 20),
                 height: 200.0,

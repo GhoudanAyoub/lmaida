@@ -170,6 +170,15 @@ class _SideBarState extends State<SideBar>
                               .add(NavigationEvents.MapClickedEvent);
                         },
                       ),
+                      MenuItem(
+                        icon: Icons.arrow_forward,
+                        title: "rating shit",
+                        onTap: () {
+                          onIconPressed();
+                          BlocProvider.of<NavigationBloc>(context)
+                              .add(NavigationEvents.ReviewTempShit);
+                        },
+                      ),
                       firebaseAuth.currentUser != null
                           ? StreamBuilder(
                               stream: usersRef

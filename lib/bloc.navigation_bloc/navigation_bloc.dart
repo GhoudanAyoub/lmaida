@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lmaida/Home/Components/Body.dart';
 import 'package:lmaida/Home/Components/maps.dart';
 import 'package:lmaida/Resto/resto_page.dart';
+import 'package:lmaida/Reviews/review.dart';
 import 'package:lmaida/book/book.dart';
 import 'package:lmaida/profile/profile_page.dart';
 
@@ -12,6 +13,7 @@ enum NavigationEvents {
   MapClickedEvent,
   RestaurantPageEvent,
   RestaurantPageEventWithParam,
+  ReviewTempShit
 }
 
 abstract class NavigationStates {}
@@ -41,6 +43,9 @@ class NavigationBloc extends Bloc<NavigationEvents, NavigationStates> {
         break;
       case NavigationEvents.MyOrdersClickedEvent:
         yield Book();
+        break;
+      case NavigationEvents.ReviewTempShit:
+        yield Review();
         break;
     }
   }

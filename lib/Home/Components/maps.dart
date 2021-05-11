@@ -40,7 +40,7 @@ class _MapsState extends State<Maps> {
   var addresses;
   final double _infoWindowWidth = 250;
   final double _markerOffset = 170;
-  bool kta3 = false;
+  bool kta3 = true;
   MyModel myModel;
   int locationId;
   double zoomVal = 5.0;
@@ -104,63 +104,55 @@ class _MapsState extends State<Maps> {
             body: Stack(
               children: <Widget>[
                 _buildContainer2(),
-                /*
-                Positioned(
-                  top: 75,
-                  right: 0,
-                  child: Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                    height: 40,
-                    child: FlatButton(
-                      onPressed: () {
-                        setState(() {
-                          fetRestoAdvanceResult = myModel.fetResto(locationId);
-                        });
-                      },
-                      child: Icon(
-                        Icons.cleaning_services,
-                        color: Colors.black,
-                        size: 30,
-                      ),
-                    ),
-                  ),
-                ),*/
-                kta3 == false
-                    ? Align(
-                        alignment: Alignment.topCenter,
-                        child: Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 70.0, horizontal: 35),
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 15.0, right: 30.0),
-                            child: Material(
-                              elevation: 5.0,
-                              borderRadius: BorderRadius.circular(50.0),
-                              child: TextFormField(
-                                style: TextStyle(color: Colors.black),
-                                cursorColor: black,
-                                controller: searchController,
-                                onChanged: (value) {
-                                  setState(() {
-                                    Search = value;
-                                    fetRestoAdvanceResult =
-                                        fetSearch(searchController.text);
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'Search',
-                                  prefixIcon: Icon(Icons.search,
-                                      color: GBottomNav, size: 30.0),
-                                  hintStyle: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: 'SFProDisplay-Black'),
-                                  floatingLabelBehavior:
-                                      FloatingLabelBehavior.always,
-                                ),
-                              ),
+                Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      margin:
+                          EdgeInsets.symmetric(vertical: 70.0, horizontal: 35),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 15.0, right: 30.0),
+                        child: Material(
+                          elevation: 5.0,
+                          borderRadius: BorderRadius.circular(50.0),
+                          child: TextFormField(
+                            style: TextStyle(color: Colors.black),
+                            cursorColor: black,
+                            controller: searchController,
+                            onChanged: (value) {
+                              setState(() {
+                                Search = value;
+                                kta3 = false;
+                                fetRestoAdvanceResult =
+                                    fetSearch(searchController.text);
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'Search',
+                              prefixIcon: Icon(Icons.search,
+                                  color: GBottomNav, size: 30.0),
+                              hintStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: 'SFProDisplay-Black'),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
                             ),
                           ),
-                        ))
+                        ),
+                      ),
+                    )),
+                kta3 == true && addresses != null
+                    ? Container(
+                        padding: EdgeInsets.fromLTRB(40, 150, 40, 20),
+                        child: Text(
+                          'No Restaurants Near ${addresses.first.addressLine}  Yet ',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
                     : Container(
                         height: 0,
                       ),
@@ -451,9 +443,6 @@ class _MapsState extends State<Maps> {
                 onMapCreated: (GoogleMapController controller) {
                   _controller.complete(controller);
                   mapController = controller;
-                  setState(() {
-                    kta3 = true;
-                  });
                 },
                 myLocationEnabled: true,
               );
@@ -618,14 +607,14 @@ class _MapsState extends State<Maps> {
 
     addresses = await Geocoder.local.findAddressesFromCoordinates(
         new Coordinates(position.latitude, position.longitude));
-    print(
-        " ====> ${addresses.first.addressLine} / ${addresses.first.addressLine.contains("Rabat")} ");
     for (var location in fetLocationResult) {
       print("*********${location["name"]}");
       if (addresses.first.addressLine.contains(location["name"])) {
         fetRestoAdvanceResult = myModel.fetResto(location["id"]);
+        print('${addresses.first.addressLine.contains(location["name"])}');
         setState(() {
           locationId = location["id"];
+          kta3 = false;
         });
         print(" ====> done");
       }

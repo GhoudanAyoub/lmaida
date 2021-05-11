@@ -49,7 +49,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
 
   @override
   void initState() {
-    getUsers();
+    //getUsers();
     fetchDetailsRes = fetDetails(widget.restoModel.id);
   }
 
@@ -373,6 +373,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
             )),
       );
     } else {
+      print('4545454${widget.restoModel.special_offer[0]}');
       if (DateTime.now().isBefore(
           DateTime.parse(widget.restoModel.special_offer[0]["date_to"])))
         return Padding(
@@ -391,15 +392,22 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                     children: [
                       Icon(Icons.card_giftcard_outlined,
                           size: 30, color: Colors.blue[800]),
-                      Text(
-                        widget.restoModel.special_offer[0]["name"] +
-                            " off the " +
-                            widget.restoModel.name +
-                            " menu!",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15.0,
-                          color: Colors.blue[900],
+                      Container(
+                        width: 250,
+                        child: Text(
+                          widget.restoModel.special_offer[0]["name"] +
+                              " off " +
+                              widget.restoModel.name +
+                              " menu!" +
+                              "\n Between ${widget.restoModel.special_offer[0]["date_from"]} " +
+                              "  ${widget.restoModel.special_offer[0]["date_to"]}",
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.clip,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 15.0,
+                            color: Colors.blue[900],
+                          ),
                         ),
                       ),
                       FloatingActionButton(
