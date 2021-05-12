@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:async/async.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,17 +17,24 @@ import 'package:lmaida/models/category.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
+import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/utils/validation.dart';
+import 'package:path/path.dart';
 
 import '../Reviews/costumimage.dart';
 
 class Review extends StatefulWidget with NavigationStates {
+  final idbooking;
+
+  const Review({Key key, this.idbooking}) : super(key: key);
   @override
   _ReviewState createState() => _ReviewState();
 }
 
 class _ReviewState extends State<Review> {
+  DocumentSnapshot user1;
   final picker = ImagePicker();
+  double ratingG = 1;
   TextEditingController _reviewContoller = TextEditingController();
   TextEditingController _likeContoller = TextEditingController();
   TextEditingController _notLikeContoller = TextEditingController();
@@ -38,11 +48,18 @@ class _ReviewState extends State<Review> {
   final String positiveTag = StringConst.URI_POSTAG;
   final String negativeTag = StringConst.URI_NEGTAG;
 
-  static final List<Category> negativeList = [];
-  static final List<Category> positiveList = [];
+  List<Category> negativeList = [];
+  List<Category> positiveList = [];
+
+  List<Category> filteredNegativeList = [];
+  List<Category> filteredPositiveList = [];
 
   int _activeTab = 0;
   int _activeTab2 = 0;
+
+  String positiveTagString = '';
+  String negativeTagString = '';
+
   Future fetPositiveTag() async {
     var result = await http.get(positiveTag);
     return json.decode(result.body);
@@ -56,14 +73,155 @@ class _ReviewState extends State<Review> {
   getData() async {
     var res = await fetPositiveTag();
     var res2 = await fetNegativeTag();
-    for (var r in res) positiveList.add(Category(id: r['id'], name: r['text']));
-    for (var r in res2)
+    for (var r in res) {
+      positiveList.add(Category(id: r['id'], name: r['text']));
+      filteredPositiveList.add(Category(id: r['id'], name: r['text']));
+    }
+    for (var r in res2) {
       negativeList.add(Category(id: r['id'], name: r['text']));
+      filteredNegativeList.add(Category(id: r['id'], name: r['text']));
+    }
+  }
+
+  searchPositive(String query) {
+    if (query == "") {
+      setState(() {
+        filteredPositiveList = positiveList;
+      });
+    } else {
+      List userSearch = positiveList.where((userSnap) {
+        return userSnap.name.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+
+      setState(() {
+        filteredPositiveList = userSearch;
+      });
+    }
+  }
+
+  searchNegative(String query) {
+    if (query == "") {
+      filteredNegativeList = negativeList;
+    } else {
+      List userSearch = negativeList.where((userSnap) {
+        return userSnap.name.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+
+      setState(() {
+        filteredNegativeList = userSearch;
+      });
+    }
+  }
+
+  getUsers() async {
+    DocumentSnapshot snap =
+        await usersRef.doc(firebaseAuth.currentUser.uid).get();
+    if (snap.data()["id"] == firebaseAuth.currentUser.uid) {
+      user1 = snap;
+    }
+  }
+
+  Future<List<dynamic>> userLog(context) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': firebaseAuth.currentUser.email,
+      'password': user1.data()["password"],
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    return getPorf(message["token"], context);
+  }
+
+  Future getPorf(Token, context) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/profile';
+    var response = await http.post(Uri.encodeFull(url), headers: header);
+    var message = jsonDecode(response.body);
+    AddReviews(header, message[0]["id"], context);
+  }
+
+  Future AddReviews(header, userid, context) async {
+    FormState form = formKey.currentState;
+    if (!form.validate()) {
+      showInSnackBar('Please fix the errors in red before submitting.');
+    } else {
+      String im1 = await Upload(mediaUrl);
+      String im2 = await Upload(mediaUrl2);
+      String im3 = await Upload(mediaUrl3);
+      var url = 'https://lmaida.com/api/review';
+      var data = {
+        'idbooking': widget.idbooking == null ? widget.idbooking : '10',
+        'iduser': userid,
+        'reviews': ratingG.toString(),
+        'image1': im1,
+        'image2': im2,
+        'image3': im3,
+        'positivtag': positiveTagString,
+        'negativetag': negativeTagString,
+      };
+      var response = await http.post(Uri.encodeFull(url),
+          headers: header, body: json.encode(data));
+      var message = jsonDecode(response.body);
+      print(message);
+
+      if (message["errors"] != null) {
+        Fluttertoast.showToast(
+            msg: message["errors"],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red[900],
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        Fluttertoast.showToast(
+            msg: message["message"],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  Future<String> Upload(File imageFile) async {
+    var result;
+    var stream =
+        new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
+    var length = await imageFile.length();
+
+    var uri = Uri.parse("https://lmaida.com/storage/reviews");
+
+    var request = new http.MultipartRequest("POST", uri);
+    var multipartFile = new http.MultipartFile('file', stream, length,
+        filename: basename(imageFile.path));
+
+    request.files.add(multipartFile);
+    var response = await request.send();
+    print(response.statusCode);
+    response.stream.transform(utf8.decoder).listen((value) {
+      print("545454" + value);
+      result = value;
+    });
+    return result;
   }
 
   @override
   void initState() {
     getData();
+    getUsers();
     super.initState();
   }
 
@@ -157,6 +315,9 @@ class _ReviewState extends State<Review> {
                         ),
                         onRatingUpdate: (rating) {
                           print(rating);
+                          setState(() {
+                            ratingG = rating;
+                          });
                         },
                       ),
                       SizedBox(
@@ -180,6 +341,9 @@ class _ReviewState extends State<Review> {
                             controller: _notLikeContoller,
                             prefix: Feather.inbox,
                             hintText: "Search or select from blow",
+                            onChange: (q) {
+                              searchNegative(q);
+                            },
                           ),
                           SizedBox(
                             height: 5,
@@ -195,7 +359,6 @@ class _ReviewState extends State<Review> {
                                   onTap: () {
                                     setState(() {
                                       _activeTab = index;
-                                      //search(CatName);
                                     });
                                   },
                                   child: AnimatedContainer(
@@ -212,7 +375,7 @@ class _ReviewState extends State<Review> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        negativeList[index].name,
+                                        filteredNegativeList[index].name,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: _activeTab == index
@@ -230,7 +393,7 @@ class _ReviewState extends State<Review> {
                                   width: 15.0,
                                 );
                               },
-                              itemCount: negativeList.length,
+                              itemCount: filteredNegativeList.length,
                             ),
                           ),
                         ],
@@ -256,6 +419,9 @@ class _ReviewState extends State<Review> {
                             controller: _likeContoller,
                             prefix: Feather.inbox,
                             hintText: "Search or select from blow",
+                            onChange: (q) {
+                              searchPositive(q);
+                            },
                           ),
                           SizedBox(
                             height: 5,
@@ -271,7 +437,6 @@ class _ReviewState extends State<Review> {
                                   onTap: () {
                                     setState(() {
                                       _activeTab2 = index;
-                                      //search(CatName);
                                     });
                                   },
                                   child: AnimatedContainer(
@@ -288,7 +453,7 @@ class _ReviewState extends State<Review> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        positiveList[index].name,
+                                        filteredPositiveList[index].name,
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: _activeTab2 == index
@@ -306,7 +471,7 @@ class _ReviewState extends State<Review> {
                                   width: 15.0,
                                 );
                               },
-                              itemCount: positiveList.length,
+                              itemCount: filteredPositiveList.length,
                             ),
                           ),
                         ],
@@ -532,7 +697,7 @@ class _ReviewState extends State<Review> {
                             heroTag: 'Add Review',
                             mini: true,
                             onPressed: () {
-                              addReview();
+                              userLog(context);
                             },
                             backgroundColor: Colors.red[900],
                             child: Icon(Icons.arrow_forward_ios,
@@ -549,14 +714,6 @@ class _ReviewState extends State<Review> {
         ),
       ),
     );
-  }
-
-  addReview() {
-    FormState form = formKey.currentState;
-    //form.save();
-    if (!form.validate()) {
-      showInSnackBar('Please fix the errors in red before submitting.');
-    } else {}
   }
 
   showImageChoices(BuildContext context) {

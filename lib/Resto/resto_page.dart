@@ -171,10 +171,11 @@ class _RestaurantState extends State<RestaurantPage> {
       locMultiItem.add(MultiSelectDialogItem(location["id"], location["name"]));
       print(
           "sqdqdqdq//${addresses.first.addressLine.contains(location["name"])}//${location["name"]}");
-      if (addresses.first.addressLine.contains(location["name"]))
+      if (addresses.first.addressLine.contains(location["name"])) {
         setState(() {
           show = false;
         });
+      }
 
       if (addresses.first.addressLine.contains(location["name"])) {
         setState(() {

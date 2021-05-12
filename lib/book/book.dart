@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lmaida/Reviews/review.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/book_model.dart';
@@ -129,22 +130,6 @@ class _BookState extends State<Book> {
       name: "Canceled",
     ),
   ];
-/*
-  search(String query) {
-    if (query == "") {
-      filtereProduct = foodList;
-    } else {
-      List userSearch = foodList.where((userSnap) {
-        Map user = userSnap.data();
-        String userName = user['categories'];
-        return userName.toLowerCase().contains(query.toLowerCase());
-      }).toList();
-
-      setState(() {
-        filtereProduct = userSearch;
-      });
-    }
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -276,7 +261,7 @@ class _BookState extends State<Book> {
                                                   0, 5, 0, 5),
                                               child: Container(
                                                   child: Card(
-                                                elevation: 8.0,
+                                                elevation: 4.0,
                                                 shape: RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
@@ -478,6 +463,55 @@ class _BookState extends State<Book> {
                                                                               color: Colors.white,
                                                                             ),
                                                                           ),
+                                                                  ),
+                                                            bookmodel.statut
+                                                                    .contains(
+                                                                        "accept")
+                                                                ? FlatButton(
+                                                                    shape: RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(20)),
+                                                                    color: Colors
+                                                                            .red[
+                                                                        900],
+                                                                    disabledColor:
+                                                                        Colors.grey[
+                                                                            400],
+                                                                    disabledTextColor:
+                                                                        Colors
+                                                                            .white60,
+                                                                    onPressed:
+                                                                        () {
+                                                                      submitted =
+                                                                          true;
+                                                                      Navigator.push(
+                                                                          context,
+                                                                          MaterialPageRoute(
+                                                                              builder: (context) => Review()));
+                                                                    },
+                                                                    child: submitted
+                                                                        ? SizedBox(
+                                                                            height:
+                                                                                15,
+                                                                            width:
+                                                                                15,
+                                                                            child:
+                                                                                CircularProgressIndicator(
+                                                                              strokeWidth: 2,
+                                                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                                            ),
+                                                                          )
+                                                                        : Text(
+                                                                            "Review",
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 16,
+                                                                              color: Colors.white,
+                                                                            ),
+                                                                          ),
+                                                                  )
+                                                                : Container(
+                                                                    height: 0,
                                                                   ),
                                                           ],
                                                         );
@@ -508,7 +542,7 @@ class _BookState extends State<Book> {
                                                   0, 5, 0, 5),
                                               child: Container(
                                                   child: Card(
-                                                elevation: 8.0,
+                                                elevation: 4.0,
                                                 shape: RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
@@ -710,6 +744,47 @@ class _BookState extends State<Book> {
                                                                               color: Colors.white,
                                                                             ),
                                                                           ),
+                                                                  ),
+                                                            bookmodel.statut
+                                                                    .contains(
+                                                                        "accept")
+                                                                ? FlatButton(
+                                                                    shape: RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(8)),
+                                                                    color: Colors
+                                                                            .red[
+                                                                        900],
+                                                                    disabledColor:
+                                                                        Colors.grey[
+                                                                            400],
+                                                                    disabledTextColor:
+                                                                        Colors
+                                                                            .white60,
+                                                                    onPressed:
+                                                                        () {
+                                                                      submitted =
+                                                                          true;
+                                                                      Navigator.push(
+                                                                          context,
+                                                                          MaterialPageRoute(
+                                                                              builder: (context) => Review(
+                                                                                    idbooking: bookmodel.id,
+                                                                                  )));
+                                                                    },
+                                                                    child: Text(
+                                                                      "Review",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        color: Colors
+                                                                            .white,
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : Container(
+                                                                    height: 0,
                                                                   ),
                                                           ],
                                                         );
