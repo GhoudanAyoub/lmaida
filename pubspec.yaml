@@ -23,6 +23,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  get_storage: 1.4.0
+  dio: ^3.0.10
   flutter_rating_bar: ^4.0.0
   firebase_auth: "any"
   firebase_database: "any"

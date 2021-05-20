@@ -10,6 +10,7 @@ import 'package:lmaida/SignIn/sign_in_screen.dart';
 import 'package:lmaida/SignUp/sign_up_screen.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/rater.dart';
+import 'package:lmaida/components/reting%20star.dart';
 import 'package:lmaida/components/reviews_card.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
@@ -41,6 +42,8 @@ class NewRestoDetails extends StatefulWidget {
 class _NewRestoDetailsState extends State<NewRestoDetails> {
   DocumentSnapshot user1;
   var fetchDetailsRes;
+  String finalNegTag = "";
+  String finaPosTag = "";
 
   Future<List<dynamic>> fetDetails(id) async {
     var result = await http.get("https://lmaida.com/api/resturant/$id");
@@ -156,23 +159,17 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                 ),
                                 child: Column(
                                   children: <Widget>[
-                                    Row(
-                                      children: <Widget>[
-                                        Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Container(
-                                            child: Text(
-                                              widget.restoModel.address,
-                                              textAlign: TextAlign.left,
-                                              style:
-                                                  Styles.customNormalTextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                          ),
+                                    Container(
+                                      width: SizeConfig.screenWidth,
+                                      child: Text(
+                                        widget.restoModel.address,
+                                        textAlign: TextAlign.left,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Styles.customNormalTextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 12,
                                         ),
-                                      ],
+                                      ),
                                     ),
                                     SizedBox(
                                       height: 5,
@@ -181,20 +178,18 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                       rate: widget.restoModel.rating ?? 1,
                                     ),
                                     SizedBox(height: 10.0),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(
-                                            widget.restoModel.filters
-                                                .map((e) => e["name"])
-                                                .join(","),
-                                            textAlign: TextAlign.left,
-                                            style: Styles.customNormalTextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                            )),
-                                      ],
+                                    Container(
+                                      width: SizeConfig.screenWidth,
+                                      child: Text(
+                                          widget.restoModel.filters
+                                              .map((e) => e["name"])
+                                              .join(","),
+                                          textAlign: TextAlign.left,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Styles.customNormalTextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                          )),
                                     ),
                                     Row(
                                       children: <Widget>[
@@ -644,7 +639,6 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
       builder: (context, snapshot) {
         if (snapshot != null && snapshot.data != null) {
           if (snapshot.data[0]["reviews"].length != 0) {
-            print('${snapshot.data[0]["reviews"][0]}');
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -659,9 +653,8 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                     ),
                   ),
                   title: Text(
-                    "none",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700, color: Colors.red[900]),
+                    "Unknown",
+                    style: TextStyle(fontSize: 12.0, color: Colors.grey),
                   ),
                   subtitle: Text(
                     "${snapshot.data[0]["reviews"][0]["created_at"].toString()}",
@@ -669,7 +662,21 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                  padding: EdgeInsets.all(5),
+                  child: double.tryParse(
+                              snapshot.data[0]["reviews"][0]['reviews']) !=
+                          null
+                      ? StarRating(
+                          rating: double.parse(
+                              snapshot.data[0]["reviews"][0]['reviews']),
+                          color: Colors.black,
+                        )
+                      : SizedBox(
+                          height: 0,
+                        ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -689,16 +696,25 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                           )
                         ],
                       ),
-                      Text(
-                        "${snapshot.data[0]["reviews"][0]['positivtag']}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, color: Colors.black),
+                      Padding(
+                        padding: EdgeInsets.only(left: 10, top: 5),
+                        child: Text(
+                          "${snapshot.data[0]["reviews"][0]['positivtag'] ?? "NO POSITIVE TAGS"}",
+                          style: snapshot.data[0]["reviews"][0]['positivtag'] !=
+                                  null
+                              ? TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black)
+                              : TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.grey),
+                        ),
                       )
                     ],
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -718,22 +734,25 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                           )
                         ],
                       ),
-                      Text(
-                        "${snapshot.data[0]["reviews"][0]['negativetag']}",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, color: Colors.black),
-                      )
+                      Padding(
+                          padding: EdgeInsets.only(left: 10, top: 5),
+                          child: Text(
+                            "${snapshot.data[0]["reviews"][0]['negativetag'] ?? "NO NEGATIVE TAGS"}",
+                            style: snapshot.data[0]["reviews"][0]
+                                        ['negativetag'] !=
+                                    null
+                                ? TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black)
+                                : TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.grey),
+                          ))
                     ],
                   ),
                 ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
-                  child: Text(
-                    "${snapshot.data[0]["reviews"][0]['reviews']}",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w400, color: Colors.black),
-                  ),
+                Divider(
+                  color: Colors.grey.withOpacity(0.2),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

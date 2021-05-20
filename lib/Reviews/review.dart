@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +58,8 @@ class _ReviewState extends State<Review> {
 
   String positiveTagString = '';
   String negativeTagString = '';
+
+  bool sending = false;
 
   Future fetPositiveTag() async {
     var result = await http.get(positiveTag);
@@ -121,7 +122,10 @@ class _ReviewState extends State<Review> {
     }
   }
 
-  Future<List<dynamic>> userLog(context) async {
+  Future<dynamic> userLog(context) async {
+    setState(() {
+      sending = true;
+    });
     Map<String, String> header = {
       "Accept": "application/json",
       "Content-Type": "application/json"
@@ -146,10 +150,16 @@ class _ReviewState extends State<Review> {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
-    AddReviews(header, message[0]["id"], context);
+    AddReviews(Token, message[0]["id"], context);
   }
 
-  Future AddReviews(header, userid, context) async {
+  Future AddReviews(Token, userid, context) async {
+    Map<String, String> header = {
+      'Accept': 'application/json',
+      'Charset': 'utf-8',
+      "Authorization": "Bearer $Token",
+    };
+    var url = 'https://lmaida.com/api/review';
     FormState form = formKey.currentState;
     if (!form.validate()) {
       showInSnackBar('Please fix the errors in red before submitting.');
@@ -157,65 +167,46 @@ class _ReviewState extends State<Review> {
       String im1 = await Upload(mediaUrl);
       String im2 = await Upload(mediaUrl2);
       String im3 = await Upload(mediaUrl3);
-      var url = 'https://lmaida.com/api/review';
       var data = {
-        'idbooking': widget.idbooking == null ? widget.idbooking : '10',
-        'iduser': userid,
+        'idbooking':
+            widget.idbooking != null ? widget.idbooking.toString() : "1",
+        'iduser': userid.toString(),
         'reviews': ratingG.toString(),
-        'image1': im1,
-        'image2': im2,
-        'image3': im3,
         'positivtag': positiveTagString,
         'negativetag': negativeTagString,
+        //'image1': im1,
+        //'image2': "im2",
+        //'image3': "im3",
       };
-      var response = await http.post(Uri.encodeFull(url),
-          headers: header, body: json.encode(data));
+      var response =
+          await http.Client().post(Uri.parse(url), headers: header, body: data);
       var message = jsonDecode(response.body);
-      print(message);
+      Fluttertoast.showToast(
+          msg: message["message"],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
 
-      if (message["errors"] != null) {
-        Fluttertoast.showToast(
-            msg: message["errors"],
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red[900],
-            textColor: Colors.white,
-            fontSize: 16.0);
-      } else {
-        Fluttertoast.showToast(
-            msg: message["message"],
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-        Navigator.pop(context);
-      }
+      setState(() {
+        sending = false;
+      });
+      Navigator.pop(context);
     }
   }
 
   Future<String> Upload(File imageFile) async {
-    var result;
-    var stream =
-        new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-    var length = await imageFile.length();
-
     var uri = Uri.parse("https://lmaida.com/storage/reviews");
-
     var request = new http.MultipartRequest("POST", uri);
-    var multipartFile = new http.MultipartFile('file', stream, length,
-        filename: basename(imageFile.path));
 
-    request.files.add(multipartFile);
+    var multipartFile = http.MultipartFile.fromPath('image', imageFile.path);
+    request.files.add(await multipartFile);
+
     var response = await request.send();
-    print(response.statusCode);
-    response.stream.transform(utf8.decoder).listen((value) {
-      print("545454" + value);
-      result = value;
-    });
-    return result;
+    print(response.reasonPhrase);
+    return basename(imageFile.path);
   }
 
   @override
@@ -262,7 +253,7 @@ class _ReviewState extends State<Review> {
                 ),
                 Container(
                   height: SizeConfig.screenHeight,
-                  padding: EdgeInsets.fromLTRB(30, 100, 30, 20),
+                  padding: EdgeInsets.fromLTRB(30, 50, 30, 20),
                   child: ListView(
                     children: [
                       Row(
@@ -359,6 +350,8 @@ class _ReviewState extends State<Review> {
                                   onTap: () {
                                     setState(() {
                                       _activeTab = index;
+                                      negativeTagString +=
+                                          "#${filteredNegativeList[index].name} ";
                                     });
                                   },
                                   child: AnimatedContainer(
@@ -396,10 +389,21 @@ class _ReviewState extends State<Review> {
                               itemCount: filteredNegativeList.length,
                             ),
                           ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 10, top: 5),
+                            child: Text(
+                              negativeTagString,
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 12.0,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -437,6 +441,8 @@ class _ReviewState extends State<Review> {
                                   onTap: () {
                                     setState(() {
                                       _activeTab2 = index;
+                                      positiveTagString +=
+                                          "#${filteredPositiveList[index].name} ";
                                     });
                                   },
                                   child: AnimatedContainer(
@@ -474,10 +480,21 @@ class _ReviewState extends State<Review> {
                               itemCount: filteredPositiveList.length,
                             ),
                           ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 10, top: 5),
+                            child: Text(
+                              positiveTagString,
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 12.0,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       SizedBox(
-                        height: 15,
+                        height: 10,
                       ),
                       Card(
                         elevation: 2.0,
@@ -692,6 +709,8 @@ class _ReviewState extends State<Review> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
+                          /* sending == false
+                              ?*/
                           FloatingActionButton(
                             shape: CircleBorder(),
                             heroTag: 'Add Review',
@@ -703,6 +722,10 @@ class _ReviewState extends State<Review> {
                             child: Icon(Icons.arrow_forward_ios,
                                 size: 25, color: Colors.white),
                           )
+                          /* : Padding(
+                                  padding: EdgeInsets.all(5),
+                                  child: CircularProgressIndicator(),
+                                )*/
                         ],
                       )
                     ],

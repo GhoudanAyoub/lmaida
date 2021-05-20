@@ -42,7 +42,6 @@ class _BookState extends State<Book> {
         await usersRef.doc(firebaseAuth.currentUser.uid).get();
     if (snap.data()["id"] == firebaseAuth.currentUser.uid) {
       user1 = snap;
-      print('0');
     }
     setState(() {
       fetchUser = userLog();
@@ -62,7 +61,6 @@ class _BookState extends State<Book> {
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
-    print('1');
     return getPorf(message["token"]);
   }
 
@@ -75,7 +73,6 @@ class _BookState extends State<Book> {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = json.decode(response.body);
-    print('${message[0]["bookings"]}');
     return message[0]["bookings"];
   }
 
@@ -92,7 +89,6 @@ class _BookState extends State<Book> {
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
-    print('1');
     return deleteBook(message["token"], id);
   }
 
@@ -105,7 +101,6 @@ class _BookState extends State<Book> {
     var result = await http
         .post(Uri.encodeFull("${StringConst.URI_DELETE}/$id"), headers: header);
     var res = json.decode(result.body);
-    print(res.toString());
     if (res["message"] == "Successfully canceled") {
       setState(() {
         submitted = false;
@@ -415,6 +410,28 @@ class _BookState extends State<Book> {
                                                                     .black,
                                                               ),
                                                             ),
+                                                            Container(
+                                                              width: 300,
+                                                              child: Text(
+                                                                'Your Special Request : ${bookmodel.specialrequest}',
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                              ),
+                                                            ),
                                                             SizedBox(height: 5),
                                                             bookmodel.statut
                                                                     .contains(
@@ -694,6 +711,28 @@ class _BookState extends State<Book> {
                                                                 fontSize: 14.0,
                                                                 color: Colors
                                                                     .black,
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              width: 300,
+                                                              child: Text(
+                                                                'Your Special Request : ${bookmodel.specialrequest}',
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
                                                               ),
                                                             ),
                                                             SizedBox(height: 5),

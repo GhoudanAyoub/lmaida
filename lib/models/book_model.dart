@@ -6,6 +6,7 @@ class BookModel {
   int person;
   String offer;
   String statut;
+  String specialrequest;
   Map restoModel;
   Map user;
   String created_at;
@@ -21,6 +22,7 @@ class BookModel {
       this.restoModel,
       this.created_at,
       this.updated_at,
+      this.specialrequest,
       this.user});
 
   BookModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +35,7 @@ class BookModel {
     statut = json['statut'];
     restoModel = json['item'];
     user = json['user'];
+    specialrequest = json['specialrequest'];
     created_at = json['created_at'];
     updated_at = json['updated_at'];
   }

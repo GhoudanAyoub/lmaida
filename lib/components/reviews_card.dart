@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lmaida/components/reting%20star.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 
 import 'indicators.dart';
@@ -17,6 +18,11 @@ class ReviewsCard extends StatefulWidget {
 
 class _ReviewsCardState extends State<ReviewsCard> {
   var fetchDetailsRes;
+  String finalNegTag = "";
+  Map<int, String> finaPosTag;
+  String posT, negT;
+  var negTL, posTL;
+  var snap;
   Future<List<dynamic>> fetDetails(id) async {
     var result = await http.get("https://lmaida.com/api/resturant/$id");
     return json.decode(result.body);
@@ -81,6 +87,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
                             padding: EdgeInsets.all(10),
                             itemCount: widget.reviews.length,
                             itemBuilder: (context, index) {
+                              snap = snapshot.data[0]["reviews"][index];
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -96,10 +103,9 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                       ),
                                     ),
                                     title: Text(
-                                      "none",
+                                      "Unknown",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.red[900]),
+                                          fontSize: 12.0, color: Colors.grey),
                                     ),
                                     subtitle: Text(
                                       "${snapshot.data[0]["reviews"][index]["created_at"].toString()}",
@@ -108,8 +114,23 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5.0),
+                                    padding: EdgeInsets.all(5),
+                                    child: double.tryParse(snapshot.data[0]
+                                                    ["reviews"][index]
+                                                ['reviews']) !=
+                                            null
+                                        ? StarRating(
+                                            rating: double.parse(
+                                                snapshot.data[0]["reviews"]
+                                                    [index]['reviews']),
+                                            color: Colors.black,
+                                          )
+                                        : SizedBox(
+                                            height: 0,
+                                          ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -130,18 +151,25 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                             )
                                           ],
                                         ),
-                                        Text(
-                                          "${snapshot.data[0]["reviews"][index]['positivtag']}",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              color: Colors.black),
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.only(left: 10, top: 5),
+                                          child: Text(
+                                            "${snap['positivtag'] ?? "NO POSITIVE TAGS"}",
+                                            style: snap['positivtag'] != null
+                                                ? TextStyle(
+                                                    fontWeight: FontWeight.w400,
+                                                    color: Colors.black)
+                                                : TextStyle(
+                                                    fontWeight: FontWeight.w400,
+                                                    color: Colors.grey),
+                                          ),
                                         )
                                       ],
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5.0),
+                                    padding: const EdgeInsets.only(top: 10),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -162,23 +190,22 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                             )
                                           ],
                                         ),
-                                        Text(
-                                          "${snapshot.data[0]["reviews"][index]['negativetag']}",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              color: Colors.black),
-                                        )
+                                        Padding(
+                                            padding: EdgeInsets.only(
+                                                left: 10, top: 5),
+                                            child: Text(
+                                              "${snap['negativetag'] ?? "NO NEGATIVE TAGS"}",
+                                              style: snap['negativetag'] != null
+                                                  ? TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color: Colors.black)
+                                                  : TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color: Colors.grey),
+                                            ))
                                       ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5.0, vertical: 5),
-                                    child: Text(
-                                      "${snapshot.data[0]["reviews"][index]['reviews']}",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.black),
                                     ),
                                   ),
                                   Divider(
