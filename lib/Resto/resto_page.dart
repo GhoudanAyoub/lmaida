@@ -59,6 +59,7 @@ class _RestaurantState extends State<RestaurantPage> {
   var locationId;
   String locationName = "", SpectName = "";
   var addresses;
+  double reviewsData = 0.0;
   Future<List<dynamic>> fetRestoAdvance(location_id) async {
     print('************$catId');
     var result = await http.get(StringConst.URI_RESTAU_ADV +
@@ -386,52 +387,6 @@ class _RestaurantState extends State<RestaurantPage> {
                         ),
                       ),
                     ),
-                    /* widget.offers == null
-                        ? Container(
-                      margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
-                      child: FutureBuilder<List<dynamic>>(
-                          future: fetRestoAdvanceResult,
-                          builder: (BuildContext context,
-                              AsyncSnapshot snapshot) {
-                            if (snapshot.hasData) {
-                              restolenght =
-                                  snapshot.data.length.toString();
-                              return Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                      restolenght +
-                                          " Restaurants In General",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ))
-                                ],
-                              );
-                            } else
-                              return Container(
-                                child: Center(
-                                  child: Text(""),
-                                ),
-                              );
-                          }),
-                    )
-                        : Container(
-                      margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
-                      child: Container(
-                        child: Center(
-                          child: Text(
-                              "No Special Offers Found For The Moment",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              )),
-                        ),
-                      ),
-                    ),*/
                     open != false
                         ? Card(
                             elevation: 5,
@@ -727,8 +682,6 @@ class _RestaurantState extends State<RestaurantPage> {
                                                   .toLowerCase()
                                                   .contains(
                                                       Search.toLowerCase())) {
-                                            print(snapshot.data[index]
-                                                .toString());
                                             return LmaidaCard(
                                               onTap: () => {
                                                 Navigator.push(

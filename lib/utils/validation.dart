@@ -4,8 +4,10 @@ class Validations {
     final RegExp nameExp = new RegExp(r'^[A-za-zğüşöçİĞÜŞÖÇ ]+$');
     if (!nameExp.hasMatch(value))
       return 'Please enter only alphabetical characters.';
-    if (value.length < 100)
-      return 'Review must be at least 100 character length.';
+    if (value.length < 20)
+      return 'Review must be at least 20 character length.';
+    if (value.length > 200)
+      return 'Review must be less then 200 character length.';
     return null;
   }
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -18,7 +19,6 @@ import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/utils/validation.dart';
-import 'package:path/path.dart';
 
 import '../Reviews/costumimage.dart';
 
@@ -154,35 +154,37 @@ class _ReviewState extends State<Review> {
   }
 
   Future AddReviews(Token, userid, context) async {
-    Map<String, String> header = {
-      'Accept': 'application/json',
-      'Charset': 'utf-8',
-      "Authorization": "Bearer $Token",
-    };
+    var dio = Dio();
+    var options = Options(validateStatus: (status) => true,
+        //followRedirects: false,
+        headers: {
+          "Authorization": "Bearer $Token",
+        });
     var url = 'https://lmaida.com/api/review';
     FormState form = formKey.currentState;
     if (!form.validate()) {
       showInSnackBar('Please fix the errors in red before submitting.');
     } else {
-      String im1 = await Upload(mediaUrl);
-      String im2 = await Upload(mediaUrl2);
-      String im3 = await Upload(mediaUrl3);
-      var data = {
+      var formData = FormData.fromMap({
         'idbooking':
             widget.idbooking != null ? widget.idbooking.toString() : "1",
         'iduser': userid.toString(),
         'reviews': ratingG.toString(),
+        'texts': _reviewContoller.text,
         'positivtag': positiveTagString,
         'negativetag': negativeTagString,
-        //'image1': im1,
-        //'image2': "im2",
-        //'image3': "im3",
-      };
-      var response =
-          await http.Client().post(Uri.parse(url), headers: header, body: data);
-      var message = jsonDecode(response.body);
+        'image1':
+            await MultipartFile.fromFile(mediaUrl.path, filename: 'upload.jpg'),
+        'image2': await MultipartFile.fromFile(mediaUrl2.path,
+            filename: 'upload2.jpg'),
+        'image3': await MultipartFile.fromFile(mediaUrl3.path,
+            filename: 'upload3.jpg'),
+      });
+      var response = await dio.post(url, data: formData, options: options);
+      //var m = jsonDecode(response.data.toString());
+      //debugPrint(_reviewContoller.text);
       Fluttertoast.showToast(
-          msg: message["message"],
+          msg: response.data['message'].toString(),
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,
@@ -193,20 +195,8 @@ class _ReviewState extends State<Review> {
       setState(() {
         sending = false;
       });
-      Navigator.pop(context);
+      //Navigator.pop(context);
     }
-  }
-
-  Future<String> Upload(File imageFile) async {
-    var uri = Uri.parse("https://lmaida.com/storage/reviews");
-    var request = new http.MultipartRequest("POST", uri);
-
-    var multipartFile = http.MultipartFile.fromPath('image', imageFile.path);
-    request.files.add(await multipartFile);
-
-    var response = await request.send();
-    print(response.reasonPhrase);
-    return basename(imageFile.path);
   }
 
   @override
@@ -695,7 +685,6 @@ class _ReviewState extends State<Review> {
                                 prefix: Feather.file_text,
                                 hintText: "Write your review",
                                 controller: _reviewContoller,
-                                textInputAction: TextInputAction.next,
                                 validateFunction: Validations.validateReview,
                               ),
                               SizedBox(

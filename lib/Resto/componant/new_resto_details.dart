@@ -44,6 +44,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   var fetchDetailsRes;
   String finalNegTag = "";
   String finaPosTag = "";
+  double reviewsData = 0.0;
 
   Future<List<dynamic>> fetDetails(id) async {
     var result = await http.get("https://lmaida.com/api/resturant/$id");
@@ -174,8 +175,34 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                     SizedBox(
                                       height: 5,
                                     ),
-                                    Rater(
-                                      rate: widget.restoModel.rating ?? 1,
+                                    FutureBuilder(
+                                      future: fetchDetailsRes,
+                                      builder: (context, snapshot) {
+                                        if (snapshot != null &&
+                                            snapshot.data != null) {
+                                          if (snapshot
+                                                  .data[0]["reviews"].length !=
+                                              0) {
+                                            for (var it in snapshot.data[0]
+                                                ["reviews"])
+                                              reviewsData += double.tryParse(
+                                                  it['reviews']);
+
+                                            return Rater(
+                                              rate: reviewsData /
+                                                  snapshot.data[0]["reviews"]
+                                                      .length,
+                                            );
+                                          } else
+                                            return Rater(
+                                              rate: 1,
+                                            );
+                                        } else {
+                                          return Rater(
+                                            rate: 1,
+                                          );
+                                        }
+                                      },
                                     ),
                                     SizedBox(height: 10.0),
                                     Container(
@@ -653,7 +680,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                     ),
                   ),
                   title: Text(
-                    "Unknown",
+                    "${snapshot.data[0]["reviews"][0]["user"]["name"].toString()}",
                     style: TextStyle(fontSize: 12.0, color: Colors.grey),
                   ),
                   subtitle: Text(

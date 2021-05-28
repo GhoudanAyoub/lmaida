@@ -716,7 +716,10 @@ class _BookState extends State<Book> {
                                                             Container(
                                                               width: 300,
                                                               child: Text(
-                                                                'Your Special Request : ${bookmodel.specialrequest}',
+                                                                bookmodel.specialrequest !=
+                                                                        ''
+                                                                    ? 'Your Special Request : ${bookmodel.specialrequest}'
+                                                                    : 'No Special Request',
                                                                 overflow:
                                                                     TextOverflow
                                                                         .ellipsis,
@@ -735,7 +738,8 @@ class _BookState extends State<Book> {
                                                                 ),
                                                               ),
                                                             ),
-                                                            SizedBox(height: 5),
+                                                            SizedBox(
+                                                                height: 10),
                                                             bookmodel.statut
                                                                     .contains(
                                                                         "canceled")
@@ -763,30 +767,20 @@ class _BookState extends State<Book> {
                                                                           bookmodel
                                                                               .id);
                                                                     },
-                                                                    child: submitted
-                                                                        ? SizedBox(
-                                                                            height:
-                                                                                15,
-                                                                            width:
-                                                                                15,
-                                                                            child:
-                                                                                CircularProgressIndicator(
-                                                                              strokeWidth: 2,
-                                                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                                                            ),
-                                                                          )
-                                                                        : Text(
-                                                                            "Delete Your Booking",
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontSize: 16,
-                                                                              color: Colors.white,
-                                                                            ),
-                                                                          ),
+                                                                    child: Text(
+                                                                      "Delete Your Booking",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        color: Colors
+                                                                            .white,
+                                                                      ),
+                                                                    ),
                                                                   ),
                                                             bookmodel.statut
                                                                     .contains(
-                                                                        "accept")
+                                                                        "canceled")
                                                                 ? FlatButton(
                                                                     shape: RoundedRectangleBorder(
                                                                         borderRadius:

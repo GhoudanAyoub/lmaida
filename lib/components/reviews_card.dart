@@ -103,7 +103,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                       ),
                                     ),
                                     title: Text(
-                                      "Unknown",
+                                      "${snapshot.data[0]["reviews"][index]["user"]["name"].toString()}",
                                       style: TextStyle(
                                           fontSize: 12.0, color: Colors.grey),
                                     ),
