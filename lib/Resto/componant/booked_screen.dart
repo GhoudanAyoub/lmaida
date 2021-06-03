@@ -21,7 +21,7 @@ import 'package:lmaida/values/values.dart';
 
 class BookedScreen extends StatefulWidget with NavigationStates {
   final RestoModel restoModel;
-  final String offer;
+  final List offer;
   final dropdownValue;
   final selectedDateTxt;
   final selectedTimeTxt;
@@ -50,6 +50,7 @@ class _BookedScreenState extends State<BookedScreen> {
   DocumentSnapshot user1;
   bool loading = true;
   bool sub = false;
+  String _selected;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -359,7 +360,7 @@ class _BookedScreenState extends State<BookedScreen> {
               " / " +
               "${widget.selectedTimeTxt != null ? "${widget.selectedTimeTxt.hour} : ${widget.selectedTimeTxt.minute}" : "${selectedDate.hour} : ${selectedDate.minute}"}",
       'person': person != null ? int.parse(person) : 1,
-      'offre': offer,
+      'offre': widget.offer != null ? _selected : null,
       'specialrequest': Controller.text != null ? Controller.text : ""
     };
     var response = await http.post(Uri.encodeFull(url),
@@ -496,6 +497,57 @@ class _BookedScreenState extends State<BookedScreen> {
             color: Colors.grey[900],
           ),
           SizedBox(height: 20.0),
+          widget.offer != null
+              ? Card(
+                  elevation: 4,
+                  margin: EdgeInsets.all(10),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  color: Colors.white,
+                  child: Padding(
+                    padding: EdgeInsets.all(15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: DropdownButtonHideUnderline(
+                            child: ButtonTheme(
+                              alignedDropdown: true,
+                              child: DropdownButton<String>(
+                                isDense: true,
+                                hint: new Text("Select Offer"),
+                                value: _selected,
+                                onChanged: (String newValue) {
+                                  setState(() {
+                                    _selected = newValue;
+                                  });
+                                },
+                                items: widget.offer
+                                    .map((e) => new DropdownMenuItem(
+                                          value: e["id"].toString(),
+                                          // value: _mySelection,
+                                          child: Container(
+                                              margin: EdgeInsets.only(left: 10),
+                                              width: 300,
+                                              child: Text(
+                                                e["name"] +
+                                                    " Between ${e["date_from"]} " +
+                                                    "  ${e["date_to"]}",
+                                                overflow: TextOverflow.ellipsis,
+                                              )),
+                                        ))
+                                    .toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Container(
+                  height: 0,
+                ),
           SizedBox(height: 16.0),
           TextFormBuilder(
             controller: Controller,

@@ -376,7 +376,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                 MaterialPageRoute(
                                     builder: (context) => BookedScreen(
                                           restoModel: widget.restoModel,
-                                          offer: "0",
+                                          offer: null,
                                           dropdownValue: widget.dropdownValue,
                                           selectedTimeTxt:
                                               widget.selectedTimeTxt,
@@ -395,7 +395,6 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
             )),
       );
     } else {
-      print('4545454${widget.restoModel.special_offer[0]}');
       if (DateTime.now().isBefore(
           DateTime.parse(widget.restoModel.special_offer[0]["date_to"])))
         return Padding(
@@ -444,8 +443,8 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                   MaterialPageRoute(
                                       builder: (context) => BookedScreen(
                                             restoModel: widget.restoModel,
-                                            offer: widget.restoModel
-                                                .special_offer[0]["name"],
+                                            offer:
+                                                widget.restoModel.special_offer,
                                             dropdownValue: widget.dropdownValue,
                                             selectedTimeTxt:
                                                 widget.selectedTimeTxt,
@@ -500,7 +499,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                   MaterialPageRoute(
                                       builder: (context) => BookedScreen(
                                             restoModel: widget.restoModel,
-                                            offer: "0",
+                                            offer: null,
                                             dropdownValue: widget.dropdownValue,
                                             selectedTimeTxt:
                                                 widget.selectedTimeTxt,

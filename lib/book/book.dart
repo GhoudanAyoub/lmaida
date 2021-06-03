@@ -413,7 +413,35 @@ class _BookState extends State<Book> {
                                                             Container(
                                                               width: 300,
                                                               child: Text(
-                                                                'Your Special Request : ${bookmodel.specialrequest}',
+                                                                bookmodel.offer !=
+                                                                        null
+                                                                    ? 'Your Special Offer : ${bookmodel.offer}'
+                                                                    : 'No Special Offer',
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              width: 300,
+                                                              child: Text(
+                                                                bookmodel.specialrequest !=
+                                                                        ''
+                                                                    ? 'Your Special Request : ${bookmodel.specialrequest}'
+                                                                    : 'No Special Request',
                                                                 overflow:
                                                                     TextOverflow
                                                                         .ellipsis,
@@ -716,6 +744,31 @@ class _BookState extends State<Book> {
                                                             Container(
                                                               width: 300,
                                                               child: Text(
+                                                                bookmodel.offer !=
+                                                                        null
+                                                                    ? 'Your Special Offer : ${bookmodel.offer}'
+                                                                    : 'No Special Offer',
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              width: 300,
+                                                              child: Text(
                                                                 bookmodel.specialrequest !=
                                                                         ''
                                                                     ? 'Your Special Request : ${bookmodel.specialrequest}'
@@ -780,7 +833,7 @@ class _BookState extends State<Book> {
                                                                   ),
                                                             bookmodel.statut
                                                                     .contains(
-                                                                        "canceled")
+                                                                        "accept")
                                                                 ? FlatButton(
                                                                     shape: RoundedRectangleBorder(
                                                                         borderRadius:

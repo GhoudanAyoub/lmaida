@@ -244,7 +244,7 @@ class _RestaurantState extends State<RestaurantPage> {
                       children: [
                         Container(
                           margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          height: 30,
+                          height: 20,
                           child: FlatButton(
                             onPressed: () {
                               //fl3(context);
@@ -351,7 +351,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                     icon: Icon(
                                       Icons.person_outline,
                                       color: Colors.red[900],
-                                      size: 20,
+                                      size: 17,
                                     ),
                                     iconSize: 24,
                                     elevation: 16,
@@ -421,50 +421,60 @@ class _RestaurantState extends State<RestaurantPage> {
                                                 });
                                               },
                                               items: categList
-                                                  .map((e) =>
-                                                      new DropdownMenuItem(
-                                                        value:
-                                                            e["id"].toString(),
-                                                        // value: _mySelection,
-                                                        child: Row(
-                                                          children: <Widget>[
-                                                            e["picture"] != null
-                                                                ? CachedNetworkImage(
-                                                                    imageUrl:
-                                                                        "https://lmaida.com/storage/categories/" +
-                                                                            e["picture"],
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    width: 35,
-                                                                    fadeInDuration:
-                                                                        Duration(
-                                                                            milliseconds:
-                                                                                500),
-                                                                    fadeInCurve:
-                                                                        Curves
-                                                                            .easeIn,
-                                                                    placeholder: (context,
-                                                                            progressText) =>
-                                                                        Center(
-                                                                            child:
-                                                                                circularProgress(context)),
-                                                                  )
-                                                                : Icon(
-                                                                    Icons
-                                                                        .dinner_dining,
-                                                                    size: 35,
-                                                                    color: Colors
-                                                                        .black87),
-                                                            Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        left:
-                                                                            10),
-                                                                child: Text(
-                                                                    e["name"])),
-                                                          ],
-                                                        ),
-                                                      ))
+                                                  .map(
+                                                      (e) =>
+                                                          new DropdownMenuItem(
+                                                            value: e["id"]
+                                                                .toString(),
+                                                            // value: _mySelection,
+                                                            child: Row(
+                                                              children: <
+                                                                  Widget>[
+                                                                e["picture"] !=
+                                                                        null
+                                                                    ? CachedNetworkImage(
+                                                                        imageUrl:
+                                                                            "https://lmaida.com/storage/categories/" +
+                                                                                e["picture"],
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                        width:
+                                                                            20,
+                                                                        fadeInDuration:
+                                                                            Duration(milliseconds: 500),
+                                                                        fadeInCurve:
+                                                                            Curves.easeIn,
+                                                                        placeholder:
+                                                                            (context, progressText) =>
+                                                                                Center(child: circularProgress(context)),
+                                                                      )
+                                                                    : Icon(
+                                                                        Icons
+                                                                            .dinner_dining,
+                                                                        size:
+                                                                            20,
+                                                                        color: Colors
+                                                                            .black87),
+                                                                Container(
+                                                                    margin: EdgeInsets
+                                                                        .only(
+                                                                            left:
+                                                                                10),
+                                                                    child: Text(
+                                                                      e["name"],
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            14,
+                                                                        color: Colors
+                                                                            .black,
+                                                                        fontWeight:
+                                                                            FontWeight.normal,
+                                                                      ),
+                                                                    )),
+                                                              ],
+                                                            ),
+                                                          ))
                                                   .toList(),
                                             ),
                                           ),
@@ -474,19 +484,17 @@ class _RestaurantState extends State<RestaurantPage> {
                                   ),
                                 ),
                                 Container(
-                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
+                                  padding: EdgeInsets.fromLTRB(0, 0, 0, 5),
                                   child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        "Restaurants Spects :",
+                                        "Specs :",
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           color: Colors.black,
                                           fontWeight: FontWeight.normal,
                                         ),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -499,9 +507,6 @@ class _RestaurantState extends State<RestaurantPage> {
                                               borderRadius:
                                                   BorderRadius.circular(10.0),
                                               child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 10.0),
                                                 child: Theme(
                                                   data: ThemeData(
                                                     primaryColor:
@@ -516,9 +521,16 @@ class _RestaurantState extends State<RestaurantPage> {
                                                       _showMultiSelect(context);
                                                     },
                                                     child: Text(
-                                                        selectedValues == null
-                                                            ? 'Choose'
-                                                            : SpectName),
+                                                      selectedValues == null
+                                                          ? 'Choose'
+                                                          : SpectName,
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black,
+                                                        fontWeight:
+                                                            FontWeight.normal,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
                                               ),
@@ -526,23 +538,13 @@ class _RestaurantState extends State<RestaurantPage> {
                                           ],
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
-                                  child: Row(
-                                    children: [
                                       Text(
                                         "Location :",
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           color: Colors.black,
                                           fontWeight: FontWeight.normal,
                                         ),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -555,9 +557,6 @@ class _RestaurantState extends State<RestaurantPage> {
                                               borderRadius:
                                                   BorderRadius.circular(10.0),
                                               child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 10.0),
                                                 child: Theme(
                                                   data: ThemeData(
                                                     primaryColor:
@@ -573,10 +572,16 @@ class _RestaurantState extends State<RestaurantPage> {
                                                           context);
                                                     },
                                                     child: Text(
-                                                        locSelectedValues ==
-                                                                null
-                                                            ? 'Choose'
-                                                            : locationName),
+                                                      locSelectedValues == null
+                                                          ? 'Choose'
+                                                          : locationName,
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black,
+                                                        fontWeight:
+                                                            FontWeight.normal,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
                                               ),
@@ -590,14 +595,13 @@ class _RestaurantState extends State<RestaurantPage> {
                                 Container(
                                   padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
+                                    mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       FlatButton(
                                         shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(5)),
-                                        color: Colors.red[900],
+                                        color: Colors.redAccent,
                                         onPressed: () {
                                           setState(() {
                                             fetRestoAdvanceResult = fetRestoAdvance(
@@ -609,7 +613,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                         child: Text('APPLY',
                                             style: TextStyle(
                                               color: Colors.white,
-                                              fontSize: 14,
+                                              fontSize: 12,
                                               fontWeight: FontWeight.bold,
                                             )),
                                       ),
@@ -620,7 +624,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                         shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(5)),
-                                        color: Colors.red[900],
+                                        color: Colors.redAccent,
                                         onPressed: () {
                                           setState(() {
                                             fetRestoAdvanceResult =
@@ -633,10 +637,10 @@ class _RestaurantState extends State<RestaurantPage> {
                                         child: Text('CLEAN',
                                             style: TextStyle(
                                               color: Colors.white,
-                                              fontSize: 14,
+                                              fontSize: 12,
                                               fontWeight: FontWeight.bold,
                                             )),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -1279,16 +1283,16 @@ class _RestaurantState extends State<RestaurantPage> {
         Icon(
           icons,
           color: Colors.red[900],
-          size: 20,
+          size: 15,
         ),
         SizedBox(width: 5.0),
         Text(
           label,
           style: TextStyle(
-              fontSize: 14,
-              color: Colors.red[900],
-              fontWeight: FontWeight.normal,
-              fontFamily: 'Ubuntu-Regular'),
+            fontSize: 12,
+            color: Colors.red[900],
+            fontWeight: FontWeight.normal,
+          ),
         )
       ],
     );
@@ -1347,8 +1351,8 @@ class _RestaurantState extends State<RestaurantPage> {
           child: Padding(
             padding: EdgeInsets.only(left: 40.0, right: 10.0),
             child: Material(
-              elevation: 5.0,
-              borderRadius: BorderRadius.circular(50.0),
+              elevation: 3.0,
+              borderRadius: BorderRadius.circular(30.0),
               child: TextFormField(
                 style: TextStyle(color: Colors.black),
                 cursorColor: black,
@@ -1362,9 +1366,11 @@ class _RestaurantState extends State<RestaurantPage> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Search',
-                  prefixIcon: Icon(Icons.search, color: GBottomNav, size: 20.0),
+                  prefixIcon: Icon(Icons.search, color: GBottomNav, size: 15.0),
                   hintStyle: TextStyle(
-                      color: Colors.black, fontFamily: 'SFProDisplay-Black'),
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontFamily: 'SFProDisplay-Black'),
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                 ),
               ),
