@@ -530,8 +530,9 @@ class _BookedScreenState extends State<BookedScreen> {
                                               margin: EdgeInsets.only(left: 10),
                                               width: 300,
                                               child: Text(
-                                                e["name"] +
-                                                    " Between ${e["date_from"]} " +
+                                                "-" +
+                                                    e["name"] +
+                                                    " Till" +
                                                     "  ${e["date_to"]}",
                                                 overflow: TextOverflow.ellipsis,
                                               )),

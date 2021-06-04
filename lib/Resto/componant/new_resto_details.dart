@@ -416,12 +416,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                       Container(
                         width: 250,
                         child: Text(
-                          widget.restoModel.special_offer[0]["name"] +
-                              " off " +
-                              widget.restoModel.name +
-                              " menu!" +
-                              "\n Between ${widget.restoModel.special_offer[0]["date_from"]} " +
-                              "  ${widget.restoModel.special_offer[0]["date_to"]}",
+                          "Check Our Offers Before you Reserve ",
                           textAlign: TextAlign.center,
                           overflow: TextOverflow.clip,
                           style: TextStyle(

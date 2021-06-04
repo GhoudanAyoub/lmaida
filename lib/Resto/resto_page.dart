@@ -61,8 +61,9 @@ class _RestaurantState extends State<RestaurantPage> {
   var addresses;
   double reviewsData = 0.0;
   Future<List<dynamic>> fetRestoAdvance(location_id) async {
-    print('************$catId');
     var result = await http.get(StringConst.URI_RESTAU_ADV +
+        "${selectedValues != null ? selectedValues.join(",") : "1"}/${catId != null ? catId : 14}/${location_id != null ? location_id : locationId}");
+    debugPrint(
         "${selectedValues != null ? selectedValues.join(",") : "1"}/${catId != null ? catId : 14}/${location_id != null ? location_id : locationId}");
     return json.decode(result.body);
   }
@@ -146,7 +147,6 @@ class _RestaurantState extends State<RestaurantPage> {
     setState(() {
       locationName = locSelectedValues.join(",");
     });
-    print("===> ${locSelectedValues.join(",")}");
   }
 
   getLastLocation() async {
@@ -154,20 +154,16 @@ class _RestaurantState extends State<RestaurantPage> {
     for (var categ in fetCatResult) {
       categList.add(categ);
     }
-    print(categList.toString());
     fetFiltersResult = await fetFilters();
+    for (var filter in fetFiltersResult) {
+      multiItem.add(MultiSelectDialogItem(filter["id"], filter["name"]));
+    }
     fetLocationResult = await fetLocation();
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
     addresses = await Geocoder.local.findAddressesFromCoordinates(
         new Coordinates(position.latitude, position.longitude));
-    print(
-        " ====> resto ${addresses.first.featureName} : ${addresses.first.addressLine} / ${addresses.first.addressLine.contains("Rabat")} ");
-
-    for (var filter in fetFiltersResult) {
-      multiItem.add(MultiSelectDialogItem(filter["id"], filter["name"]));
-    }
     for (var location in fetLocationResult) {
       locMultiItem.add(MultiSelectDialogItem(location["id"], location["name"]));
       print(
@@ -183,7 +179,32 @@ class _RestaurantState extends State<RestaurantPage> {
           fetRestoAdvanceResult = fetResto(location["id"]);
           locationId = location["id"];
         });
-        print(" ====> done");
+      }
+    }
+  }
+
+  backToNormal() async {
+    fetLocationResult = await fetLocation();
+    position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    addresses = await Geocoder.local.findAddressesFromCoordinates(
+        new Coordinates(position.latitude, position.longitude));
+    for (var location in fetLocationResult) {
+      locMultiItem.add(MultiSelectDialogItem(location["id"], location["name"]));
+      print(
+          "sqdqdqdq//${addresses.first.addressLine.contains(location["name"])}//${location["name"]}");
+      if (addresses.first.addressLine.contains(location["name"])) {
+        setState(() {
+          show = false;
+        });
+      }
+
+      if (addresses.first.addressLine.contains(location["name"])) {
+        setState(() {
+          fetRestoAdvanceResult = fetResto(location["id"]);
+          locationId = location["id"];
+        });
       }
     }
   }
@@ -626,9 +647,9 @@ class _RestaurantState extends State<RestaurantPage> {
                                                 BorderRadius.circular(5)),
                                         color: Colors.redAccent,
                                         onPressed: () {
+                                          backToNormal();
                                           setState(() {
-                                            fetRestoAdvanceResult =
-                                                fetResto(locationId);
+                                            // fetRestoAdvanceResult = fetResto(locationId);
                                             open = false;
                                           });
                                           searchController.text = null;
@@ -904,7 +925,7 @@ class _RestaurantState extends State<RestaurantPage> {
                         alignment: Alignment.bottomCenter,
                         child: Center(
                           child: Text(
-                            'No Restaurants Near ${addresses.first.addressLine}  Yet ',
+                            'No Restaurants Near ${locationId == null ? addresses.first.addressLine : "To You"} Yet ',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
