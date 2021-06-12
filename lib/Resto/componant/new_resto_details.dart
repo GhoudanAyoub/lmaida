@@ -515,6 +515,112 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
     }
   }
 
+  buildReviewImages() {
+    if (widget.restoModel.itemphotos.length != 0) {
+      return Card(
+        elevation: 10.0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: Container(
+          margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+          width: SizeConfig.screenWidth - 50,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(
+                widget.restoModel.itemphotos.length.toString() +
+                    " Photos of Dishes ",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 25.0,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                "Picture From Community Members",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 14.0,
+                  color: Colors.black,
+                ),
+              ),
+              Container(
+                height: 120,
+                width: MediaQuery.of(context).size.width,
+                child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: widget.restoModel.itemphotos.length,
+                    itemBuilder: (context, index) {
+                      print('++' + widget.restoModel.name.toString());
+                      if (widget.restoModel.itemphotos == null) {
+                        return Container(
+                          child: Center(
+                            child: Text("No Photos For the Moment "),
+                          ),
+                        );
+                      } else {
+                        return Container(
+                          margin: EdgeInsets.only(right: 1.0),
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8))),
+                          child: GestureDetector(
+                              onTap: () {
+                                showpage(
+                                    context,
+                                    "https://lmaida.com/storage/gallery/" +
+                                            widget.restoModel.itemphotos[index]
+                                                ['name'] ??
+                                        "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg");
+                              },
+                              child: CachedNetworkImage(
+                                imageUrl: "https://lmaida.com/storage/gallery/" +
+                                        widget.restoModel.itemphotos[index]
+                                            ['name'] ??
+                                    "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
+                                fit: BoxFit.cover,
+                                width: 100,
+                                fadeInDuration: Duration(milliseconds: 500),
+                                fadeInCurve: Curves.easeIn,
+                                placeholder: (context, progressText) =>
+                                    Center(child: circularProgress(context)),
+                              )),
+                        );
+                      }
+                    }),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      return Container(
+          margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+          height: 80.0,
+          child: Card(
+            elevation: 10.0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            child: Container(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    "No Pictures For The Moment",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 20.0,
+                      color: Colors.blue[900],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ));
+    }
+  }
+
   buildImages() {
     if (widget.restoModel.itemphotos.length != 0) {
       return Card(
@@ -660,6 +766,16 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
       builder: (context, snapshot) {
         if (snapshot != null && snapshot.data != null) {
           if (snapshot.data[0]["reviews"].length != 0) {
+            List l = [];
+            if (snapshot.data[0]["reviews"][0]['image1'] != null) {
+              l.add(snapshot.data[0]["reviews"][0]['image1']);
+            }
+            if (snapshot.data[0]["reviews"][0]['image2'] != null) {
+              l.add(snapshot.data[0]["reviews"][0]['image2']);
+            }
+            if (snapshot.data[0]["reviews"][0]['image3'] != null) {
+              l.add(snapshot.data[0]["reviews"][0]['image3']);
+            }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -696,80 +812,155 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                           height: 0,
                         ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.thumb_up,
-                            color: Colors.green,
-                            size: 20,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.thumb_up,
+                                color: Colors.green,
+                                size: 20,
+                              ),
+                              SizedBox(width: 5.0),
+                              Text(
+                                "POSITIVE",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.green),
+                              )
+                            ],
                           ),
-                          SizedBox(width: 5.0),
-                          Text(
-                            "POSITIVE",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                color: Colors.green),
+                          Padding(
+                            padding: EdgeInsets.only(left: 10, top: 5),
+                            child: Text(
+                              "${snapshot.data[0]["reviews"][0]['positivtag'] ?? "NO POSITIVE TAGS"}",
+                              style: snapshot.data[0]["reviews"][0]
+                                          ['positivtag'] !=
+                                      null
+                                  ? TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black)
+                                  : TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.grey),
+                            ),
                           )
                         ],
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10, top: 5),
-                        child: Text(
-                          "${snapshot.data[0]["reviews"][0]['positivtag'] ?? "NO POSITIVE TAGS"}",
-                          style: snapshot.data[0]["reviews"][0]['positivtag'] !=
-                                  null
-                              ? TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.black)
-                              : TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.grey),
-                        ),
-                      )
-                    ],
-                  ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.thumb_down,
+                                color: Colors.red[900],
+                                size: 20,
+                              ),
+                              SizedBox(width: 5.0),
+                              Text(
+                                "NEGATIVE",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.red[900]),
+                              )
+                            ],
+                          ),
+                          Padding(
+                              padding: EdgeInsets.only(left: 10, top: 5),
+                              child: Text(
+                                "${snapshot.data[0]["reviews"][0]['negativetag'] ?? "NO NEGATIVE TAGS"}",
+                                style: snapshot.data[0]["reviews"][0]
+                                            ['negativetag'] !=
+                                        null
+                                    ? TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.black)
+                                    : TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.grey),
+                              ))
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.thumb_down,
-                            color: Colors.red[900],
-                            size: 20,
+                Card(
+                  elevation: 1.0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    width: SizeConfig.screenWidth - 50,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(
+                          "Picture From Community Members",
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            fontSize: 14.0,
+                            color: Colors.black,
                           ),
-                          SizedBox(width: 5.0),
-                          Text(
-                            "NEGATIVE",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                color: Colors.red[900]),
-                          )
-                        ],
-                      ),
-                      Padding(
-                          padding: EdgeInsets.only(left: 10, top: 5),
-                          child: Text(
-                            "${snapshot.data[0]["reviews"][0]['negativetag'] ?? "NO NEGATIVE TAGS"}",
-                            style: snapshot.data[0]["reviews"][0]
-                                        ['negativetag'] !=
-                                    null
-                                ? TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black)
-                                : TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.grey),
-                          ))
-                    ],
+                        ),
+                        Container(
+                          height: 120,
+                          width: MediaQuery.of(context).size.width,
+                          child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: l.length,
+                              itemBuilder: (context, index) {
+                                if (l.length == 0) {
+                                  return Container(
+                                    child: Center(
+                                      child: Text("No Photos For the Moment "),
+                                    ),
+                                  );
+                                } else {
+                                  return Container(
+                                    margin: EdgeInsets.only(right: 1.0),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8))),
+                                    child: GestureDetector(
+                                        onTap: () {
+                                          showpage(
+                                              context,
+                                              "https://lmaida.com/storage/reviews/" +
+                                                      l[index] ??
+                                                  "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg");
+                                        },
+                                        child: CachedNetworkImage(
+                                          imageUrl:
+                                              "https://lmaida.com/storage/reviews/" +
+                                                      l[index] ??
+                                                  "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
+                                          fit: BoxFit.cover,
+                                          width: 100,
+                                          fadeInDuration:
+                                              Duration(milliseconds: 500),
+                                          fadeInCurve: Curves.easeIn,
+                                          placeholder:
+                                              (context, progressText) => Center(
+                                                  child: circularProgress(
+                                                      context)),
+                                        )),
+                                  );
+                                }
+                              }),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Divider(

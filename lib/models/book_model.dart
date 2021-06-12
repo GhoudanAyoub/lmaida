@@ -9,6 +9,7 @@ class BookModel {
   String specialrequest;
   Map restoModel;
   Map user;
+  bool reviewed;
   String created_at;
   String updated_at;
   BookModel(

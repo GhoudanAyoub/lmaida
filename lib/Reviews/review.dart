@@ -181,8 +181,6 @@ class _ReviewState extends State<Review> {
             filename: 'upload3.jpg'),
       });
       var response = await dio.post(url, data: formData, options: options);
-      //var m = jsonDecode(response.data.toString());
-      //debugPrint(_reviewContoller.text);
       Fluttertoast.showToast(
           msg: response.data['message'].toString(),
           toastLength: Toast.LENGTH_SHORT,
@@ -191,11 +189,7 @@ class _ReviewState extends State<Review> {
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16.0);
-
-      setState(() {
-        sending = false;
-      });
-      //Navigator.pop(context);
+      Navigator.pop(context);
     }
   }
 
@@ -695,28 +689,32 @@ class _ReviewState extends State<Review> {
                       SizedBox(
                         height: 5,
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          /* sending == false
+                      sending == true
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                /* sending == false
                               ?*/
-                          FloatingActionButton(
-                            shape: CircleBorder(),
-                            heroTag: 'Add Review',
-                            mini: true,
-                            onPressed: () {
-                              userLog(context);
-                            },
-                            backgroundColor: Colors.red[900],
-                            child: Icon(Icons.arrow_forward_ios,
-                                size: 25, color: Colors.white),
-                          )
-                          /* : Padding(
+                                FloatingActionButton(
+                                  shape: CircleBorder(),
+                                  heroTag: 'Add Review',
+                                  mini: true,
+                                  onPressed: () {
+                                    userLog(context);
+                                  },
+                                  backgroundColor: Colors.red[900],
+                                  child: Icon(Icons.arrow_forward_ios,
+                                      size: 25, color: Colors.white),
+                                )
+                                /* : Padding(
                                   padding: EdgeInsets.all(5),
                                   child: CircularProgressIndicator(),
                                 )*/
-                        ],
-                      )
+                              ],
+                            )
+                          : Container(
+                              height: 0,
+                            )
                     ],
                   ),
                 ),
