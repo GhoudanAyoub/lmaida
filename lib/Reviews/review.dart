@@ -689,7 +689,7 @@ class _ReviewState extends State<Review> {
                       SizedBox(
                         height: 5,
                       ),
-                      sending == true
+                      sending == false
                           ? Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
