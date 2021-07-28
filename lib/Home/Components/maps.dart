@@ -110,7 +110,7 @@ class _MapsState extends State<Maps> {
                       margin:
                           EdgeInsets.symmetric(vertical: 70.0, horizontal: 35),
                       child: Padding(
-                        padding: EdgeInsets.only(left: 15.0, right: 30.0),
+                        padding: EdgeInsets.only(left: 15.0, right: 5.0),
                         child: Material(
                           elevation: 5.0,
                           borderRadius: BorderRadius.circular(50.0),

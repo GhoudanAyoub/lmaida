@@ -9,6 +9,7 @@ import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:lmaida/Home/Components/multiple_nutifier.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/LmaidaCard.dart';
 import 'package:lmaida/components/custom_card.dart';
@@ -17,6 +18,7 @@ import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
+import 'package:provider/provider.dart';
 
 import 'componant/new_resto_details.dart';
 
@@ -209,8 +211,83 @@ class _RestaurantState extends State<RestaurantPage> {
     }
   }
 
+  _showMultipleChoiceDialog(BuildContext context) => showDialog(
+      context: context,
+      builder: (context) {
+        final _multipleNotifier = Provider.of<MultipleNotifier>(context);
+        return AlertDialog(
+          title: Text('Select Category'),
+          content: SingleChildScrollView(
+            child: Container(
+                width: double.infinity,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: categList
+                      .map((e) => CheckboxListTile(
+                            title: Row(
+                              children: <Widget>[
+                                e["picture"] != null
+                                    ? CachedNetworkImage(
+                                        imageUrl:
+                                            "https://lmaida.com/storage/categories/" +
+                                                e["picture"],
+                                        fit: BoxFit.cover,
+                                        width: 20,
+                                        fadeInDuration:
+                                            Duration(milliseconds: 500),
+                                        fadeInCurve: Curves.easeIn,
+                                        placeholder: (context, progressText) =>
+                                            Center(
+                                                child:
+                                                    circularProgress(context)),
+                                      )
+                                    : Icon(Icons.dinner_dining,
+                                        size: 20, color: Colors.black87),
+                                Container(
+                                    margin: EdgeInsets.only(left: 5),
+                                    width: 100,
+                                    child: Text(
+                                      e["name"],
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    )),
+                              ],
+                            ),
+                            onChanged: (value) {
+                              value
+                                  ? _multipleNotifier.addItem(e["name"])
+                                  : _multipleNotifier.removeItem(e["name"]);
+
+                              value
+                                  ? setState(() {
+                                      _selected = e["name"];
+                                      catId = e["id"];
+                                    })
+                                  : setState(() {
+                                      _selected = null;
+                                      catId = null;
+                                    });
+                            },
+                            value: _multipleNotifier.isHaveItem(e["name"]),
+                          ))
+                      .toList(),
+                )),
+          ),
+          actions: [
+            FlatButton(
+              child: Text('Yes'),
+              onPressed: () => Navigator.of(context).pop(),
+            )
+          ],
+        );
+      });
   @override
   Widget build(BuildContext context) {
+    final _multipleNotifier = Provider.of<MultipleNotifier>(context);
     return SafeArea(
       child: Scaffold(
         backgroundColor: Color(0xfff2f3f7),
@@ -416,87 +493,39 @@ class _RestaurantState extends State<RestaurantPage> {
                                 borderRadius: BorderRadius.circular(15.0)),
                             child: Column(
                               children: [
-                                Container(
-                                  margin: EdgeInsets.all(15),
-                                  padding: EdgeInsets.all(15),
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 1, color: Colors.grey),
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Expanded(
-                                        child: DropdownButtonHideUnderline(
-                                          child: ButtonTheme(
-                                            alignedDropdown: true,
-                                            child: DropdownButton<String>(
-                                              isDense: true,
-                                              hint: new Text("Select Category"),
-                                              value: _selected,
-                                              onChanged: (String newValue) {
-                                                setState(() {
-                                                  _selected = newValue;
-                                                  catId = newValue;
-                                                });
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      CustomCard(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        child: Container(
+                                          child: Theme(
+                                            data: ThemeData(
+                                              primaryColor:
+                                                  Theme.of(context).accentColor,
+                                              accentColor:
+                                                  Theme.of(context).accentColor,
+                                            ),
+                                            child: FlatButton(
+                                              onPressed: () {
+                                                _showMultipleChoiceDialog(
+                                                    context);
                                               },
-                                              items: categList
-                                                  .map(
-                                                      (e) =>
-                                                          new DropdownMenuItem(
-                                                            value: e["id"]
-                                                                .toString(),
-                                                            // value: _mySelection,
-                                                            child: Row(
-                                                              children: <
-                                                                  Widget>[
-                                                                e["picture"] !=
-                                                                        null
-                                                                    ? CachedNetworkImage(
-                                                                        imageUrl:
-                                                                            "https://lmaida.com/storage/categories/" +
-                                                                                e["picture"],
-                                                                        fit: BoxFit
-                                                                            .cover,
-                                                                        width:
-                                                                            20,
-                                                                        fadeInDuration:
-                                                                            Duration(milliseconds: 500),
-                                                                        fadeInCurve:
-                                                                            Curves.easeIn,
-                                                                        placeholder:
-                                                                            (context, progressText) =>
-                                                                                Center(child: circularProgress(context)),
-                                                                      )
-                                                                    : Icon(
-                                                                        Icons
-                                                                            .dinner_dining,
-                                                                        size:
-                                                                            20,
-                                                                        color: Colors
-                                                                            .black87),
-                                                                Container(
-                                                                    margin: EdgeInsets
-                                                                        .only(
-                                                                            left:
-                                                                                10),
-                                                                    child: Text(
-                                                                      e["name"],
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            14,
-                                                                        color: Colors
-                                                                            .black,
-                                                                        fontWeight:
-                                                                            FontWeight.normal,
-                                                                      ),
-                                                                    )),
-                                                              ],
-                                                            ),
-                                                          ))
-                                                  .toList(),
+                                              child: Text(
+                                                _selected == null
+                                                    ? 'Select Category'
+                                                    : _selected,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.normal,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),

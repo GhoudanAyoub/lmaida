@@ -13,9 +13,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return new WillPopScope(
+    return SafeArea(
+        child: new WillPopScope(
       onWillPop: () async => false,
       child: SideBarLayout(),
-    );
+    ));
   }
 }
