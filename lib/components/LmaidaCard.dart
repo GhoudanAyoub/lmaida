@@ -1,11 +1,14 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:lmaida/components/rater.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/values/values.dart';
 
-class LmaidaCard extends StatelessWidget {
+class LmaidaCard extends StatefulWidget {
   final String status;
   final double rating;
   final String imagePath;
@@ -49,11 +52,27 @@ class LmaidaCard extends StatelessWidget {
     this.decoration,
     this.restoModel,
   });
+  @override
+  _LmaidaCardState createState() => _LmaidaCardState();
+}
+
+class _LmaidaCardState extends State<LmaidaCard> {
+  var fetchDetailsRes;
+  double reviewsData = 0.0;
+  Future<List<dynamic>> fetDetails(id) async {
+    var result = await http.get("https://lmaida.com/api/resturant/$id");
+    return json.decode(result.body);
+  }
+
+  @override
+  void initState() {
+    fetchDetailsRes = fetDetails(widget.restoModel.id);
+  }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Container(
         child: new FittedBox(
             child: Card(
@@ -69,9 +88,10 @@ class LmaidaCard extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: CachedNetworkImage(
-                        imageUrl: imagePath == null
+                        imageUrl: widget.imagePath == null
                             ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
-                            : "https://lmaida.com/storage/gallery/" + imagePath,
+                            : "https://lmaida.com/storage/gallery/" +
+                                widget.imagePath,
                         fit: BoxFit.cover,
                         width: MediaQuery.of(context).size.width,
                         height: 180,
@@ -91,7 +111,7 @@ class LmaidaCard extends StatelessWidget {
                           Row(
                             children: <Widget>[
                               Text(
-                                cardTitle ?? '',
+                                widget.cardTitle ?? '',
                                 textAlign: TextAlign.left,
                                 style: Styles.customTitleTextStyle(
                                   color: Colors.black,
@@ -107,7 +127,7 @@ class LmaidaCard extends StatelessWidget {
                                 alignment: Alignment.topLeft,
                                 child: Container(
                                   child: Text(
-                                    address ?? '',
+                                    widget.address ?? '',
                                     textAlign: TextAlign.left,
                                     style: Styles.customNormalTextStyle(
                                       color: Colors.grey[600],
@@ -124,7 +144,7 @@ class LmaidaCard extends StatelessWidget {
                                 alignment: Alignment.topLeft,
                                 child: Container(
                                   child: Text(
-                                    distance.toString() + " KM From You",
+                                    widget.distance.toString() + " KM From You",
                                     textAlign: TextAlign.left,
                                     style: Styles.customNormalTextStyle(
                                       color: Colors.grey[600],
@@ -136,15 +156,15 @@ class LmaidaCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                          restoModel.opening_hours_from != null &&
-                                  restoModel.opening_hours_to != null
+                          widget.restoModel.opening_hours_from != null &&
+                                  widget.restoModel.opening_hours_to != null
                               ? Row(
                                   children: <Widget>[
                                     Align(
                                       alignment: Alignment.topLeft,
                                       child: Container(
                                         child: Text(
-                                          time,
+                                          widget.time,
                                           textAlign: TextAlign.left,
                                           style: Styles.customNormalTextStyle(
                                             color: Colors.black,
@@ -158,8 +178,29 @@ class LmaidaCard extends StatelessWidget {
                               : Container(
                                   height: 0,
                                 ),
-                          Rater(
-                            rate: rating,
+                          FutureBuilder(
+                            future: fetchDetailsRes,
+                            builder: (context, snapshot) {
+                              if (snapshot != null && snapshot.data != null) {
+                                if (snapshot.data[0]["reviews"].length != 0) {
+                                  for (var it in snapshot.data[0]["reviews"])
+                                    reviewsData +=
+                                        double.tryParse(it['reviews']);
+
+                                  return Rater(
+                                    rate: reviewsData /
+                                        snapshot.data[0]["reviews"].length,
+                                  );
+                                } else
+                                  return Rater(
+                                    rate: 1,
+                                  );
+                              } else {
+                                return Rater(
+                                  rate: 1,
+                                );
+                              }
+                            },
                           ),
                         ],
                       ),

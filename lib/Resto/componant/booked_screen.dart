@@ -51,16 +51,18 @@ class _BookedScreenState extends State<BookedScreen> {
   bool loading = true;
   bool sub = false;
   String _selected;
-  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     getUsers();
+    super.initState();
   }
 
   void showInSnackBar(String value) {
-    scaffoldKey.currentState.removeCurrentSnackBar();
-    scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(value),
+      duration: Duration(seconds: 2),
+    ));
   }
 
   getUsers() async {

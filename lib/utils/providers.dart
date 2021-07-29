@@ -10,4 +10,6 @@ List<SingleChildWidget> providers = [
   ChangeNotifierProvider(create: (_) => EditProfileViewModel()),
   ChangeNotifierProvider(create: (_) => MyModel()),
   ChangeNotifierProvider(create: (_) => MultipleNotifier([])),
+  ChangeNotifierProvider(create: (_) => MultipleCityNotifier([])),
+  ChangeNotifierProvider(create: (_) => MultipleSpectsNotifier([])),
 ];

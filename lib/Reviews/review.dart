@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
+import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/category.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
@@ -189,6 +190,9 @@ class _ReviewState extends State<Review> {
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16.0);
+      setState(() {
+        sending = false;
+      });
       Navigator.pop(context);
     }
   }
@@ -315,10 +319,8 @@ class _ReviewState extends State<Review> {
                           TextFormBuilder(
                             controller: _notLikeContoller,
                             prefix: Feather.inbox,
-                            hintText: "Search or select from blow",
-                            onChange: (q) {
-                              searchNegative(q);
-                            },
+                            hintText: "Negative TAGs",
+                            enabled: false,
                           ),
                           SizedBox(
                             height: 5,
@@ -336,6 +338,8 @@ class _ReviewState extends State<Review> {
                                       _activeTab = index;
                                       negativeTagString +=
                                           "#${filteredNegativeList[index].name} ";
+                                      _notLikeContoller.text =
+                                          negativeTagString;
                                     });
                                   },
                                   child: AnimatedContainer(
@@ -373,17 +377,6 @@ class _ReviewState extends State<Review> {
                               itemCount: filteredNegativeList.length,
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 10, top: 5),
-                            child: Text(
-                              negativeTagString,
-                              style: TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontSize: 12.0,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       SizedBox(
@@ -406,10 +399,8 @@ class _ReviewState extends State<Review> {
                           TextFormBuilder(
                             controller: _likeContoller,
                             prefix: Feather.inbox,
-                            hintText: "Search or select from blow",
-                            onChange: (q) {
-                              searchPositive(q);
-                            },
+                            enabled: false,
+                            hintText: "Positive TAGs",
                           ),
                           SizedBox(
                             height: 5,
@@ -427,6 +418,7 @@ class _ReviewState extends State<Review> {
                                       _activeTab2 = index;
                                       positiveTagString +=
                                           "#${filteredPositiveList[index].name} ";
+                                      _likeContoller.text = positiveTagString;
                                     });
                                   },
                                   child: AnimatedContainer(
@@ -462,17 +454,6 @@ class _ReviewState extends State<Review> {
                                 );
                               },
                               itemCount: filteredPositiveList.length,
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 10, top: 5),
-                            child: Text(
-                              positiveTagString,
-                              style: TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontSize: 12.0,
-                                color: Colors.grey,
-                              ),
                             ),
                           ),
                         ],
@@ -693,8 +674,6 @@ class _ReviewState extends State<Review> {
                           ? Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                /* sending == false
-                              ?*/
                                 FloatingActionButton(
                                   shape: CircleBorder(),
                                   heroTag: 'Add Review',
@@ -706,15 +685,9 @@ class _ReviewState extends State<Review> {
                                   child: Icon(Icons.arrow_forward_ios,
                                       size: 25, color: Colors.white),
                                 )
-                                /* : Padding(
-                                  padding: EdgeInsets.all(5),
-                                  child: CircularProgressIndicator(),
-                                )*/
                               ],
                             )
-                          : Container(
-                              height: 0,
-                            )
+                          : circularProgress(context)
                     ],
                   ),
                 ),

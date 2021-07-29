@@ -154,7 +154,7 @@ class _SideBarState extends State<SideBar>
                       Divider(
                         height: 30,
                         thickness: 0.5,
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.grey.withOpacity(0.3),
                         indent: 32,
                         endIndent: 32,
                       ),
@@ -166,12 +166,15 @@ class _SideBarState extends State<SideBar>
                                 logOut(context);
                               },
                             )
-                          : MenuItem(
-                              icon: Icons.login,
-                              title: "Log In",
-                              onTap: () {
-                                logIn(context);
-                              },
+                          : Align(
+                              alignment: Alignment.bottomCenter,
+                              child: MenuItem(
+                                icon: Icons.login,
+                                title: "Log In",
+                                onTap: () {
+                                  logIn(context);
+                                },
+                              ),
                             ),
                     ],
                   ),
