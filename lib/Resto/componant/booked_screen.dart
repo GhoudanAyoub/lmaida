@@ -19,6 +19,8 @@ import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/values/values.dart';
 
+import 'custom_switcher.dart';
+
 class BookedScreen extends StatefulWidget with NavigationStates {
   final RestoModel restoModel;
   final List offer;
@@ -51,6 +53,7 @@ class _BookedScreenState extends State<BookedScreen> {
   bool loading = true;
   bool sub = false;
   String _selected;
+  bool state = false;
 
   @override
   void initState() {
@@ -499,7 +502,35 @@ class _BookedScreenState extends State<BookedScreen> {
             color: Colors.grey[900],
           ),
           SizedBox(height: 20.0),
-          widget.offer != null
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text("Choose Your Action:",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[800],
+                    )),
+              ),
+              Container(
+                width: 150,
+                child: CustomSwitch(
+                  value: state,
+                  activeColor: Colors.green,
+                  onChanged: (s) {
+                    setState(() {
+                      state = s;
+                    });
+                  },
+                ),
+              )
+            ],
+          ),
+          widget.offer != null && state
               ? Card(
                   elevation: 4,
                   margin: EdgeInsets.all(10),
@@ -680,4 +711,15 @@ class _BookedScreenState extends State<BookedScreen> {
       );
     }
   }
+
+  /*time(String date) {
+    var year = widget.selectedDateTxt != null
+        ? "${widget.selectedDateTxt.year}-${widget.selectedDateTxt.month < 10 ? "0" : ""}${widget.selectedDateTxt.month}-${widget.selectedDateTxt.day < 10 ? "0" : ""}${widget.selectedDateTxt.day}"
+        : "${selectedDate.year}-${selectedDate.month < 10 ? "0" : ""}${selectedDate.month}-${selectedDate.day < 10 ? "0" : ""}${selectedDate.day}";
+    var hour = widget.selectedTimeTxt != null
+        ? "${widget.selectedTimeTxt.hour < 10 ? "0" : ""}${widget.selectedTimeTxt.hour}${widget.selectedTimeTxt.minute < 10 ? "0" : ""}:${widget.selectedTimeTxt.minute}"
+        : "${selectedDate.hour < 10 ? "0" : ""}${selectedDate.hour}:${selectedDate.minute < 10 ? "0" : ""}${selectedDate.minute}";
+    DateTime d = DateTime.parse("${year}T$hour");
+    return DateTime.parse(date).isAfter(d);
+  }*/
 }
