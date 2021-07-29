@@ -5,7 +5,6 @@ import 'dart:math' show cos, sqrt, asin;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,10 +12,14 @@ import 'package:http/http.dart' as http;
 import 'package:lmaida/Home/Components/map_model.dart';
 import 'package:lmaida/Resto/componant/new_resto_details.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
+import 'package:lmaida/components/LmaidaCard.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:provider/provider.dart';
+
+const double PIN_VISIBLE_POSITION = 100;
+const double PIN_INVISIBLE_POSITION = -220;
 
 class Maps extends StatefulWidget with NavigationStates {
   final position;
@@ -32,6 +35,7 @@ class _MapsState extends State<Maps> {
   TextEditingController searchController = TextEditingController();
   Set<Marker> markerlist = {};
   RestoModel restoModel;
+  RestoModel soloRestoModel;
   String Search;
   Position position;
   bool submitted = false;
@@ -46,6 +50,7 @@ class _MapsState extends State<Maps> {
   double zoomVal = 5.0;
   var fetRestoAdvanceResult, fetLocationResult;
 
+  double soloPinPillPosition = PIN_INVISIBLE_POSITION;
   @override
   void initState() {
     getLastLocation();
@@ -67,23 +72,12 @@ class _MapsState extends State<Maps> {
             restoModel.address);
         myModel.updateVisibility(true);
         myModel.rebuildInfoWindow();
+
+        setState(() {
+          this.soloPinPillPosition = PIN_VISIBLE_POSITION;
+          soloRestoModel = restoModel;
+        });
       },
-      infoWindow: InfoWindow(
-          title: name,
-          snippet: restoModel.address,
-          onTap: () => {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => NewRestoDetails(
-                            restoModel: restoModel,
-                            selectedDateTxt: null,
-                            selectedTimeTxt: null,
-                            dropdownValue: null,
-                            locationId: locationId,
-                          )),
-                )
-              }),
       icon: BitmapDescriptor.defaultMarkerWithHue(
         BitmapDescriptor.hueViolet,
       ),
@@ -104,6 +98,51 @@ class _MapsState extends State<Maps> {
             body: Stack(
               children: <Widget>[
                 _buildContainer2(),
+                AnimatedPositioned(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOutExpo,
+                    left: 0,
+                    right: 0,
+                    bottom: this.soloPinPillPosition,
+                    child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                        height: 200,
+                        child: soloRestoModel != null
+                            ? LmaidaCard(
+                                onTap: () => {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => NewRestoDetails(
+                                              restoModel: soloRestoModel,
+                                              selectedDateTxt: null,
+                                              selectedTimeTxt: null,
+                                              dropdownValue: null,
+                                              locationId: locationId,
+                                            )),
+                                  )
+                                },
+                                restoModel: soloRestoModel,
+                                time: soloRestoModel.opening_hours_from ==
+                                            null ||
+                                        soloRestoModel.opening_hours_from == ''
+                                    ? " "
+                                    : "Opening from " +
+                                        soloRestoModel.opening_hours_from +
+                                        " to " +
+                                        soloRestoModel.opening_hours_to,
+                                imagePath: soloRestoModel.pictures,
+                                status: soloRestoModel.status,
+                                cardTitle: soloRestoModel.name,
+                                category: soloRestoModel.categories.length != 0
+                                    ? soloRestoModel.categories[0]["name"]
+                                    : "",
+                                address: soloRestoModel.address,
+                              )
+                            : SizedBox(
+                                height: 0,
+                              ))),
                 Align(
                     alignment: Alignment.topCenter,
                     child: Container(
@@ -254,111 +293,6 @@ class _MapsState extends State<Maps> {
           );
   }
 
-  buildshit(RestoModel restoModel) {
-    return Container(
-      child: Consumer<MyModel>(
-        builder: (context, model, child) {
-          return Stack(
-            children: <Widget>[
-              child,
-              Positioned(
-                left: 120,
-                top: 150,
-                child: Visibility(
-                  visible: myModel.showInfoWindow,
-                  child: (restoModel == null && !myModel.showInfoWindow)
-                      ? Container()
-                      : Container(
-                          margin: EdgeInsets.only(
-                            left: 5,
-                            top: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            gradient: new LinearGradient(
-                              colors: [
-                                Colors.white,
-                                Colors.white,
-                              ],
-                              end: Alignment.bottomCenter,
-                              begin: Alignment.topCenter,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey,
-                                offset: Offset(0.0, 1.0),
-                                blurRadius: 6.0,
-                              ),
-                            ],
-                          ),
-                          height: 100,
-                          width: 250,
-                          padding: EdgeInsets.all(15),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Image.network(
-                                restoModel.pictures != null
-                                    ? "https://lmaida.com/storage/gallery/" +
-                                        restoModel.pictures
-                                    : "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
-                                height: 75,
-                              ),
-                              Column(
-                                children: <Widget>[
-                                  Text(
-                                    myModel.Placename,
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black45,
-                                    ),
-                                  ),
-                                  IconTheme(
-                                    data: IconThemeData(
-                                      color: Colors.yellow[800],
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: List.generate(
-                                        5,
-                                        (index) {
-                                          return Icon(
-                                            index < 1
-                                                ? Icons.star
-                                                : Icons.star_border,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                ),
-              ),
-            ],
-          );
-        },
-        child: Positioned(
-          child: GoogleMap(
-            mapType: MapType.normal,
-            initialCameraPosition: _myPosition,
-            onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
-              mapController = controller;
-            },
-            markers: markerlist,
-            myLocationEnabled: true,
-          ),
-        ),
-      ),
-    );
-  }
-
   buildCount(String label, final icons) {
     return Row(
       children: <Widget>[
@@ -371,10 +305,10 @@ class _MapsState extends State<Maps> {
         Text(
           label,
           style: TextStyle(
-              fontSize: 14,
-              color: Colors.white,
-              fontWeight: FontWeight.normal,
-              fontFamily: 'Ubuntu-Regular'),
+            fontSize: 14,
+            color: Colors.white,
+            fontWeight: FontWeight.normal,
+          ),
         )
       ],
     );
@@ -433,6 +367,12 @@ class _MapsState extends State<Maps> {
                   _controller.complete(controller);
                   mapController = controller;
                 },
+                onTap: (LatLng loc) {
+                  setState(() {
+                    this.soloPinPillPosition = PIN_INVISIBLE_POSITION;
+                    soloRestoModel = restoModel;
+                  });
+                },
                 markers: markerlist,
                 myLocationEnabled: true,
               );
@@ -468,133 +408,6 @@ class _MapsState extends State<Maps> {
       return 1000000;
   }
 
-  Widget _boxes(
-      String _image, double lat, double long, RestoModel restaurantName) {
-    return GestureDetector(
-      onTap: () {
-        _gotoLocation(lat, long);
-      },
-      child: Container(
-        child: new FittedBox(
-          child: Material(
-              color: Colors.white,
-              elevation: 14.0,
-              borderRadius: BorderRadius.circular(24.0),
-              shadowColor: Color(0x802196F3),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Container(
-                    width: 90,
-                    height: 100,
-                    child: ClipRRect(
-                      borderRadius: new BorderRadius.circular(24.0),
-                      child: Image(
-                        fit: BoxFit.fill,
-                        image: NetworkImage(_image),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: myDetailsContainer1(restaurantName),
-                    ),
-                  ),
-                ],
-              )),
-        ),
-      ),
-    );
-  }
-
-  Widget myDetailsContainer1(RestoModel restaurantName) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Container(
-              child: Text(
-            restaurantName.name,
-            style: TextStyle(
-                color: Color(0xff6200ee),
-                fontSize: 14.0,
-                fontWeight: FontWeight.bold),
-          )),
-        ),
-        SizedBox(height: 5.0),
-        Container(
-            child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Container(
-                child: Text(
-              "4.1",
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 12.0,
-              ),
-            )),
-            Container(
-              child: Icon(
-                FontAwesomeIcons.solidStar,
-                color: Colors.amber,
-                size: 10.0,
-              ),
-            ),
-            Container(
-              child: Icon(
-                FontAwesomeIcons.solidStar,
-                color: Colors.amber,
-                size: 10.0,
-              ),
-            ),
-            Container(
-              child: Icon(
-                FontAwesomeIcons.solidStar,
-                color: Colors.amber,
-                size: 10.0,
-              ),
-            ),
-            Container(
-              child: Icon(
-                FontAwesomeIcons.solidStar,
-                color: Colors.amber,
-                size: 10.0,
-              ),
-            ),
-            Container(
-              child: Icon(
-                FontAwesomeIcons.solidStarHalf,
-                color: Colors.amber,
-                size: 10.0,
-              ),
-            ),
-            Container(
-                child: Text(
-              "(946)",
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 10.0,
-              ),
-            )),
-          ],
-        )),
-        SizedBox(height: 5.0),
-        Container(
-            child: Text(
-          restaurantName.address + "re \u00B7 \u0024\u0024 \u00B7 1.6 mi",
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 10.0,
-          ),
-        )),
-        SizedBox(height: 5.0),
-      ],
-    );
-  }
-
   Future<List<dynamic>> fetLocation() async {
     var result = await http.get(StringConst.URI_LOCATION);
     return json.decode(result.body);
@@ -608,15 +421,12 @@ class _MapsState extends State<Maps> {
     addresses = await Geocoder.local.findAddressesFromCoordinates(
         new Coordinates(position.latitude, position.longitude));
     for (var location in fetLocationResult) {
-      print("*********${location["name"]}");
       if (addresses.first.addressLine.contains(location["name"])) {
         fetRestoAdvanceResult = myModel.fetResto(location["id"]);
-        print('${addresses.first.addressLine.contains(location["name"])}');
         setState(() {
           locationId = location["id"];
           kta3 = false;
         });
-        print(" ====> done");
       }
     }
 
@@ -631,15 +441,5 @@ class _MapsState extends State<Maps> {
   Future<void> _goToMyPosition() async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(_myPosition));
-  }
-
-  Future<void> _gotoLocation(double lat, double long) async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-      target: LatLng(lat, long),
-      zoom: 20,
-      tilt: 50.0,
-      bearing: 45.0,
-    )));
   }
 }

@@ -73,144 +73,148 @@ class _LmaidaCardState extends State<LmaidaCard> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: widget.onTap,
-      child: Container(
-        child: new FittedBox(
-            child: Card(
-          elevation: 4.0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Stack(
-            children: <Widget>[
-              Positioned(
-                child: Column(
-                  children: <Widget>[
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: CachedNetworkImage(
-                        imageUrl: widget.imagePath == null
-                            ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
-                            : "https://lmaida.com/storage/gallery/" +
-                                widget.imagePath,
-                        fit: BoxFit.cover,
-                        width: MediaQuery.of(context).size.width,
-                        height: 180,
-                        fadeInDuration: Duration(milliseconds: 500),
-                        fadeInCurve: Curves.easeIn,
-                        placeholder: (context, progressText) =>
-                            Center(child: CircularProgressIndicator()),
+      child: Hero(
+        tag: "hero",
+        child: Container(
+          child: new FittedBox(
+              child: Card(
+            elevation: 4.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Stack(
+              children: <Widget>[
+                Positioned(
+                  child: Column(
+                    children: <Widget>[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: CachedNetworkImage(
+                          imageUrl: widget.imagePath == null
+                              ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
+                              : "https://lmaida.com/storage/gallery/" +
+                                  widget.imagePath,
+                          fit: BoxFit.cover,
+                          width: MediaQuery.of(context).size.width,
+                          height: 180,
+                          fadeInDuration: Duration(milliseconds: 500),
+                          fadeInCurve: Curves.easeIn,
+                          placeholder: (context, progressText) =>
+                              Center(child: CircularProgressIndicator()),
+                        ),
                       ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 10,
-                      ),
-                      child: Column(
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              Text(
-                                widget.cardTitle ?? '',
-                                textAlign: TextAlign.left,
-                                style: Styles.customTitleTextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 18,
+                      Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 10,
+                        ),
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Text(
+                                  widget.cardTitle ?? '',
+                                  textAlign: TextAlign.left,
+                                  style: Styles.customTitleTextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: Container(
-                                  child: Text(
-                                    widget.address ?? '',
-                                    textAlign: TextAlign.left,
-                                    style: Styles.customNormalTextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Container(
+                                    child: Text(
+                                      widget.address ?? '',
+                                      textAlign: TextAlign.left,
+                                      style: Styles.customNormalTextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: Container(
-                                  child: Text(
-                                    widget.distance.toString() + " KM From You",
-                                    textAlign: TextAlign.left,
-                                    style: Styles.customNormalTextStyle(
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 12,
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Container(
+                                    child: Text(
+                                      widget.distance.toString() +
+                                          " KM From You",
+                                      textAlign: TextAlign.left,
+                                      style: Styles.customNormalTextStyle(
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          widget.restoModel.opening_hours_from != null &&
-                                  widget.restoModel.opening_hours_to != null
-                              ? Row(
-                                  children: <Widget>[
-                                    Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Container(
-                                        child: Text(
-                                          widget.time,
-                                          textAlign: TextAlign.left,
-                                          style: Styles.customNormalTextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14,
+                              ],
+                            ),
+                            widget.restoModel.opening_hours_from != null &&
+                                    widget.restoModel.opening_hours_to != null
+                                ? Row(
+                                    children: <Widget>[
+                                      Align(
+                                        alignment: Alignment.topLeft,
+                                        child: Container(
+                                          child: Text(
+                                            widget.time,
+                                            textAlign: TextAlign.left,
+                                            style: Styles.customNormalTextStyle(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                )
-                              : Container(
-                                  height: 0,
-                                ),
-                          FutureBuilder(
-                            future: fetchDetailsRes,
-                            builder: (context, snapshot) {
-                              if (snapshot != null && snapshot.data != null) {
-                                if (snapshot.data[0]["reviews"].length != 0) {
-                                  for (var it in snapshot.data[0]["reviews"])
-                                    reviewsData +=
-                                        double.tryParse(it['reviews']);
+                                    ],
+                                  )
+                                : Container(
+                                    height: 0,
+                                  ),
+                            FutureBuilder(
+                              future: fetchDetailsRes,
+                              builder: (context, snapshot) {
+                                if (snapshot != null && snapshot.data != null) {
+                                  if (snapshot.data[0]["reviews"].length != 0) {
+                                    for (var it in snapshot.data[0]["reviews"])
+                                      reviewsData +=
+                                          double.tryParse(it['reviews']);
 
-                                  return Rater(
-                                    rate: reviewsData /
-                                        snapshot.data[0]["reviews"].length,
-                                  );
-                                } else
+                                    return Rater(
+                                      rate: reviewsData /
+                                          snapshot.data[0]["reviews"].length,
+                                    );
+                                  } else
+                                    return Rater(
+                                      rate: 1,
+                                    );
+                                } else {
                                   return Rater(
                                     rate: 1,
                                   );
-                              } else {
-                                return Rater(
-                                  rate: 1,
-                                );
-                              }
-                            },
-                          ),
-                        ],
+                                }
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        )),
+              ],
+            ),
+          )),
+        ),
       ),
     );
   }

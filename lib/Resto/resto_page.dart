@@ -235,7 +235,8 @@ class _RestaurantState extends State<RestaurantPage> {
                                             Duration(milliseconds: 500),
                                         fadeInCurve: Curves.easeIn,
                                         placeholder: (context, progressText) =>
-                                            Center(
+                                            Container(
+                                                width: 20,
                                                 child:
                                                     circularProgress(context)),
                                       )
@@ -287,6 +288,7 @@ class _RestaurantState extends State<RestaurantPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Color(0xfff2f3f7),
         body: Container(
           child: Stack(

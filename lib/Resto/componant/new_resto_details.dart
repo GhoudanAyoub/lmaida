@@ -45,6 +45,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   String finalNegTag = "";
   String finaPosTag = "";
   double reviewsData = 0.0;
+  List<CachedNetworkImage> images = [];
 
   Future<List<dynamic>> fetDetails(id) async {
     var result = await http.get("https://lmaida.com/api/resturant/$id");
@@ -55,6 +56,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   void initState() {
     //getUsers();
     fetchDetailsRes = fetDetails(widget.restoModel.id);
+    getImages();
   }
 
   getUsers() async {
@@ -657,7 +659,6 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                     scrollDirection: Axis.horizontal,
                     itemCount: widget.restoModel.itemphotos.length,
                     itemBuilder: (context, index) {
-                      print('++' + widget.restoModel.name.toString());
                       if (widget.restoModel.itemphotos == null) {
                         return Container(
                           child: Center(
@@ -732,6 +733,18 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
         context: parentContext,
         builder: (context) {
           return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: EdgeInsets.all(10),
+            child: ListWheelScrollView(itemExtent: 250, children: images),
+          );
+        });
+  }
+
+  showPage2(BuildContext parentContext, image) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return Dialog(
               backgroundColor: Colors.transparent,
               insetPadding: EdgeInsets.all(10),
               child: Stack(
@@ -740,7 +753,9 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                 children: <Widget>[
                   Positioned(
                       top: 100,
-                      child: Image.network(image, width: 600, height: 600)),
+                      child: InteractiveViewer(
+                        child: Image.network(image, width: 600, height: 600),
+                      )),
                   Positioned(
                     top: 100,
                     right: 10,
@@ -751,7 +766,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      backgroundColor: Colors.grey.withOpacity(0.1),
+                      backgroundColor: Colors.red,
                       child: Icon(Icons.clear, size: 25, color: Colors.white),
                     ),
                   ),
@@ -934,7 +949,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                             Radius.circular(8))),
                                     child: GestureDetector(
                                         onTap: () {
-                                          showpage(
+                                          showPage2(
                                               context,
                                               "https://lmaida.com/storage/reviews/" +
                                                       l[index] ??
@@ -1080,5 +1095,17 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
             ],
           );
         });
+  }
+
+  void getImages() {
+    for (var i in widget.restoModel.itemphotos)
+      images.add(CachedNetworkImage(
+        imageUrl: "https://lmaida.com/storage/gallery/" + i['name'],
+        fit: BoxFit.fill,
+        fadeInDuration: Duration(milliseconds: 500),
+        fadeInCurve: Curves.easeIn,
+        placeholder: (context, progressText) =>
+            Center(child: circularProgress(context)),
+      ));
   }
 }
