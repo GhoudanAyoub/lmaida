@@ -14,6 +14,7 @@ import 'package:lmaida/components/reting%20star.dart';
 import 'package:lmaida/components/reviews_card.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
+import 'package:lmaida/utils/extansion.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/values/values.dart';
 
@@ -115,7 +116,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
               height: 60.0,
               child: Center(
                   child: Text(
-                widget.restoModel.name,
+                widget.restoModel.name.capitalize(),
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 28.0,
@@ -132,14 +133,16 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                     child: Card(
                       elevation: 8.0,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(10)),
                       child: Stack(
                         children: [
                           Positioned(
                               child: Column(
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10),
+                                    topRight: Radius.circular(10)),
                                 child: CachedNetworkImage(
                                   imageUrl: widget.restoModel.pictures == null
                                       ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
@@ -157,15 +160,17 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                               ),
                               Container(
                                 margin: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
+                                  horizontal: 20,
+                                  vertical: 10,
                                 ),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: <Widget>[
                                     Container(
                                       width: SizeConfig.screenWidth,
                                       child: Text(
-                                        widget.restoModel.address,
+                                        widget.restoModel.address.capitalize(),
                                         textAlign: TextAlign.left,
                                         overflow: TextOverflow.ellipsis,
                                         style: Styles.customNormalTextStyle(
@@ -190,65 +195,108 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                               reviewsData += double.tryParse(
                                                   it['reviews']);
 
-                                            return Rater(
-                                              rate: reviewsData /
-                                                  snapshot.data[0]["reviews"]
-                                                      .length,
+                                            return Row(
+                                              children: [
+                                                Rater(
+                                                  rate: reviewsData /
+                                                      snapshot
+                                                          .data[0]["reviews"]
+                                                          .length,
+                                                ),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                  "(${(reviewsData / snapshot.data[0]["reviews"].length).toStringAsFixed(1)})",
+                                                  textAlign: TextAlign.left,
+                                                  style: Styles
+                                                      .customNormalTextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
                                             );
                                           } else
-                                            return Rater(
-                                              rate: 1,
+                                            return Row(
+                                              children: [
+                                                Rater(
+                                                  rate: 0,
+                                                ),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                  "(NaN)",
+                                                  textAlign: TextAlign.left,
+                                                  style: Styles
+                                                      .customNormalTextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
                                             );
                                         } else {
-                                          return Rater(
-                                            rate: 1,
+                                          return Row(
+                                            children: [
+                                              Rater(
+                                                rate: 0,
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(
+                                                "(NaN)",
+                                                textAlign: TextAlign.left,
+                                                style: Styles
+                                                    .customNormalTextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
                                           );
                                         }
                                       },
                                     ),
-                                    SizedBox(height: 10.0),
-                                    Container(
-                                      width: SizeConfig.screenWidth,
-                                      child: Text(
-                                          widget.restoModel.filters
-                                              .map((e) => e["name"])
-                                              .join(","),
-                                          textAlign: TextAlign.left,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Styles.customNormalTextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14,
-                                          )),
-                                    ),
-                                    Row(
-                                      children: <Widget>[
-                                        Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Container(
+                                    SizedBox(height: 5.0),
+                                    widget.restoModel.opening_hours_from !=
+                                                null &&
+                                            widget.restoModel.opening_hours_to !=
+                                                null &&
+                                            widget.restoModel
+                                                    .opening_hours_from !=
+                                                "" &&
+                                            widget.restoModel
+                                                    .opening_hours_to !=
+                                                ""
+                                        ? Container(
                                             child: Text(
-                                              widget.restoModel.opening_hours_from ==
-                                                          null ||
-                                                      widget.restoModel
-                                                              .opening_hours_from ==
-                                                          ''
-                                                  ? " "
-                                                  : "Opening from " +
-                                                      widget.restoModel
-                                                          .opening_hours_from +
-                                                      " to " +
-                                                      widget.restoModel
-                                                          .opening_hours_to,
+                                              "Opening from " +
+                                                  widget.restoModel
+                                                      .opening_hours_from +
+                                                  " to " +
+                                                  widget.restoModel
+                                                      .opening_hours_to,
                                               textAlign: TextAlign.left,
+                                              overflow: TextOverflow.ellipsis,
                                               style:
                                                   Styles.customNormalTextStyle(
                                                 color: Colors.black,
                                                 fontSize: 14,
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                            width: 300,
+                                          )
+                                        : Container(
+                                            height: 0,
+                                          )
                                   ],
                                 ),
                               ),
@@ -279,13 +327,12 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                           borderRadius: BorderRadius.circular(8)),
                       child: Container(
                         margin: EdgeInsets.fromLTRB(20, 0, 0, 5),
-                        padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+                        padding: EdgeInsets.all(10),
                         width: SizeConfig.screenWidth - 50,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            SizedBox(width: 10),
+                            SizedBox(height: 10),
                             Text(
                               "Chef's Suggestions",
                               style: TextStyle(
@@ -294,6 +341,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                 color: Colors.black,
                               ),
                             ),
+                            SizedBox(height: 10),
                             Text(
                               "See The Full Menu ",
                               style: TextStyle(
@@ -629,7 +677,8 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
         elevation: 10.0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: Container(
-          margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+          margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+          padding: EdgeInsets.all(10),
           width: SizeConfig.screenWidth - 50,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -644,6 +693,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                   color: Colors.black,
                 ),
               ),
+              SizedBox(height: 10),
               Text(
                 "Picture From Community Members",
                 style: TextStyle(
@@ -652,6 +702,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                   color: Colors.black,
                 ),
               ),
+              SizedBox(height: 10),
               Container(
                 height: 120,
                 width: MediaQuery.of(context).size.width,
@@ -851,21 +902,24 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                               )
                             ],
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 10, top: 5),
-                            child: Text(
-                              "${snapshot.data[0]["reviews"][0]['positivtag'] ?? "NO POSITIVE TAGS"}",
-                              style: snapshot.data[0]["reviews"][0]
-                                          ['positivtag'] !=
-                                      null
-                                  ? TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black)
-                                  : TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.grey),
+                          Container(
+                            child: Wrap(
+                              children:
+                                  snapshot.data[0]["reviews"][0]['positivtag']
+                                      .toString()
+                                      .split("#")
+                                      .map((e) => e != ""
+                                          ? Chip(
+                                              label: Text("#${e.capitalize()}"),
+                                              elevation: 4,
+                                            )
+                                          : Container())
+                                      .toList(),
+                              spacing: 2,
+                              alignment: WrapAlignment.start,
                             ),
-                          )
+                            width: 150,
+                          ),
                         ],
                       ),
                     ),
@@ -890,20 +944,24 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                               )
                             ],
                           ),
-                          Padding(
-                              padding: EdgeInsets.only(left: 10, top: 5),
-                              child: Text(
-                                "${snapshot.data[0]["reviews"][0]['negativetag'] ?? "NO NEGATIVE TAGS"}",
-                                style: snapshot.data[0]["reviews"][0]
-                                            ['negativetag'] !=
-                                        null
-                                    ? TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.black)
-                                    : TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.grey),
-                              ))
+                          Container(
+                            child: Wrap(
+                              children:
+                                  snapshot.data[0]["reviews"][0]['negativetag']
+                                      .toString()
+                                      .split("#")
+                                      .map((e) => e != ""
+                                          ? Chip(
+                                              label: Text("#$e"),
+                                              elevation: 4,
+                                            )
+                                          : Container())
+                                      .toList(),
+                              spacing: 2,
+                              alignment: WrapAlignment.start,
+                            ),
+                            width: 200,
+                          ),
                         ],
                       ),
                     ),
@@ -1034,7 +1092,10 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                   )),
             );
         } else {
-          return Center(child: circularProgress(context));
+          return Padding(
+            padding: EdgeInsets.all(10),
+            child: Center(child: circularProgress(context)),
+          );
         }
       },
     );

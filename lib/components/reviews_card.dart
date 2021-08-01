@@ -4,13 +4,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmaida/components/reting%20star.dart';
+import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
+import 'package:lmaida/utils/extansion.dart';
 
 import 'indicators.dart';
 
 class ReviewsCard extends StatefulWidget {
   final reviews;
-  final restoModel;
+  final RestoModel restoModel;
 
   const ReviewsCard({Key key, this.reviews, this.restoModel}) : super(key: key);
   @override
@@ -60,7 +62,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
               height: 60.0,
               child: Center(
                   child: Text(
-                widget.restoModel.name,
+                "${widget.restoModel.name.capitalize()}",
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 28.0,
@@ -171,27 +173,23 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                               ],
                                             ),
                                             Container(
-                                              child: Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: 10, top: 5),
-                                                child: Text(
-                                                  "${snap['positivtag'] ?? "NO POSITIVE TAGS"}",
-                                                  style: snap['positivtag'] !=
-                                                          null
-                                                      ? TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          color: Colors.black)
-                                                      : TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          color: Colors.grey),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
+                                              child: Wrap(
+                                                children: snap['positivtag']
+                                                    .toString()
+                                                    .split("#")
+                                                    .map((e) => e != ""
+                                                        ? Chip(
+                                                            label: Text(
+                                                                "#${e.capitalize()}"),
+                                                            elevation: 4,
+                                                          )
+                                                        : Container())
+                                                    .toList(),
+                                                spacing: 2,
+                                                alignment: WrapAlignment.start,
                                               ),
                                               width: 150,
-                                            )
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -219,27 +217,22 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                               ],
                                             ),
                                             Container(
-                                              child: Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: 10, top: 5),
-                                                child: Text(
-                                                  "${snap['negativetag'] ?? "NO NEGATIVE TAGS"}",
-                                                  style: snap['negativetag'] !=
-                                                          null
-                                                      ? TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          color: Colors.black)
-                                                      : TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          color: Colors.grey),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
+                                              child: Wrap(
+                                                children: snap['negativetag']
+                                                    .toString()
+                                                    .split("#")
+                                                    .map((e) => e != ""
+                                                        ? Chip(
+                                                            label: Text("#$e"),
+                                                            elevation: 4,
+                                                          )
+                                                        : Container())
+                                                    .toList(),
+                                                spacing: 2,
+                                                alignment: WrapAlignment.start,
                                               ),
-                                              width: 150,
-                                            )
+                                              width: 200,
+                                            ),
                                           ],
                                         ),
                                       ),

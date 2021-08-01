@@ -730,7 +730,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                   return RefreshIndicator(
                                       child: ListView.builder(
                                           controller: _controller, //new line
-                                          padding: EdgeInsets.all(20),
+                                          padding: EdgeInsets.all(10),
                                           itemCount: snapshot.data.length,
                                           itemBuilder: (BuildContext context,
                                               int index) {

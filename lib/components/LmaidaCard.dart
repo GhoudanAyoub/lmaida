@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmaida/components/rater.dart';
 import 'package:lmaida/models/restau_model.dart';
+import 'package:lmaida/utils/extansion.dart';
 import 'package:lmaida/values/values.dart';
 
 class LmaidaCard extends StatefulWidget {
@@ -76,19 +77,25 @@ class _LmaidaCardState extends State<LmaidaCard> {
       child: Hero(
         tag: "hero",
         child: Container(
+          margin: EdgeInsets.symmetric(
+            vertical: 5,
+          ),
           child: new FittedBox(
               child: Card(
-            elevation: 4.0,
+            elevation: 8.0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Stack(
               children: <Widget>[
                 Positioned(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10)),
                         child: CachedNetworkImage(
                           imageUrl: widget.imagePath == null
                               ? "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg"
@@ -105,82 +112,84 @@ class _LmaidaCardState extends State<LmaidaCard> {
                       ),
                       Container(
                         margin: EdgeInsets.symmetric(
-                          horizontal: 10,
+                          horizontal: 20,
                           vertical: 10,
                         ),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                Text(
-                                  widget.cardTitle ?? '',
-                                  textAlign: TextAlign.left,
-                                  style: Styles.customTitleTextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 18,
-                                  ),
+                            Container(
+                              child: Text(
+                                "${widget.cardTitle}".capitalize() ?? '',
+                                textAlign: TextAlign.left,
+                                overflow: TextOverflow.ellipsis,
+                                style: Styles.customTitleTextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 18,
                                 ),
-                              ],
+                              ),
+                              width: 300,
                             ),
-                            Row(
-                              children: <Widget>[
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Container(
-                                    child: Text(
-                                      widget.address ?? '',
-                                      textAlign: TextAlign.left,
-                                      style: Styles.customNormalTextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            Divider(
+                              height: 5,
                             ),
-                            Row(
-                              children: <Widget>[
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Container(
-                                    child: Text(
-                                      widget.distance.toString() +
-                                          " KM From You",
-                                      textAlign: TextAlign.left,
-                                      style: Styles.customNormalTextStyle(
-                                        color: Colors.grey[600],
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
+                            Container(
+                              child: Text(
+                                widget.address.capitalize() ?? '',
+                                textAlign: TextAlign.left,
+                                overflow: TextOverflow.ellipsis,
+                                style: Styles.customNormalTextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
                                 ),
-                              ],
+                              ),
+                              width: 300,
+                            ),
+                            Divider(
+                              height: 5,
+                            ),
+                            Container(
+                              child: Text(
+                                widget.distance.toString() + " KM From You",
+                                textAlign: TextAlign.left,
+                                overflow: TextOverflow.ellipsis,
+                                style: Styles.customNormalTextStyle(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              width: 300,
+                            ),
+                            Divider(
+                              height: 5,
                             ),
                             widget.restoModel.opening_hours_from != null &&
-                                    widget.restoModel.opening_hours_to != null
-                                ? Row(
-                                    children: <Widget>[
-                                      Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Container(
-                                          child: Text(
-                                            widget.time,
-                                            textAlign: TextAlign.left,
-                                            style: Styles.customNormalTextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
+                                    widget.restoModel.opening_hours_to !=
+                                        null &&
+                                    widget.restoModel.opening_hours_from !=
+                                        "" &&
+                                    widget.restoModel.opening_hours_to != ""
+                                ? Container(
+                                    child: Text(
+                                      widget.time,
+                                      textAlign: TextAlign.left,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Styles.customNormalTextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14,
                                       ),
-                                    ],
+                                    ),
+                                    width: 300,
                                   )
                                 : Container(
                                     height: 0,
                                   ),
+                            Divider(
+                              height: 5,
+                            ),
                             FutureBuilder(
                               future: fetchDetailsRes,
                               builder: (context, snapshot) {
@@ -190,17 +199,66 @@ class _LmaidaCardState extends State<LmaidaCard> {
                                       reviewsData +=
                                           double.tryParse(it['reviews']);
 
-                                    return Rater(
-                                      rate: reviewsData /
-                                          snapshot.data[0]["reviews"].length,
+                                    return Row(
+                                      children: [
+                                        Rater(
+                                          rate: reviewsData /
+                                              snapshot
+                                                  .data[0]["reviews"].length,
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text(
+                                          "(${(reviewsData / snapshot.data[0]["reviews"].length).toStringAsFixed(1)})",
+                                          textAlign: TextAlign.left,
+                                          style: Styles.customNormalTextStyle(
+                                            color: Colors.grey[600],
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
                                     );
                                   } else
-                                    return Rater(
-                                      rate: 1,
+                                    return Row(
+                                      children: [
+                                        Rater(
+                                          rate: 0,
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text(
+                                          "(NaN)",
+                                          textAlign: TextAlign.left,
+                                          style: Styles.customNormalTextStyle(
+                                            color: Colors.grey[600],
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
                                     );
                                 } else {
-                                  return Rater(
-                                    rate: 1,
+                                  return Row(
+                                    children: [
+                                      Rater(
+                                        rate: 0,
+                                      ),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                        "(NaN)",
+                                        textAlign: TextAlign.left,
+                                        style: Styles.customNormalTextStyle(
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
                                   );
                                 }
                               },

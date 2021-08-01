@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  get: any
   flutter_statusbarcolor: ^0.2.3
   get_storage: 1.4.0
   dio: ^3.0.10
