@@ -49,7 +49,7 @@ class _MapsState extends State<Maps> {
   int locationId;
   double zoomVal = 5.0;
   var fetRestoAdvanceResult, fetLocationResult;
-
+  BitmapDescriptor myIcon;
   double soloPinPillPosition = PIN_INVISIBLE_POSITION;
   @override
   void initState() {
@@ -78,9 +78,7 @@ class _MapsState extends State<Maps> {
           soloRestoModel = restoModel;
         });
       },
-      icon: BitmapDescriptor.defaultMarkerWithHue(
-        BitmapDescriptor.hueViolet,
-      ),
+      icon: myIcon,
     );
   }
 
@@ -414,6 +412,9 @@ class _MapsState extends State<Maps> {
   }
 
   getLastLocation() async {
+    setState(() {
+      myIcon = BitmapDescriptor.fromAsset("assets/images/restomarker.png");
+    });
     fetLocationResult = await fetLocation();
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
