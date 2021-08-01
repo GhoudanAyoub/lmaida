@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -23,7 +25,6 @@ class SignForm extends StatefulWidget {
 class _SignFormState extends State<SignForm> {
   final _formKey = GlobalKey<FormState>();
 
-  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController _emailContoller = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   bool remember = false;
@@ -32,6 +33,7 @@ class _SignFormState extends State<SignForm> {
 
   var submitted = false;
   var buttonText = "Continue";
+  String _token;
 
   Position position;
 
@@ -42,6 +44,12 @@ class _SignFormState extends State<SignForm> {
   }
 
   getLastLocation() async {
+    await FirebaseMessaging().getToken().then((value) {
+      setState(() {
+        _token = value;
+      });
+    });
+
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     var lastPosition = await Geolocator.getLastKnownPosition();
@@ -152,23 +160,20 @@ class _SignFormState extends State<SignForm> {
                 KeyboardUtil.hideKeyboard(context);
                 var success;
                 var Token;
+                var cc;
                 try {
                   success = await loginUser(
                       email: _emailContoller.text,
                       password: _passwordController.text);
-                  print("1 $success");
                   Token = await userLog(
                       email: _emailContoller.text,
                       password: _passwordController.text);
-                  print("2 $Token");
                   if (Token != null && success == null) {
                     var res = await firebaseAuth.createUserWithEmailAndPassword(
                         email: _emailContoller.text,
                         password: _passwordController.text);
-                    String cc = await getPorf(Token);
-                    print("before");
+                    cc = await getPorf(Token);
                     try {
-                      print("in");
                       await usersRef.doc(firebaseAuth.currentUser.uid).set({
                         'username': cc,
                         'email': _emailContoller.text,
@@ -177,33 +182,25 @@ class _SignFormState extends State<SignForm> {
                         'photoUrl': firebaseAuth.currentUser.photoURL,
                         'password': _passwordController.text
                       });
-                      print("out");
                     } catch (e) {
                       print(e);
                     }
-                    print("jumped");
-                    /* Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomePage(
-                                  position: position,
-                                )));*/
+                    getId(Token).then((value) => addToken(Token, value));
                     Navigator.pop(context);
-                    Scaffold.of(context)
-                        .showSnackBar(SnackBar(content: Text('Welcome Back')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Welcome Back'),
+                      duration: Duration(seconds: 2),
+                    ));
                   } else if (success != null && Token != null) {
-                    /*Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomePage(
-                                  position: position,
-                                )));*/
+                    getId(Token).then((value) => addToken(Token, value));
                     Navigator.pop(context);
-                    Scaffold.of(context)
-                        .showSnackBar(SnackBar(content: Text('Welcome Back')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('Welcome Back'),
+                        duration: Duration(seconds: 2)));
                   } else if (Token == null && success == null) {
-                    Scaffold.of(context).showSnackBar(
-                        SnackBar(content: Text("You Don't Have Account Yet")));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("You Don't Have Account Yet"),
+                        duration: Duration(seconds: 2)));
                     Navigator.pushNamed(context, SignUpScreen.routeName);
                   } else {
                     addError(error: success);
@@ -212,10 +209,10 @@ class _SignFormState extends State<SignForm> {
                 } catch (e) {
                   submitted = false;
                   addError(error: success);
-                  print('${auth.handleFirebaseAuthError(e.toString())}');
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text(
-                          "${auth.handleFirebaseAuthError(e.toString())}")));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content:
+                          Text("${auth.handleFirebaseAuthError(e.toString())}"),
+                      duration: Duration(seconds: 2)));
                 }
               }
             },
@@ -268,7 +265,7 @@ class _SignFormState extends State<SignForm> {
     return res['token'];
   }
 
-  Future<String> getPorf(Token) async {
+  Future<dynamic> getPorf(Token) async {
     Map<String, String> header = {
       "Accept": "application/json",
       "Authorization": "Bearer $Token",
@@ -277,12 +274,37 @@ class _SignFormState extends State<SignForm> {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
-    print("---${message}");
     return message[0]['name'];
   }
 
+  Future<dynamic> getId(Token) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/profile';
+    var response = await http.post(Uri.encodeFull(url), headers: header);
+    var message = jsonDecode(response.body);
+    return message[0]['id'];
+  }
+
+  Future addToken(Token, userid) async {
+    usersToken.doc(userid.toString()).set({"token": _token});
+    var dio = Dio();
+    var options = Options(validateStatus: (status) => true, headers: {
+      "Authorization": "Bearer $Token",
+    });
+    var url = 'https:/lmaida.com/api/token';
+    var formData = FormData.fromMap({
+      'token': _token,
+      'id': userid.toString(),
+    });
+    var response = await dio.post(url, data: formData, options: options);
+    print("8855 ${response.toString()}");
+  }
+
   void showInSnackBar(String value) {
-    scaffoldKey.currentState.removeCurrentSnackBar();
-    scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value)));
   }
 }

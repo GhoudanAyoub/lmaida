@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lmaida/sidebar/sidebar_layout.dart';
 
+class RemoteMessage {}
+
 class HomePage extends StatefulWidget {
   final position;
 

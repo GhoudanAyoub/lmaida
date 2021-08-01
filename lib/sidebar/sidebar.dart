@@ -221,8 +221,8 @@ class _SideBarState extends State<SideBar>
             children: [
               SimpleDialogOption(
                 onPressed: () {
-                  Navigator.pop(context);
                   FirebaseService().signOut();
+                  Navigator.pop(context);
                   Navigator.pop(context);
                 },
                 child: Text(

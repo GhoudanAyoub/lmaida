@@ -1,5 +1,10 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/form_error2.dart';
@@ -7,6 +12,7 @@ import 'package:lmaida/profile/user_view_model.dart';
 import 'package:lmaida/service/auth_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
+import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/utils/theme.dart';
 import 'package:provider/provider.dart';
 
@@ -31,6 +37,7 @@ class _SignUpFormState extends State<SignUpForm> {
   final List<String> errors = [];
 
   Position position;
+  String _token;
 
   @override
   void initState() {
@@ -39,6 +46,11 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   getLastLocation() async {
+    await FirebaseMessaging().getToken().then((value) {
+      setState(() {
+        _token = value;
+      });
+    });
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     var lastPosition = await Geolocator.getLastKnownPosition();
@@ -97,8 +109,9 @@ class _SignUpFormState extends State<SignUpForm> {
               try {
                 if (_formKey.currentState.validate()) {
                   submitted = true;
-                  Scaffold.of(context)
-                      .showSnackBar(SnackBar(content: Text('Please Wait...')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Please Wait...'),
+                      duration: Duration(seconds: 2)));
                   String success = await authService.createUser(
                     name: _namentoller.text,
                     email: _emailContoller.text,
@@ -108,28 +121,50 @@ class _SignUpFormState extends State<SignUpForm> {
                   print(success);
                   if (success != null) {
                     viewModel.setToken(success);
-                    /*Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomePage(
-                                  position: position,
-                                )));*/
+                    getId(success).then((value) => addToken(success, value));
                     Navigator.pop(context);
-                    Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text('Congratulation Your Account Created')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('Congratulation Your Account Created'),
+                        duration: Duration(seconds: 2)));
                   }
                 }
               } catch (e) {
                 print(e);
                 var r = e.toString().split(']');
-                Scaffold.of(context)
-                    .showSnackBar(SnackBar(content: Text(r[1])));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(r[1]), duration: Duration(seconds: 2)));
               }
             },
           ),
         ],
       ),
     );
+  }
+
+  Future<dynamic> getId(Token) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/profile';
+    var response = await http.post(Uri.encodeFull(url), headers: header);
+    var message = jsonDecode(response.body);
+    return message[0]['id'];
+  }
+
+  Future addToken(Token, userid) async {
+    var dio = Dio();
+    var options = Options(validateStatus: (status) => true, headers: {
+      "Authorization": "Bearer $Token",
+    });
+    var url = 'https:/lmaida.com/api/token';
+    var formData = FormData.fromMap({
+      'token': _token,
+      'id': userid.toString(),
+    });
+    var response = await dio.post(url, data: formData, options: options);
+    usersToken.doc(userid.toString()).set({"token": _token});
   }
 
   void emailExists() {
