@@ -158,7 +158,7 @@ class _SignUpFormState extends State<SignUpForm> {
     var options = Options(validateStatus: (status) => true, headers: {
       "Authorization": "Bearer $Token",
     });
-    var url = 'https:/lmaida.com/api/token';
+    var url = 'https://lmaida.com/api/token';
     var formData = FormData.fromMap({
       'token': _token,
       'id': userid.toString(),

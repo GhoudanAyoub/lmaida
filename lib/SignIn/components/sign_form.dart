@@ -216,35 +216,6 @@ class _SignFormState extends State<SignForm> {
               }
             },
           ),
-          DefaultButton(
-            text: buttonText,
-            submitted: submitted,
-            press: () async {
-              AuthService auth = AuthService();
-              if (_formKey.currentState.validate()) {
-                submitted = true;
-                KeyboardUtil.hideKeyboard(context);
-                var success;
-                var Token;
-                try {
-                  success = await loginUser(
-                      email: _emailContoller.text,
-                      password: _passwordController.text);
-                  Token = await userLog(
-                      email: _emailContoller.text,
-                      password: _passwordController.text);
-                  getId(Token).then((value) => addToken(Token, value));
-                } catch (e) {
-                  submitted = false;
-                  addError(error: success);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content:
-                          Text("${auth.handleFirebaseAuthError(e.toString())}"),
-                      duration: Duration(seconds: 2)));
-                }
-              }
-            },
-          ),
         ],
       ),
     );
@@ -321,13 +292,12 @@ class _SignFormState extends State<SignForm> {
     Map<String, String> header = {
       "Authorization": "Bearer $Token",
     };
-    var url = 'https:/lmaida.com/api/token';
-    var response = await http.post(Uri.encodeFull(url), headers: header, body: {
+    var url = 'https://lmaida.com/api/token';
+    await http.post(Uri.encodeFull(url), headers: header, body: {
       'token': _token,
       'id': userid.toString(),
     });
     usersToken.doc(userid.toString()).set({"token": _token});
-    print("8855 ${response.toString()}");
   }
 
   void showInSnackBar(String value) {

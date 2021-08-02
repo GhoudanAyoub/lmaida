@@ -11,25 +11,12 @@ import 'package:provider/provider.dart';
 
 import 'SplashScreen/splash_screen.dart';
 
-Future<void> _firebaseMessagingBackgroundHandler(var message) async {
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print('Handling a background message $message');
-}
-
-final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-
-Future<dynamic> _myBackgroundMessageHandler(
-    Map<String, dynamic> message) async {
-  if (message.containsKey('data')) {
-// Handle data message
-    var data = message['data'] ?? message;
-    String orderId = data['orderId'];
-    String itemId = data['itemId'];
-    print("fcmtest :" + orderId);
-    print("fcmtest :" + itemId);
-  }
+  print('A bg message just showed up :  ${message.messageId}');
 }
 
 void main() async {
@@ -39,6 +26,13 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
 
   runApp(MyApp());
 }
