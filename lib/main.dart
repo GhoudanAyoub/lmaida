@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -10,21 +11,27 @@ import 'package:provider/provider.dart';
 
 import 'SplashScreen/splash_screen.dart';
 
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
-    'This channel is used for important notifications.', // description
-    importance: Importance.high,
-    playSound: true);
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-/*
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+Future<void> _firebaseMessagingBackgroundHandler(var message) async {
   await Firebase.initializeApp();
-  print('A bg message just showed up :  ${message.messageId}');
+  print('Handling a background message $message');
 }
-*/
+
+final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+Future<dynamic> _myBackgroundMessageHandler(
+    Map<String, dynamic> message) async {
+  if (message.containsKey('data')) {
+// Handle data message
+    var data = message['data'] ?? message;
+    String orderId = data['orderId'];
+    String itemId = data['itemId'];
+    print("fcmtest :" + orderId);
+    print("fcmtest :" + itemId);
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -32,20 +39,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  /*
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
-
-  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-  */
   runApp(MyApp());
 }
 

@@ -25,7 +25,8 @@ dependencies:
     sdk: flutter
 
 
-  firebase_messaging: any
+  firebase_core: any
+  firebase_messaging:
   flutter_local_notifications: any
   get: any
   flutter_statusbarcolor: ^0.2.3

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -217,6 +216,35 @@ class _SignFormState extends State<SignForm> {
               }
             },
           ),
+          DefaultButton(
+            text: buttonText,
+            submitted: submitted,
+            press: () async {
+              AuthService auth = AuthService();
+              if (_formKey.currentState.validate()) {
+                submitted = true;
+                KeyboardUtil.hideKeyboard(context);
+                var success;
+                var Token;
+                try {
+                  success = await loginUser(
+                      email: _emailContoller.text,
+                      password: _passwordController.text);
+                  Token = await userLog(
+                      email: _emailContoller.text,
+                      password: _passwordController.text);
+                  getId(Token).then((value) => addToken(Token, value));
+                } catch (e) {
+                  submitted = false;
+                  addError(error: success);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content:
+                          Text("${auth.handleFirebaseAuthError(e.toString())}"),
+                      duration: Duration(seconds: 2)));
+                }
+              }
+            },
+          ),
         ],
       ),
     );
@@ -290,17 +318,15 @@ class _SignFormState extends State<SignForm> {
   }
 
   Future addToken(Token, userid) async {
-    usersToken.doc(userid.toString()).set({"token": _token});
-    var dio = Dio();
-    var options = Options(validateStatus: (status) => true, headers: {
+    Map<String, String> header = {
       "Authorization": "Bearer $Token",
-    });
+    };
     var url = 'https:/lmaida.com/api/token';
-    var formData = FormData.fromMap({
+    var response = await http.post(Uri.encodeFull(url), headers: header, body: {
       'token': _token,
       'id': userid.toString(),
     });
-    var response = await dio.post(url, data: formData, options: options);
+    usersToken.doc(userid.toString()).set({"token": _token});
     print("8855 ${response.toString()}");
   }
 
