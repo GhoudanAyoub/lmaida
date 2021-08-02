@@ -413,7 +413,7 @@ class _MenuPageState extends State<MenuPage> {
               backgroundColor: Colors.transparent,
               insetPadding: EdgeInsets.all(10),
               child: Stack(
-                overflow: Overflow.visible,
+                clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: <Widget>[
                   Positioned(

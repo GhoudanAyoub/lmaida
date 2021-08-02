@@ -20,9 +20,6 @@ class Body extends StatefulWidget with NavigationStates {
 }
 
 class _BodyState extends State<Body> {
-  List<CategorieModel> _categorie = new List<CategorieModel>();
-  List<RestoModel> _restau = new List<RestoModel>();
-
   final String apiUrl = StringConst.URI_CATEGORY;
   final String apiUrl2 = StringConst.URI_RESTAU + 'all';
 

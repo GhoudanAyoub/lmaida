@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/text_form_builder.dart';
-import 'package:lmaida/models/user.dart';
+import 'package:lmaida/models/user_model.dart';
 import 'package:lmaida/profile/Componant/edit_profile__model_view.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/firebase.dart';
@@ -17,27 +18,33 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
-  Users user;
   bool valuesecond;
   DocumentSnapshot user1;
   List<DocumentSnapshot> filteredUsers = [];
   bool loading = true;
+  UserModel currentUserModel;
+  FirebaseUser user;
 
-  String currentUid() {
-    return firebaseAuth.currentUser.uid;
+  getCurrentUser() {
+    firebaseAuth.currentUser().then((value) {
+      setState(() {
+        user = value;
+      });
+    });
   }
 
   @override
   void initState() {
-    // TODO: implement initState
+    getCurrentUser();
     getUsers();
+    super.initState();
   }
 
   getUsers() async {
-    DocumentSnapshot snap =
-        await usersRef.doc(firebaseAuth.currentUser.uid).get();
-    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
+    DocumentSnapshot snap = await usersRef.doc(user.uid).get();
+    user1 = snap;
     setState(() {
+      currentUserModel = UserModel.fromJson(user1.data());
       loading = false;
     });
   }
@@ -148,14 +155,15 @@ class _BodyState extends State<Body> {
                                           ? Padding(
                                               padding:
                                                   const EdgeInsets.all(1.0),
-                                              child: user1.data()["photoUrl"] !=
+                                              child: currentUserModel
+                                                          .photoUrl !=
                                                       null
                                                   ? CircleAvatar(
                                                       radius: 65.0,
                                                       backgroundImage:
                                                           NetworkImage(
-                                                              user1.data()[
-                                                                  "photoUrl"]))
+                                                              currentUserModel
+                                                                  .photoUrl))
                                                   : Opacity(
                                                       opacity: 1.0,
                                                       child: Image.asset(
@@ -179,7 +187,7 @@ class _BodyState extends State<Body> {
                             SizedBox(height: 10.0),
                             Center(
                               child: Text(
-                                user1.data()['username'],
+                                currentUserModel.username,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 15.0,
@@ -214,7 +222,7 @@ class _BodyState extends State<Body> {
             SizedBox(height: 20.0),
             TextFormBuilder(
               enabled: !viewModel.loading,
-              initialValue: firebaseAuth.currentUser.email,
+              initialValue: user.email,
               prefix: Feather.mail,
               hintText: "email",
               textInputAction: TextInputAction.next,
@@ -226,7 +234,7 @@ class _BodyState extends State<Body> {
             SizedBox(height: 10.0),
             TextFormBuilder(
               enabled: !viewModel.loading,
-              initialValue: user1.data()["contact"],
+              initialValue: currentUserModel.contact,
               prefix: Feather.phone,
               hintText: "contact",
               textInputAction: TextInputAction.next,

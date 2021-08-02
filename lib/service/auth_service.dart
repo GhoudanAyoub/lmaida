@@ -6,34 +6,38 @@ import 'package:lmaida/profile/user_view_model.dart';
 import 'package:lmaida/utils/firebase.dart';
 
 class AuthService {
-  User getCurrentUser() {
-    User user = firebaseAuth.currentUser;
+  FirebaseUser user;
+  FirebaseUser getCurrentUser() {
+    firebaseAuth.currentUser().then((value) {
+      user = value;
+    });
     return user;
   }
 
   Future<String> createUser(
-      {String name,
-      User user,
-      String email,
-      String country,
-      String password}) async {
-    var res = await firebaseAuth.createUserWithEmailAndPassword(
+      {String name, String email, String country, String password}) async {
+    getCurrentUser();
+    Future<String> token;
+    await firebaseAuth
+        .createUserWithEmailAndPassword(
       email: '$email',
       password: '$password',
-    );
-    if (res.user != null) {
-      await saveUserToFirestore(name, res.user, email, country, password);
-      Future<String> token = userReg(name, email, country, password);
-      return token;
-    } else {
-      return null;
-    }
+    )
+        .then((user) async {
+      if (user != null) {
+        await saveUserToFirestore(name, email, country, password);
+        token = userReg(name, email, country, password);
+      } else {
+        return null;
+      }
+    });
+    return token;
   }
 
-  Future<String> getPorf(Token) async {
+  Future<String> getPorf(token) async {
     Map<String, String> header = {
       "Accept": "application/json",
-      "Authorization": "Bearer $Token",
+      "Authorization": "Bearer $token",
       "Content-Type": "application/json"
     };
     var url = 'https://lmaida.com/api/profile';
@@ -44,13 +48,13 @@ class AuthService {
   }
 
   Future saveUserToFirestore(
-      String name, User user, String email, String country, password) async {
+      String name, String email, String country, password) async {
     await usersRef.doc(user.uid).set({
       'username': name ?? '',
       'email': email,
       'id': user.uid,
       'contact': country,
-      'photoUrl': user.photoURL ?? '',
+      'photoUrl': user.photoUrl ?? '',
       'password': password
     });
   }
@@ -70,35 +74,36 @@ class AuthService {
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
-    return message["token"];
+    return message["Token"];
   }
 
   Future loginUser({String email, String password}) async {
-    var result;
     var errorType;
-    var Token;
+    var token;
     try {
-      result = await firebaseAuth.signInWithEmailAndPassword(
+      getCurrentUser();
+      await firebaseAuth.signInWithEmailAndPassword(
         email: '$email',
         password: '$password',
       );
-      Token = userLog(email: email, password: password);
-      print("===." + Token);
-      if (Token != null) {
-        UserViewModel().setToken(Token);
-        result = Token;
+      token = userLog(email: email, password: password);
+      if (token != null) {
+        UserViewModel().setToken(token);
       }
     } catch (e) {
       switch (e) {
         case 'There is no user record corresponding to this identifier. The user may have been deleted.':
           errorType = "No Account For This Email";
 
-          var res = await firebaseAuth.createUserWithEmailAndPassword(
+          await firebaseAuth
+              .createUserWithEmailAndPassword(
             email: '$email',
             password: '$password',
-          );
-          String cc = await getPorf(Token);
-          await saveUserToFirestore(cc, res.user, email, "", password);
+          )
+              .then((user) async {
+            String cc = await getPorf(token);
+            await saveUserToFirestore(cc, email, "", password);
+          });
           break;
         case 'The password is invalid or the user does not have a password.':
           errorType = "Password Invalid";
@@ -108,11 +113,11 @@ class AuthService {
           break;
         // ...
         default:
-          print('Case ${errorType} is not yet implemented');
+          print('Case $errorType is not yet implemented');
       }
     }
     if (errorType != null) return errorType;
-    return Token;
+    return token;
   }
 
   Future userLog({String email, String password}) async {
@@ -128,7 +133,7 @@ class AuthService {
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var res = jsonDecode(response.body);
-    return res['token'];
+    return res['Token'];
   }
 
   forgotPassword(String email) async {

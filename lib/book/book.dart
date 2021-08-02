@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmaida/Reviews/review.dart';
@@ -9,6 +10,7 @@ import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/book_model.dart';
 import 'package:lmaida/models/category.dart';
 import 'package:lmaida/models/restau_model.dart';
+import 'package:lmaida/models/user_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
@@ -25,9 +27,20 @@ class _BookState extends State<Book> {
   var fetchUser;
   int _activeTab = 0;
   String CatName = "";
+  FirebaseUser user;
+  UserModel currentUserModel;
+
+  getCurrentUser() {
+    firebaseAuth.currentUser().then((value) {
+      setState(() {
+        user = value;
+      });
+    });
+  }
 
   @override
   void initState() {
+    getCurrentUser();
     getUsers();
     super.initState();
   }
@@ -38,12 +51,10 @@ class _BookState extends State<Book> {
   }
 
   getUsers() async {
-    DocumentSnapshot snap =
-        await usersRef.doc(firebaseAuth.currentUser.uid).get();
-    if (snap.data()["id"] == firebaseAuth.currentUser.uid) {
-      user1 = snap;
-    }
+    DocumentSnapshot snap = await usersRef.doc(user.uid).get();
+    user1 = snap;
     setState(() {
+      currentUserModel = UserModel.fromJson(user1.data());
       fetchUser = userLog();
     });
   }
@@ -55,8 +66,8 @@ class _BookState extends State<Book> {
     };
     var url = 'https://lmaida.com/api/login';
     var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
+      'email': user.email,
+      'password': currentUserModel.password,
     };
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
@@ -83,8 +94,8 @@ class _BookState extends State<Book> {
     };
     var url = 'https://lmaida.com/api/login';
     var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
+      'email': user.email,
+      'password': currentUserModel.password,
     };
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
@@ -366,7 +377,7 @@ class _BookState extends State<Book> {
                                                               ),
                                                             ),
                                                             Text(
-                                                                'Table booked under the name \n ${user1.data()["username"]}',
+                                                                'Table booked under the name \n ${currentUserModel.username}',
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
@@ -382,7 +393,7 @@ class _BookState extends State<Book> {
                                                                 )),
                                                             SizedBox(height: 5),
                                                             Text(
-                                                              '${user1.data()["email"]}',
+                                                              '${currentUserModel.email}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center,
@@ -397,7 +408,7 @@ class _BookState extends State<Book> {
                                                             ),
                                                             SizedBox(height: 5),
                                                             Text(
-                                                              '${user1.data()["contact"]}',
+                                                              '${currentUserModel.email}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center,
@@ -697,7 +708,7 @@ class _BookState extends State<Book> {
                                                               ),
                                                             ),
                                                             Text(
-                                                                'Table booked under the name \n ${user1.data()["username"]}',
+                                                                'Table booked under the name \n ${currentUserModel.username}',
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
@@ -713,7 +724,7 @@ class _BookState extends State<Book> {
                                                                 )),
                                                             SizedBox(height: 5),
                                                             Text(
-                                                              '${user1.data()["email"]}',
+                                                              '${currentUserModel.email}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center,
@@ -728,7 +739,7 @@ class _BookState extends State<Book> {
                                                             ),
                                                             SizedBox(height: 5),
                                                             Text(
-                                                              '${user1.data()["contact"]}',
+                                                              '${currentUserModel.contact}',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center,

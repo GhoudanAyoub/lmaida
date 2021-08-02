@@ -5,11 +5,11 @@ import 'package:lmaida/utils/file_utils.dart';
 import 'package:lmaida/utils/firebase.dart';
 
 abstract class Service {
-  Future<String> uploadImage(Reference ref, File file) async {
+  Future<String> uploadImage(StorageReference ref, File file) async {
     String ext = FileUtils.getFileExtension(file);
-    Reference storageReference = ref.child("${uuid.v4()}.$ext");
-    UploadTask uploadTask = storageReference.putFile(file);
-    await uploadTask.whenComplete(() => null);
+    StorageReference storageReference = ref.child("${uuid.v4()}.$ext");
+    StorageUploadTask uploadTask = storageReference.putFile(file);
+    await uploadTask.future.whenComplete(() => null);
     String fileUrl = await storageReference.getDownloadURL();
     return fileUrl;
   }

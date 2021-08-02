@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,7 @@ class _SignFormState extends State<SignForm> {
   var submitted = false;
   var buttonText = "Continue";
   String _token;
+  FirebaseUser user;
 
   Position position;
 
@@ -43,7 +45,14 @@ class _SignFormState extends State<SignForm> {
   }
 
   getLastLocation() async {
-    await FirebaseMessaging().getToken().then((value) {
+    setState(() {
+      firebaseAuth.currentUser().then((value) {
+        setState(() {
+          user = value;
+        });
+      });
+    });
+    await FirebaseMessaging.instance.getToken().then((value) {
       setState(() {
         _token = value;
       });
@@ -51,7 +60,7 @@ class _SignFormState extends State<SignForm> {
 
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    var lastPosition = await Geolocator.getLastKnownPosition();
+    await Geolocator.getLastKnownPosition();
   }
 
   void addError({String error}) {
@@ -158,45 +167,45 @@ class _SignFormState extends State<SignForm> {
                 submitted = true;
                 KeyboardUtil.hideKeyboard(context);
                 var success;
-                var Token;
+                var token;
                 var cc;
                 try {
                   success = await loginUser(
                       email: _emailContoller.text,
                       password: _passwordController.text);
-                  Token = await userLog(
+                  token = await userLog(
                       email: _emailContoller.text,
                       password: _passwordController.text);
-                  if (Token != null && success == null) {
-                    var res = await firebaseAuth.createUserWithEmailAndPassword(
+                  if (token != null && success == null) {
+                    await firebaseAuth.createUserWithEmailAndPassword(
                         email: _emailContoller.text,
                         password: _passwordController.text);
-                    cc = await getPorf(Token);
+                    cc = await getPorf(token);
                     try {
-                      await usersRef.doc(firebaseAuth.currentUser.uid).set({
+                      await usersRef.doc(user.uid).set({
                         'username': cc,
                         'email': _emailContoller.text,
-                        'id': firebaseAuth.currentUser.uid,
+                        'id': user.uid,
                         'contact': "",
-                        'photoUrl': firebaseAuth.currentUser.photoURL,
+                        'photoUrl': user.photoUrl,
                         'password': _passwordController.text
                       });
                     } catch (e) {
                       print(e);
                     }
-                    getId(Token).then((value) => addToken(Token, value));
+                    getId(token).then((value) => addToken(token, value));
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text('Welcome Back'),
                       duration: Duration(seconds: 2),
                     ));
-                  } else if (success != null && Token != null) {
-                    getId(Token).then((value) => addToken(Token, value));
+                  } else if (success != null && token != null) {
+                    getId(token).then((value) => addToken(token, value));
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text('Welcome Back'),
                         duration: Duration(seconds: 2)));
-                  } else if (Token == null && success == null) {
+                  } else if (token == null && success == null) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text("You Don't Have Account Yet"),
                         duration: Duration(seconds: 2)));
@@ -216,42 +225,13 @@ class _SignFormState extends State<SignForm> {
               }
             },
           ),
-          DefaultButton(
-            text: buttonText,
-            submitted: submitted,
-            press: () async {
-              AuthService auth = AuthService();
-              if (_formKey.currentState.validate()) {
-                submitted = true;
-                KeyboardUtil.hideKeyboard(context);
-                var success;
-                var Token;
-                try {
-                  success = await loginUser(
-                      email: _emailContoller.text,
-                      password: _passwordController.text);
-                  Token = await userLog(
-                      email: _emailContoller.text,
-                      password: _passwordController.text);
-                  getId(Token).then((value) => addToken(Token, value));
-                } catch (e) {
-                  submitted = false;
-                  addError(error: success);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content:
-                          Text("${auth.handleFirebaseAuthError(e.toString())}"),
-                      duration: Duration(seconds: 2)));
-                }
-              }
-            },
-          ),
         ],
       ),
     );
   }
 
   Future loginUser({String email, String password}) async {
-    UserCredential result;
+    FirebaseUser result;
     var errorType;
     try {
       result = await firebaseAuth.signInWithEmailAndPassword(
@@ -270,11 +250,11 @@ class _SignFormState extends State<SignForm> {
           errorType = "Connection Error";
           break;
         default:
-          print('Case ${errorType} is not yet implemented');
+          print('Case $errorType is not yet implemented');
       }
     }
     if (errorType != null) return errorType;
-    if (result != null) return result.user.uid;
+    if (result != null) return result.uid;
   }
 
   Future userLog({String email, String password}) async {
@@ -293,10 +273,10 @@ class _SignFormState extends State<SignForm> {
     return res['token'];
   }
 
-  Future<dynamic> getPorf(Token) async {
+  Future<dynamic> getPorf(token) async {
     Map<String, String> header = {
       "Accept": "application/json",
-      "Authorization": "Bearer $Token",
+      "Authorization": "Bearer $token",
       "Content-Type": "application/json"
     };
     var url = 'https://lmaida.com/api/profile';
@@ -305,10 +285,10 @@ class _SignFormState extends State<SignForm> {
     return message[0]['name'];
   }
 
-  Future<dynamic> getId(Token) async {
+  Future<dynamic> getId(token) async {
     Map<String, String> header = {
       "Accept": "application/json",
-      "Authorization": "Bearer $Token",
+      "Authorization": "Bearer $token",
       "Content-Type": "application/json"
     };
     var url = 'https://lmaida.com/api/profile';
@@ -317,17 +297,18 @@ class _SignFormState extends State<SignForm> {
     return message[0]['id'];
   }
 
-  Future addToken(Token, userid) async {
-    Map<String, String> header = {
-      "Authorization": "Bearer $Token",
-    };
-    var url = 'https:/lmaida.com/api/token';
-    var response = await http.post(Uri.encodeFull(url), headers: header, body: {
-      'token': _token,
-      'id': userid.toString(),
+  Future addToken(token, userId) async {
+    var url = 'https://lmaida.com/api/token';
+    var dio = Dio();
+    var options = Options(validateStatus: (status) => true, headers: {
+      "Authorization": "Bearer $token",
     });
-    usersToken.doc(userid.toString()).set({"token": _token});
-    print("8855 ${response.toString()}");
+    var formData = FormData.fromMap({
+      'token': _token,
+      'id': userId.toString(),
+    });
+    await dio.post(url, data: formData, options: options);
+    usersToken.doc(userId.toString()).set({"token": _token});
   }
 
   void showInSnackBar(String value) {

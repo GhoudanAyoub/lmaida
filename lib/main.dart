@@ -11,30 +11,31 @@ import 'package:provider/provider.dart';
 
 import 'SplashScreen/splash_screen.dart';
 
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
 Future<void> _firebaseMessagingBackgroundHandler(var message) async {
   await Firebase.initializeApp();
-  print('Handling a background message $message');
-}
-
-final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-
-Future<dynamic> _myBackgroundMessageHandler(
-    Map<String, dynamic> message) async {
-  if (message.containsKey('data')) {
-// Handle data message
-    var data = message['data'] ?? message;
-    String orderId = data['orderId'];
-    String itemId = data['itemId'];
-    print("fcmtest :" + orderId);
-    print("fcmtest :" + itemId);
-  }
+  print('A bg message just showed up :  $message');
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging.instance.requestPermission();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  /*
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);*/
+
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +14,7 @@ import 'package:lmaida/components/rater.dart';
 import 'package:lmaida/components/reting%20star.dart';
 import 'package:lmaida/components/reviews_card.dart';
 import 'package:lmaida/models/restau_model.dart';
+import 'package:lmaida/models/user_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/extansion.dart';
 import 'package:lmaida/utils/firebase.dart';
@@ -47,6 +49,16 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   String finaPosTag = "";
   double reviewsData = 0.0;
   List<CachedNetworkImage> images = [];
+  FirebaseUser user;
+  UserModel currentUserModel;
+
+  getCurrentUser() {
+    firebaseAuth.currentUser().then((value) {
+      setState(() {
+        user = value;
+      });
+    });
+  }
 
   Future<List<dynamic>> fetDetails(id) async {
     var result = await http.get("https://lmaida.com/api/resturant/$id");
@@ -56,14 +68,15 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   @override
   void initState() {
     //getUsers();
+    getCurrentUser();
     fetchDetailsRes = fetDetails(widget.restoModel.id);
     getImages();
+    super.initState();
   }
 
   getUsers() async {
-    DocumentSnapshot snap =
-        await usersRef.doc(firebaseAuth.currentUser.uid).get();
-    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
+    DocumentSnapshot snap = await usersRef.doc(user.uid).get();
+    user1 = snap;
   }
 
   @override
@@ -799,7 +812,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
               backgroundColor: Colors.transparent,
               insetPadding: EdgeInsets.all(10),
               child: Stack(
-                overflow: Overflow.visible,
+                clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: <Widget>[
                   Positioned(

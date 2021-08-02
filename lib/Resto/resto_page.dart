@@ -22,8 +22,6 @@ import 'package:provider/provider.dart';
 
 import 'componant/new_resto_details.dart';
 
-List<RestoModel> _restau = new List<RestoModel>();
-
 class RestaurantPage extends StatefulWidget with NavigationStates {
   final offers;
 
@@ -47,10 +45,10 @@ class _RestaurantState extends State<RestaurantPage> {
   Position position;
   String categ;
   List<bool> checkList = [];
-  List<MultiSelectDialogItem<int>> locMultiItem = List();
+  List<MultiSelectDialogItem<int>> locMultiItem = [];
   String restolenght;
   String catId;
-  List categList = List();
+  List categList = [];
   bool open = false;
   String _selected;
   bool show = true;
@@ -115,7 +113,7 @@ class _RestaurantState extends State<RestaurantPage> {
     }
   }
 
-  List<MultiSelectDialogItem<int>> multiItem = List();
+  List<MultiSelectDialogItem<int>> multiItem = [];
 
   void _showMultiSelect(BuildContext context) async {
     selectedValues = await showDialog<Set<int>>(
@@ -168,8 +166,6 @@ class _RestaurantState extends State<RestaurantPage> {
         new Coordinates(position.latitude, position.longitude));
     for (var location in fetLocationResult) {
       locMultiItem.add(MultiSelectDialogItem(location["id"], location["name"]));
-      print(
-          "sqdqdqdq//${addresses.first.addressLine.contains(location["name"])}//${location["name"]}");
       if (addresses.first.addressLine.contains(location["name"])) {
         setState(() {
           show = false;
@@ -1100,7 +1096,7 @@ class _RestaurantState extends State<RestaurantPage> {
               backgroundColor: Colors.transparent,
               insetPadding: EdgeInsets.all(10),
               child: Stack(
-                overflow: Overflow.visible,
+                clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: <Widget>[
                   Container(
@@ -1379,52 +1375,6 @@ class _RestaurantState extends State<RestaurantPage> {
           ),
         )
       ],
-    );
-  }
-
-  Widget headerCategoryItem(String im, String name, String id, {onPressed}) {
-    return Container(
-      margin: EdgeInsets.only(left: 15),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Container(
-              margin: EdgeInsets.only(bottom: 5, top: 10),
-              width: 60,
-              height: 60,
-              child: FloatingActionButton(
-                elevation: 8,
-                shape: CircleBorder(),
-                heroTag: name,
-                onPressed: () {
-                  onPressed;
-                  setState(() {
-                    catId = id;
-                    color = Colors.red[900];
-                  });
-                },
-                backgroundColor: Colors.white,
-                child: im != null
-                    ? CachedNetworkImage(
-                        imageUrl: "https://lmaida.com/storage/categories/" + im,
-                        fit: BoxFit.cover,
-                        width: 35,
-                        fadeInDuration: Duration(milliseconds: 500),
-                        fadeInCurve: Curves.easeIn,
-                        placeholder: (context, progressText) =>
-                            Center(child: circularProgress(context)),
-                      )
-                    : Icon(Icons.dinner_dining,
-                        size: 35, color: Colors.black87),
-              )),
-          Text(name + '',
-              style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Poppins'))
-        ],
-      ),
     );
   }
 

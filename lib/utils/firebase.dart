@@ -14,4 +14,4 @@ CollectionReference usersRef = firestore.collection('users');
 CollectionReference usersToken = firestore.collection('token');
 
 // Storage refs
-Reference profilePic = storage.ref().child('profilePic');
+StorageReference profilePic = storage.ref().child('profilePic');

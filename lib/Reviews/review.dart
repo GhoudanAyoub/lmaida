@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -15,6 +16,7 @@ import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/category.dart';
+import 'package:lmaida/models/user_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
@@ -33,7 +35,7 @@ class Review extends StatefulWidget with NavigationStates {
 
 class _ReviewState extends State<Review> {
   DocumentSnapshot user1;
-  final picker = ImagePicker();
+  final ImagePicker picker = ImagePicker();
   double ratingG = 1;
   TextEditingController _reviewContoller = TextEditingController();
   TextEditingController _likeContoller = TextEditingController();
@@ -43,7 +45,6 @@ class _ReviewState extends State<Review> {
   File mediaUrl;
   File mediaUrl2;
   File mediaUrl3;
-  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   final String positiveTag = StringConst.URI_POSTAG;
   final String negativeTag = StringConst.URI_NEGTAG;
@@ -61,6 +62,17 @@ class _ReviewState extends State<Review> {
   String negativeTagString = '';
 
   bool sending = false;
+  FirebaseUser user;
+
+  UserModel currentUserModel;
+
+  getCurrentUser() {
+    firebaseAuth.currentUser().then((value) {
+      setState(() {
+        user = value;
+      });
+    });
+  }
 
   Future fetPositiveTag() async {
     var result = await http.get(positiveTag);
@@ -116,11 +128,11 @@ class _ReviewState extends State<Review> {
   }
 
   getUsers() async {
-    DocumentSnapshot snap =
-        await usersRef.doc(firebaseAuth.currentUser.uid).get();
-    if (snap.data()["id"] == firebaseAuth.currentUser.uid) {
-      user1 = snap;
-    }
+    DocumentSnapshot snap = await usersRef.doc(user.uid).get();
+    user1 = snap;
+    setState(() {
+      currentUserModel = UserModel.fromJson(user1.data());
+    });
   }
 
   Future<dynamic> userLog(context) async {
@@ -133,33 +145,33 @@ class _ReviewState extends State<Review> {
     };
     var url = 'https://lmaida.com/api/login';
     var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
+      'email': user.email,
+      'password': currentUserModel.password,
     };
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
-    return getPorf(message["token"], context);
+    return getProf(message["token"], context);
   }
 
-  Future getPorf(Token, context) async {
+  Future getProf(token, context) async {
     Map<String, String> header = {
       "Accept": "application/json",
-      "Authorization": "Bearer $Token",
+      "Authorization": "Bearer $token",
       "Content-Type": "application/json"
     };
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
-    AddReviews(Token, message[0]["id"], context);
+    addReviews(token, message[0]["id"], context);
   }
 
-  Future AddReviews(Token, userid, context) async {
+  Future addReviews(token, userId, context) async {
     var dio = Dio();
     var options = Options(validateStatus: (status) => true,
         //followRedirects: false,
         headers: {
-          "Authorization": "Bearer $Token",
+          "Authorization": "Bearer $token",
         });
     var url = 'https://lmaida.com/api/review';
     FormState form = formKey.currentState;
@@ -169,7 +181,7 @@ class _ReviewState extends State<Review> {
       var formData = FormData.fromMap({
         'idbooking':
             widget.idbooking != null ? widget.idbooking.toString() : "1",
-        'iduser': userid.toString(),
+        'iduser': userId.toString(),
         'reviews': ratingG.toString(),
         'texts': _reviewContoller.text,
         'positivtag': positiveTagString,
@@ -199,6 +211,7 @@ class _ReviewState extends State<Review> {
 
   @override
   void initState() {
+    getCurrentUser();
     getData();
     getUsers();
     super.initState();
@@ -869,7 +882,7 @@ class _ReviewState extends State<Review> {
 
   pickImage({bool camera = false}) async {
     try {
-      PickedFile pickedFile = await picker.getImage(
+      File pickedFile = await ImagePicker.pickImage(
         source: camera ? ImageSource.camera : ImageSource.gallery,
       );
       File croppedFile = await ImageCropper.cropImage(
@@ -902,7 +915,7 @@ class _ReviewState extends State<Review> {
 
   pickImage2({bool camera = false}) async {
     try {
-      PickedFile pickedFile = await picker.getImage(
+      File pickedFile = await ImagePicker.pickImage(
         source: camera ? ImageSource.camera : ImageSource.gallery,
       );
       File croppedFile = await ImageCropper.cropImage(
@@ -935,7 +948,7 @@ class _ReviewState extends State<Review> {
 
   pickImage3({bool camera = false}) async {
     try {
-      PickedFile pickedFile = await picker.getImage(
+      File pickedFile = await ImagePicker.pickImage(
         source: camera ? ImageSource.camera : ImageSource.gallery,
       );
       File croppedFile = await ImageCropper.cropImage(
@@ -967,7 +980,6 @@ class _ReviewState extends State<Review> {
   }
 
   void showInSnackBar(String value) {
-    scaffoldKey.currentState.removeCurrentSnackBar();
-    scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value)));
   }
 }

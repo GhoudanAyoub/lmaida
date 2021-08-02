@@ -34,6 +34,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
   @override
   void initState() {
     fetchDetailsRes = fetDetails(widget.restoModel.id);
+    super.initState();
   }
 
   @override
@@ -352,7 +353,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
               backgroundColor: Colors.transparent,
               insetPadding: EdgeInsets.all(10),
               child: Stack(
-                overflow: Overflow.visible,
+                clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: <Widget>[
                   Positioned(

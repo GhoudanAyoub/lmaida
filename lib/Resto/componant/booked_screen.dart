@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -15,7 +16,9 @@ import 'package:lmaida/book/book.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/restau_model.dart';
+import 'package:lmaida/models/user_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
+import 'package:lmaida/utils/extansion.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/values/values.dart';
 
@@ -54,9 +57,20 @@ class _BookedScreenState extends State<BookedScreen> {
   bool sub = false;
   String _selected;
   bool state = false;
+  FirebaseUser user;
+  UserModel currentUserModel;
+
+  getCurrentUser() {
+    firebaseAuth.currentUser().then((value) {
+      setState(() {
+        user = value;
+      });
+    });
+  }
 
   @override
   void initState() {
+    getCurrentUser();
     getUsers();
     super.initState();
   }
@@ -69,10 +83,10 @@ class _BookedScreenState extends State<BookedScreen> {
   }
 
   getUsers() async {
-    DocumentSnapshot snap =
-        await usersRef.doc(firebaseAuth.currentUser.uid).get();
-    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
+    DocumentSnapshot snap = await usersRef.doc(user.uid).get();
+    user1 = snap;
     setState(() {
+      currentUserModel = UserModel.fromJson(user1.data());
       loading = false;
     });
   }
@@ -154,7 +168,7 @@ class _BookedScreenState extends State<BookedScreen> {
                               height: 60.0,
                               child: Center(
                                   child: Text(
-                                widget.restoModel.name,
+                                widget.restoModel.name.capitalize(),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 30.0,
@@ -326,8 +340,8 @@ class _BookedScreenState extends State<BookedScreen> {
     };
     var url = 'https://lmaida.com/api/login';
     var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
+      'email': user.email,
+      'password': currentUserModel.password,
     };
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
@@ -471,7 +485,7 @@ class _BookedScreenState extends State<BookedScreen> {
           Icon(Icons.dinner_dining, size: 80, color: Colors.black87),
           SizedBox(height: 16.0),
           Text(
-            user1.data()["username"],
+            currentUserModel.username,
             textAlign: TextAlign.center,
             style: Styles.customTitleTextStyle(
               color: Colors.black,
@@ -480,7 +494,7 @@ class _BookedScreenState extends State<BookedScreen> {
             ),
           ),
           Text(
-            firebaseAuth.currentUser.email,
+            user.email,
             textAlign: TextAlign.center,
             style: Styles.customTitleTextStyle(
               color: Colors.black,
@@ -489,7 +503,7 @@ class _BookedScreenState extends State<BookedScreen> {
             ),
           ),
           Text(
-            user1.data()["contact"],
+            currentUserModel.contact,
             textAlign: TextAlign.center,
             style: Styles.customTitleTextStyle(
               color: Colors.black,
@@ -651,7 +665,7 @@ class _BookedScreenState extends State<BookedScreen> {
             ),
           ),
           Text(
-            firebaseAuth.currentUser.email ?? "",
+            user.email ?? "",
             textAlign: TextAlign.center,
             style: Styles.customTitleTextStyle(
               color: Colors.black,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -38,6 +39,7 @@ class _SignUpFormState extends State<SignUpForm> {
 
   Position position;
   String _token;
+  FirebaseUser user;
 
   @override
   void initState() {
@@ -46,14 +48,21 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   getLastLocation() async {
-    await FirebaseMessaging().getToken().then((value) {
+    setState(() {
+      firebaseAuth.currentUser().then((value) {
+        setState(() {
+          user = value;
+        });
+      });
+    });
+    await FirebaseMessaging.instance.getToken().then((value) {
       setState(() {
         _token = value;
       });
     });
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    var lastPosition = await Geolocator.getLastKnownPosition();
+    await Geolocator.getLastKnownPosition();
   }
 
   void addError({String error}) {
@@ -141,10 +150,10 @@ class _SignUpFormState extends State<SignUpForm> {
     );
   }
 
-  Future<dynamic> getId(Token) async {
+  Future<dynamic> getId(token) async {
     Map<String, String> header = {
       "Accept": "application/json",
-      "Authorization": "Bearer $Token",
+      "Authorization": "Bearer $token",
       "Content-Type": "application/json"
     };
     var url = 'https://lmaida.com/api/profile';
@@ -153,18 +162,18 @@ class _SignUpFormState extends State<SignUpForm> {
     return message[0]['id'];
   }
 
-  Future addToken(Token, userid) async {
+  Future addToken(token, userId) async {
     var dio = Dio();
     var options = Options(validateStatus: (status) => true, headers: {
-      "Authorization": "Bearer $Token",
+      "Authorization": "Bearer $token",
     });
-    var url = 'https:/lmaida.com/api/token';
+    var url = 'https://lmaida.com/api/token';
     var formData = FormData.fromMap({
       'token': _token,
-      'id': userid.toString(),
+      'id': userId.toString(),
     });
-    var response = await dio.post(url, data: formData, options: options);
-    usersToken.doc(userid.toString()).set({"token": _token});
+    await dio.post(url, data: formData, options: options);
+    usersToken.doc(userId.toString()).set({"token": _token});
   }
 
   void emailExists() {

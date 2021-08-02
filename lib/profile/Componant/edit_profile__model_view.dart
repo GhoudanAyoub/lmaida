@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lmaida/models/user.dart';
 import 'package:lmaida/models/user_model.dart';
 import 'package:lmaida/service/user_service.dart';
 import 'package:lmaida/utils/constants.dart';
@@ -16,7 +15,6 @@ class EditProfileViewModel extends ChangeNotifier {
   bool loading = false;
   UserService userService = UserService();
   final picker = ImagePicker();
-  Users user;
   String contact;
   String username;
   String email;
@@ -25,11 +23,6 @@ class EditProfileViewModel extends ChangeNotifier {
 
   setemail(String val) {
     email = val;
-    notifyListeners();
-  }
-
-  setUser(Users val) {
-    user = val;
     notifyListeners();
   }
 
@@ -82,7 +75,7 @@ class EditProfileViewModel extends ChangeNotifier {
     loading = true;
     notifyListeners();
     try {
-      PickedFile pickedFile = await picker.getImage(
+      File pickedFile = await ImagePicker.pickImage(
         source: camera ? ImageSource.camera : ImageSource.gallery,
       );
       File croppedFile = await ImageCropper.cropImage(
@@ -121,7 +114,9 @@ class EditProfileViewModel extends ChangeNotifier {
   }
 
   void showInSnackBar(String value) {
-    scaffoldKey.currentState.removeCurrentSnackBar();
-    scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));
+    scaffoldKey.currentState.showSnackBar(SnackBar(
+      content: Text(value),
+      duration: Duration(seconds: 2),
+    ));
   }
 }

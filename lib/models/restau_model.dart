@@ -1,5 +1,3 @@
-import 'package:lmaida/models/user.dart';
-
 import 'categorie_model.dart';
 
 class RestoModel {
@@ -26,7 +24,6 @@ class RestoModel {
   Map<String, dynamic> locationModel;
   double rating;
   List special_offer;
-  Users user;
   List menus;
   List reviews;
 
@@ -49,7 +46,6 @@ class RestoModel {
       this.created_at,
       this.updated_at,
       this.special_offer,
-      this.user,
       this.list,
       this.filters,
       this.itemphotos,

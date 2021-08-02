@@ -413,7 +413,11 @@ class _MapsState extends State<Maps> {
 
   getLastLocation() async {
     setState(() {
-      myIcon = BitmapDescriptor.fromAsset("assets/images/restomarker.png");
+      BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(48, 48)),
+              "assets/images/restomarker.png")
+          .then((onValue) {
+        myIcon = onValue;
+      });
     });
     fetLocationResult = await fetLocation();
     position = await Geolocator.getCurrentPosition(

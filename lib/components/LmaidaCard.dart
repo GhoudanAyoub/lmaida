@@ -68,6 +68,7 @@ class _LmaidaCardState extends State<LmaidaCard> {
   @override
   void initState() {
     fetchDetailsRes = fetDetails(widget.restoModel.id);
+    super.initState();
   }
 
   @override
@@ -272,29 +273,6 @@ class _LmaidaCardState extends State<LmaidaCard> {
               ],
             ),
           )),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget cardTags({String title, BoxDecoration decoration}) {
-    return Container(
-      child: Opacity(
-        opacity: 0.8,
-        child: Container(
-          width: 40,
-          height: 14,
-          decoration: decoration,
-          child: Center(
-            child: Text(
-              title,
-              textAlign: TextAlign.center,
-              style: Styles.customNormalTextStyle(
-                fontSize: Sizes.TEXT_SIZE_10,
-              ),
-            ),
-          ),
         ),
       ),
     );

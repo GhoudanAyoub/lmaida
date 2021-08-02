@@ -1,8 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/form_error2.dart';
-import 'package:lmaida/service/FirebaseService.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/theme.dart';
@@ -164,9 +164,9 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
             press: () {
               if (_formKey.currentState.validate()) {
                 submitted = true;
-                final auth = FirebaseService();
-                auth.sendPasswordResetEmail(_emailContoller.text);
-                Scaffold.of(context).showSnackBar(SnackBar(
+                FirebaseAuth.instance
+                    .sendPasswordResetEmail(email: _emailContoller.text);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(
                         'A password reset link has been sent to ${_emailContoller.text}')));
               }

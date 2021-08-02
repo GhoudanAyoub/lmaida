@@ -19,6 +19,7 @@ class _BodyState extends State<Body> {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => HomePage()));
     });
+    super.initState();
   }
 
   @override

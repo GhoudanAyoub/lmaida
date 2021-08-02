@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lmaida/SignIn/sign_in_screen.dart';
-import 'package:lmaida/service/FirebaseService.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:rxdart/rxdart.dart';
@@ -24,15 +24,24 @@ class _SideBarState extends State<SideBar>
   Stream<bool> isSidebarOpenedStream;
   StreamSink<bool> isSidebarOpenedSink;
   final _animationDuration = const Duration(milliseconds: 500);
-
+  FirebaseUser user;
   @override
   void initState() {
     super.initState();
+    getCurrentUser();
     _animationController =
         AnimationController(vsync: this, duration: _animationDuration);
     isSidebarOpenedStreamController = PublishSubject<bool>();
     isSidebarOpenedStream = isSidebarOpenedStreamController.stream;
     isSidebarOpenedSink = isSidebarOpenedStreamController.sink;
+  }
+
+  getCurrentUser() {
+    firebaseAuth.currentUser().then((value) {
+      setState(() {
+        user = value;
+      });
+    });
   }
 
   @override
@@ -110,9 +119,7 @@ class _SideBarState extends State<SideBar>
                       ),*/
                       firebaseAuth.currentUser != null
                           ? StreamBuilder(
-                              stream: usersRef
-                                  .doc(firebaseAuth.currentUser.uid)
-                                  .snapshots(),
+                              stream: usersRef.doc(user.uid).snapshots(),
                               builder: (context,
                                   AsyncSnapshot<DocumentSnapshot> snapshot) {
                                 if (snapshot.hasData) {
@@ -221,8 +228,10 @@ class _SideBarState extends State<SideBar>
             children: [
               SimpleDialogOption(
                 onPressed: () {
-                  FirebaseService().signOut();
+                  FirebaseAuth.instance.signOut();
                   Navigator.pop(context);
+                  isSidebarOpenedSink.add(false);
+                  _animationController.reverse();
                 },
                 child: Text(
                   'Log Out',

@@ -14,19 +14,21 @@ class _SideBarLayoutState extends State<SideBarLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocProvider<NavigationBloc>(
-        create: (context) => NavigationBloc(Maps()),
-        child: Stack(
-          children: <Widget>[
-            BlocBuilder<NavigationBloc, NavigationStates>(
-              builder: (context, navigationState) {
-                return navigationState as Widget;
-              },
+      body: new WillPopScope(
+          onWillPop: () async => false,
+          child: BlocProvider<NavigationBloc>(
+            create: (context) => NavigationBloc(Maps()),
+            child: Stack(
+              children: <Widget>[
+                BlocBuilder<NavigationBloc, NavigationStates>(
+                  builder: (context, navigationState) {
+                    return navigationState as Widget;
+                  },
+                ),
+                SideBar(),
+              ],
             ),
-            SideBar(),
-          ],
-        ),
-      ),
+          )),
     );
   }
 }
