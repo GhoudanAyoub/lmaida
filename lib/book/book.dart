@@ -73,7 +73,8 @@ class _BookState extends State<Book> {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = json.decode(response.body);
-    return message[0]["bookings"];
+    List<dynamic> t = message[0]["bookings"];
+    return t.reversed.toList();
   }
 
   Future<List<dynamic>> userLog2(id) async {
@@ -133,12 +134,37 @@ class _BookState extends State<Book> {
         backgroundColor: Color(0xfff2f3f7),
         body: Stack(
           children: <Widget>[
+            Positioned(
+              bottom: 300.0,
+              left: 100.0,
+              child: Opacity(
+                opacity: 0.1,
+                child: Image.asset(
+                  "assets/images/coffee2.png",
+                  width: 150.0,
+                ),
+              ),
+            ),
+            Positioned(
+              top: 200.0,
+              right: -180.0,
+              child: Image.asset(
+                "assets/images/square.png",
+              ),
+            ),
+            Positioned(
+              child: Image.asset(
+                "assets/images/drum.png",
+              ),
+              left: -70.0,
+              bottom: -40.0,
+            ),
             Container(
               height: getProportionateScreenHeight(250),
               width: MediaQuery.of(context).size.width,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.red[900],
+                  color: primary,
                   borderRadius: BorderRadius.only(
                     bottomLeft: const Radius.circular(150),
                     bottomRight: const Radius.circular(150),
@@ -243,7 +269,7 @@ class _BookState extends State<Book> {
                                                   snapshot.data[index]);
                                           var color;
                                           bookmodel.statut.contains("canceled")
-                                              ? color = Colors.red[900]
+                                              ? color = primary
                                               : bookmodel.statut
                                                       .contains("accept")
                                                   ? color = Colors.green
@@ -916,22 +942,8 @@ class _BookState extends State<Book> {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
-                                        color: Colors.red[900],
+                                        color: primary,
                                       )),
-                                  RaisedButton(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5)),
-                                    color: Colors.red[900],
-                                    onPressed: () {
-                                      getUsers();
-                                    },
-                                    child: Text('REFRESH',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        )),
-                                  ),
                                 ],
                               )),
                             )

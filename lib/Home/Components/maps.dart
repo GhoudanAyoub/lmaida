@@ -13,6 +13,7 @@ import 'package:lmaida/Home/Components/map_model.dart';
 import 'package:lmaida/Resto/componant/new_resto_details.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/LmaidaCard.dart';
+import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
@@ -193,6 +194,11 @@ class _MapsState extends State<Maps> {
                     : Container(
                         height: 0,
                       ),
+                kta3 == true
+                    ? Container(
+                        padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                        child: circularProgress(context))
+                    : Container(),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(

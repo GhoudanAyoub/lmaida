@@ -96,7 +96,7 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
                       ),
                       suffixIcon: Icon(
                         widget.suffix,
-                        size: 15.0,
+                        size: 12.0,
                       ),
                       fillColor: Colors.white,
                       filled: true,

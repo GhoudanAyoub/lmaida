@@ -681,7 +681,7 @@ class _ReviewState extends State<Review> {
                                   onPressed: () {
                                     userLog(context);
                                   },
-                                  backgroundColor: Colors.red[900],
+                                  backgroundColor: primary,
                                   child: Icon(Icons.arrow_forward_ios,
                                       size: 25, color: Colors.white),
                                 )

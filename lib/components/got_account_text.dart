@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lmaida/SignIn/sign_in_screen.dart';
+import 'package:lmaida/utils/constants.dart';
 
 class GotAccountText extends StatelessWidget {
   GotAccountText({
@@ -19,7 +20,7 @@ class GotAccountText extends StatelessWidget {
           onTap: () => Navigator.pushNamed(context, SignInScreen.routeName),
           child: Text(
             "Sign In",
-            style: TextStyle(fontSize: 14, color: Colors.red[900]),
+            style: TextStyle(fontSize: 14, color: primary),
           ),
         ),
       ],

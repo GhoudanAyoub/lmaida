@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:lmaida/components/reting%20star.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
+import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/extansion.dart';
 
 import 'indicators.dart';
@@ -28,12 +29,14 @@ class _ReviewsCardState extends State<ReviewsCard> {
   var snap;
   Future<List<dynamic>> fetDetails(id) async {
     var result = await http.get("https://lmaida.com/api/resturant/$id");
-    return json.decode(result.body);
+    List<dynamic> t = json.decode(result.body);
+    return t.reversed.toList();
   }
 
   @override
   void initState() {
     fetchDetailsRes = fetDetails(widget.restoModel.id);
+    super.initState();
   }
 
   @override
@@ -48,7 +51,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
               width: MediaQuery.of(context).size.width,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.red[900],
+                  color: primary,
                   borderRadius: BorderRadius.only(
                     bottomLeft: const Radius.circular(80),
                     bottomRight: const Radius.circular(80),
@@ -79,7 +82,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                   child: Container(
-                    margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                    margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
                     width: SizeConfig.screenWidth - 50,
                     child: FutureBuilder(
                       future: fetchDetailsRes,
@@ -100,7 +103,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
                           }
                           return ListView.builder(
                             //new line
-                            padding: EdgeInsets.all(10),
+                            padding: EdgeInsets.all(5),
                             itemCount: widget.reviews.length,
                             itemBuilder: (context, index) {
                               snap = snapshot.data[0]["reviews"][index];
@@ -148,12 +151,16 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Padding(
                                         padding: const EdgeInsets.only(top: 10),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
                                           children: [
                                             Row(
                                               children: <Widget>[
@@ -198,12 +205,14 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
                                           children: [
                                             Row(
                                               children: <Widget>[
                                                 Icon(
                                                   Icons.thumb_down,
-                                                  color: Colors.red[900],
+                                                  color: primary,
                                                   size: 20,
                                                 ),
                                                 SizedBox(width: 5.0),
@@ -212,7 +221,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w400,
-                                                      color: Colors.red[900]),
+                                                      color: primary),
                                                 )
                                               ],
                                             ),
@@ -231,7 +240,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
                                                 spacing: 2,
                                                 alignment: WrapAlignment.start,
                                               ),
-                                              width: 200,
+                                              width: 150,
                                             ),
                                           ],
                                         ),

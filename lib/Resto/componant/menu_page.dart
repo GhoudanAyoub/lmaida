@@ -69,7 +69,7 @@ class _MenuPageState extends State<MenuPage> {
               width: MediaQuery.of(context).size.width,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.red[900],
+                  color: primary,
                   borderRadius: BorderRadius.only(
                     bottomLeft: const Radius.circular(150),
                     bottomRight: const Radius.circular(150),
@@ -396,7 +396,7 @@ class _MenuPageState extends State<MenuPage> {
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 fontSize: 14.0,
-                color: Colors.red[900],
+                color: primary,
               ),
             ),
           ),

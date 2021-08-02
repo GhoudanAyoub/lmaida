@@ -164,12 +164,16 @@ class _RestaurantState extends State<RestaurantPage> {
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    addresses = await Geocoder.local.findAddressesFromCoordinates(
-        new Coordinates(position.latitude, position.longitude));
+    await Geocoder.local
+        .findAddressesFromCoordinates(
+            new Coordinates(position.latitude, position.longitude))
+        .then((value) {
+      setState(() {
+        addresses = value;
+      });
+    });
     for (var location in fetLocationResult) {
       locMultiItem.add(MultiSelectDialogItem(location["id"], location["name"]));
-      print(
-          "sqdqdqdq//${addresses.first.addressLine.contains(location["name"])}//${location["name"]}");
       if (addresses.first.addressLine.contains(location["name"])) {
         setState(() {
           show = false;
@@ -190,8 +194,14 @@ class _RestaurantState extends State<RestaurantPage> {
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    addresses = await Geocoder.local.findAddressesFromCoordinates(
-        new Coordinates(position.latitude, position.longitude));
+    await Geocoder.local
+        .findAddressesFromCoordinates(
+            new Coordinates(position.latitude, position.longitude))
+        .then((value) {
+      setState(() {
+        addresses = value;
+      });
+    });
     for (var location in fetLocationResult) {
       locMultiItem.add(MultiSelectDialogItem(location["id"], location["name"]));
       if (addresses.first.addressLine.contains(location["name"])) {
@@ -323,7 +333,7 @@ class _RestaurantState extends State<RestaurantPage> {
                 width: MediaQuery.of(context).size.width,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.red[900],
+                    color: primary,
                     borderRadius: BorderRadius.only(
                       bottomLeft: const Radius.circular(150),
                       bottomRight: const Radius.circular(150),
@@ -447,12 +457,12 @@ class _RestaurantState extends State<RestaurantPage> {
                                     value: dropdownValue ?? dropdownValue,
                                     icon: Icon(
                                       Icons.person_outline,
-                                      color: Colors.red[900],
+                                      color: primary,
                                       size: 17,
                                     ),
                                     iconSize: 24,
                                     elevation: 16,
-                                    style: TextStyle(color: Colors.red[900]),
+                                    style: TextStyle(color: primary),
                                     onChanged: (String newValue) {
                                       setState(() {
                                         dropdownValue = newValue;
@@ -674,7 +684,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                           setState(() {
                                             fetRestoAdvanceResult = fetRestoAdvance(
                                                 "${locSelectedValues != null ? locSelectedValues.join(",") : null}");
-                                            show = true;
+                                            show = false;
                                             open = false;
                                           });
                                         },
@@ -696,11 +706,13 @@ class _RestaurantState extends State<RestaurantPage> {
                                         onPressed: () {
                                           backToNormal();
                                           setState(() {
-                                            // fetRestoAdvanceResult = fetResto(locationId);
+                                            fetRestoAdvanceResult =
+                                                fetResto(locationId);
                                             open = false;
                                           });
                                           searchController.text = null;
                                           categ = null;
+                                          show = true;
                                         },
                                         child: Text('CLEAN',
                                             style: TextStyle(
@@ -973,33 +985,39 @@ class _RestaurantState extends State<RestaurantPage> {
                               },
                             ),
                           )
-                        : Container(
-                            height: 0,
-                          )
+                        : addresses != null
+                            ? Container(
+                                height: 200,
+                                padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Center(
+                                    child: Text(
+                                      'No Restaurants Near ${locationId == null ? addresses.first.addressLine : "To You"} Yet ',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ))
+                            : Container(
+                                height: 0,
+                              ),
+                    show == true
+                        ? Container(
+                            height: 100,
+                            padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                            child: Align(
+                                alignment: Alignment.center,
+                                child:
+                                    Center(child: circularProgress(context))))
+                        : Container()
                   ],
                 ),
               ),
-              show == true && addresses != null
-                  ? Container(
-                      height: SizeConfig.screenHeight,
-                      padding: EdgeInsets.fromLTRB(20, 250, 20, 20),
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Center(
-                          child: Text(
-                            'No Restaurants Near ${locationId == null ? addresses.first.addressLine : "To You"} Yet ',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ))
-                  : Container(
-                      height: 0,
-                    ),
               Container(
                 margin: EdgeInsets.fromLTRB(10, 30, 80, 20),
                 height: 200.0,
@@ -1247,7 +1265,7 @@ class _RestaurantState extends State<RestaurantPage> {
                             ),
                             bottomSheet: Container(
                               height: 40,
-                              color: Colors.red[900],
+                              color: primary,
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
@@ -1256,7 +1274,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                   RaisedButton(
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5)),
-                                    color: Colors.red[900],
+                                    color: primary,
                                     onPressed: () {
                                       setState(() async {
                                         fetRestoAdvanceResult =
@@ -1283,7 +1301,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                   RaisedButton(
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5)),
-                                    color: Colors.red[900],
+                                    color: primary,
                                     onPressed: () {
                                       setState(() {
                                         fetRestoAdvanceResult =
@@ -1366,7 +1384,7 @@ class _RestaurantState extends State<RestaurantPage> {
       children: <Widget>[
         Icon(
           icons,
-          color: Colors.red[900],
+          color: primary,
           size: 15,
         ),
         SizedBox(width: 5.0),
@@ -1374,7 +1392,7 @@ class _RestaurantState extends State<RestaurantPage> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.red[900],
+            color: primary,
             fontWeight: FontWeight.normal,
           ),
         )
@@ -1401,7 +1419,7 @@ class _RestaurantState extends State<RestaurantPage> {
                   onPressed;
                   setState(() {
                     catId = id;
-                    color = Colors.red[900];
+                    color = primary;
                   });
                 },
                 backgroundColor: Colors.white,

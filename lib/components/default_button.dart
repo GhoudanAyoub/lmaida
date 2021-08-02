@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lmaida/utils/constants.dart';
 
 class DefaultButton extends StatelessWidget {
   const DefaultButton({Key key, this.text, this.press, this.submitted})
@@ -15,7 +16,7 @@ class DefaultButton extends StatelessWidget {
       height: 56,
       child: FlatButton(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        color: Colors.red[900],
+        color: primary,
         disabledColor: Colors.grey[400],
         disabledTextColor: Colors.white60,
         onPressed: press,

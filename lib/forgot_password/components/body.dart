@@ -20,7 +20,7 @@ class Body extends StatelessWidget {
               width: MediaQuery.of(context).size.width,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.red[900],
+                  color: primary,
                   borderRadius: BorderRadius.only(
                     bottomLeft: const Radius.circular(80),
                     bottomRight: const Radius.circular(80),

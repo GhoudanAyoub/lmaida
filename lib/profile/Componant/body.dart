@@ -7,6 +7,7 @@ import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/user.dart';
 import 'package:lmaida/profile/Componant/edit_profile__model_view.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
+import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/utils/validation.dart';
 import 'package:provider/provider.dart';
@@ -52,30 +53,38 @@ class _BodyState extends State<Body> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        elevation: 2,
+        elevation: 3,
+        backgroundColor: primary,
         title: Text(
           "Profile",
           style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 24.0,
-            color: Colors.white,
-          ),
+              fontWeight: FontWeight.w600,
+              fontSize: 18.0,
+              color: Colors.white,
+              letterSpacing: 2),
         ),
         actions: [
           Center(
             child: Padding(
-              padding: const EdgeInsets.only(right: 25.0),
+              padding: const EdgeInsets.only(right: 10.0),
               child: GestureDetector(
-                onTap: () => viewModel.editProfile(context),
-                child: Text(
-                  'EDIT',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 15.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+                  onTap: () => viewModel.editProfile(context),
+                  child: Row(
+                    children: [
+                      Icon(CupertinoIcons.pencil_outline),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        'EDIT',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14.0,
+                            color: Colors.white,
+                            letterSpacing: 2),
+                      ),
+                    ],
+                  )),
             ),
           ),
         ],
@@ -88,12 +97,37 @@ class _BodyState extends State<Body> {
     if (!loading) {
       return Stack(
         children: <Widget>[
+          Positioned(
+            bottom: 100.0,
+            left: 100.0,
+            child: Opacity(
+              opacity: 0.1,
+              child: Image.asset(
+                "assets/images/coffee2.png",
+                width: 150.0,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 200.0,
+            right: -180.0,
+            child: Image.asset(
+              "assets/images/square.png",
+            ),
+          ),
+          Positioned(
+            child: Image.asset(
+              "assets/images/drum.png",
+            ),
+            left: -70.0,
+            bottom: -40.0,
+          ),
           Container(
             height: getProportionateScreenHeight(250),
             width: MediaQuery.of(context).size.width,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.red[900],
+                color: primary,
                 borderRadius: BorderRadius.only(
                   bottomLeft: const Radius.circular(200),
                   bottomRight: const Radius.circular(200),
@@ -102,96 +136,82 @@ class _BodyState extends State<Body> {
             ),
           ),
           Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: getProportionateScreenWidth(30)),
-              child: SingleChildScrollView(
-                child: Card(
-                    margin: EdgeInsets.fromLTRB(0, 40, 0, 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    elevation: 10.0,
-                    child: Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 20.0),
-                            Center(
-                              child: GestureDetector(
-                                onTap: () => viewModel.pickImage(),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.transparent,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        offset: new Offset(0.0, 0.0),
-                                        blurRadius: 2.0,
-                                        spreadRadius: 0.0,
-                                      ),
-                                    ],
+              padding: EdgeInsets.fromLTRB(getProportionateScreenWidth(30), 40,
+                  getProportionateScreenWidth(30), 40),
+              child: Card(
+                  margin: EdgeInsets.fromLTRB(0, 40, 0, 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  elevation: 10.0,
+                  child: Padding(
+                      padding: EdgeInsets.all(5.0),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 20.0),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () => viewModel.pickImage(),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.transparent,
                                   ),
-                                  child: viewModel.imgLink != null
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(1.0),
-                                          child: CircleAvatar(
-                                            radius: 65.0,
-                                            backgroundImage:
-                                                NetworkImage(viewModel.imgLink),
-                                          ),
-                                        )
-                                      : viewModel.image == null
-                                          ? Padding(
-                                              padding:
-                                                  const EdgeInsets.all(1.0),
-                                              child: user1.data()["photoUrl"] !=
-                                                      null
-                                                  ? CircleAvatar(
-                                                      radius: 65.0,
-                                                      backgroundImage:
-                                                          NetworkImage(
-                                                              user1.data()[
-                                                                  "photoUrl"]))
-                                                  : Opacity(
-                                                      opacity: 1.0,
-                                                      child: Image.asset(
-                                                        "assets/images/proim.png",
-                                                        width: 120.0,
-                                                      ),
-                                                    ),
-                                            )
-                                          : Padding(
-                                              padding:
-                                                  const EdgeInsets.all(1.0),
-                                              child: CircleAvatar(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      offset: new Offset(0.0, 0.0),
+                                      blurRadius: 2.0,
+                                      spreadRadius: 0.0,
+                                    ),
+                                  ],
+                                ),
+                                child: viewModel.image == null
+                                    ? Padding(
+                                        padding: const EdgeInsets.all(1.0),
+                                        child: user1.data()["photoUrl"] !=
+                                                    null &&
+                                                user1.data()["photoUrl"] != ""
+                                            ? CircleAvatar(
                                                 radius: 65.0,
-                                                backgroundImage:
-                                                    FileImage(viewModel.image),
+                                                backgroundImage: NetworkImage(
+                                                    user1.data()["photoUrl"]))
+                                            : Opacity(
+                                                opacity: 1.0,
+                                                child: Image.asset(
+                                                  "assets/images/proim.png",
+                                                  width: 120.0,
+                                                ),
                                               ),
-                                            ),
-                                ),
+                                      )
+                                    : Padding(
+                                        padding: const EdgeInsets.all(1.0),
+                                        child: CircleAvatar(
+                                          radius: 65.0,
+                                          backgroundImage:
+                                              FileImage(viewModel.image),
+                                        ),
+                                      ),
                               ),
                             ),
-                            SizedBox(height: 10.0),
-                            Center(
-                              child: Text(
-                                user1.data()['username'],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 15.0,
-                                  color: Colors.black,
-                                ),
+                          ),
+                          SizedBox(height: 10.0),
+                          Center(
+                            child: Text(
+                              user1.data()['username'],
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15.0,
+                                color: Colors.black,
                               ),
                             ),
-                            buildForm(viewModel, context),
-                            SizedBox(height: 20.0),
-                          ],
-                        ))),
-              )),
+                          ),
+                          buildForm(viewModel, context),
+                          SizedBox(height: 20.0),
+                        ],
+                      )))),
         ],
       );
     } else {
@@ -203,7 +223,7 @@ class _BodyState extends State<Body> {
 
   buildForm(EditProfileViewModel viewModel, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 5.0),
       child: Form(
         key: viewModel.formKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,

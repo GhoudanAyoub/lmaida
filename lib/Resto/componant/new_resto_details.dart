@@ -14,6 +14,7 @@ import 'package:lmaida/components/reting%20star.dart';
 import 'package:lmaida/components/reviews_card.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
+import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/extansion.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/values/values.dart';
@@ -102,7 +103,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
               width: MediaQuery.of(context).size.width,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.red[900],
+                  color: primary,
                   borderRadius: BorderRadius.only(
                     bottomLeft: const Radius.circular(80),
                     bottomRight: const Radius.circular(80),
@@ -363,7 +364,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
                           child: Container(
-                            margin: EdgeInsets.fromLTRB(20, 0, 10, 10),
+                            margin: EdgeInsets.fromLTRB(10, 0, 10, 10),
                             width: SizeConfig.screenWidth - 50,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -435,7 +436,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                         )),
                               );
                       },
-                      backgroundColor: Colors.red[900],
+                      backgroundColor: primary,
                       child: Icon(Icons.arrow_forward_ios,
                           size: 25, color: Colors.white),
                     )
@@ -498,7 +499,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                           )),
                                 );
                         },
-                        backgroundColor: Colors.red[900],
+                        backgroundColor: primary,
                         child: Icon(Icons.arrow_forward_ios,
                             size: 25, color: Colors.white),
                       )
@@ -553,7 +554,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                           )),
                                 );
                         },
-                        backgroundColor: Colors.red[900],
+                        backgroundColor: primary,
                         child: Icon(Icons.arrow_forward_ios,
                             size: 25, color: Colors.white),
                       )
@@ -914,7 +915,8 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                               elevation: 4,
                                             )
                                           : Container())
-                                      .toList(),
+                                      .toList()
+                                      .sublist(0, 2),
                               spacing: 2,
                               alignment: WrapAlignment.start,
                             ),
@@ -932,7 +934,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                             children: <Widget>[
                               Icon(
                                 Icons.thumb_down,
-                                color: Colors.red[900],
+                                color: primary,
                                 size: 20,
                               ),
                               SizedBox(width: 5.0),
@@ -940,7 +942,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                 "NEGATIVE",
                                 style: TextStyle(
                                     fontWeight: FontWeight.w400,
-                                    color: Colors.red[900]),
+                                    color: primary),
                               )
                             ],
                           ),
@@ -956,11 +958,12 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                               elevation: 4,
                                             )
                                           : Container())
-                                      .toList(),
+                                      .toList()
+                                      .sublist(0, 2),
                               spacing: 2,
                               alignment: WrapAlignment.start,
                             ),
-                            width: 200,
+                            width: 150,
                           ),
                         ],
                       ),
@@ -1050,7 +1053,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                     fontSize: 12.0,
                                     fontFamily: 'Quicksand',
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.red[900])),
+                                    color: primary)),
                             onTap: () => {
                               Navigator.push(
                                 context,

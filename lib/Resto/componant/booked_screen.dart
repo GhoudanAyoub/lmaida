@@ -16,6 +16,7 @@ import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
+import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/values/values.dart';
 
@@ -257,13 +258,12 @@ class _BookedScreenState extends State<BookedScreen> {
                                                 widget.dropdownValue,
                                             icon: Icon(
                                               Icons.person_outline,
-                                              color: Colors.red[900],
+                                              color: primary,
                                               size: 20,
                                             ),
                                             iconSize: 24,
                                             elevation: 16,
-                                            style: TextStyle(
-                                                color: Colors.red[900]),
+                                            style: TextStyle(color: primary),
                                             onChanged: (String newValue) {
                                               setState(() {
                                                 dropdownValue = newValue;
@@ -378,7 +378,7 @@ class _BookedScreenState extends State<BookedScreen> {
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red[900],
+          backgroundColor: primary,
           textColor: Colors.white,
           fontSize: 16.0);
       setState(() {
@@ -436,7 +436,7 @@ class _BookedScreenState extends State<BookedScreen> {
       children: <Widget>[
         Icon(
           icons,
-          color: Colors.red[900],
+          color: primary,
           size: 20,
         ),
         SizedBox(width: 5.0),
@@ -444,7 +444,7 @@ class _BookedScreenState extends State<BookedScreen> {
           label,
           style: TextStyle(
               fontSize: 14,
-              color: Colors.red[900],
+              color: primary,
               fontWeight: FontWeight.normal,
               fontFamily: 'Ubuntu-Regular'),
         )

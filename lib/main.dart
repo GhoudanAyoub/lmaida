@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
+import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/providers.dart';
 import 'package:lmaida/utils/routes.dart';
 import 'package:lmaida/utils/theme.dart';
@@ -40,7 +41,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    FlutterStatusbarcolor.setStatusBarColor(Colors.red[900]);
+    FlutterStatusbarcolor.setStatusBarColor(primary);
     return MultiProvider(
         providers: providers,
         child: MaterialApp(
