@@ -61,6 +61,8 @@ class _ReviewState extends State<Review> {
   String negativeTagString = '';
 
   bool sending = false;
+  bool stopNeg = false;
+  bool stopPos = false;
 
   Future fetPositiveTag() async {
     var result = await http.get(positiveTag);
@@ -241,7 +243,7 @@ class _ReviewState extends State<Review> {
                 ),
                 Container(
                   height: SizeConfig.screenHeight,
-                  padding: EdgeInsets.fromLTRB(30, 50, 30, 20),
+                  padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                   child: ListView(
                     children: [
                       Row(
@@ -267,7 +269,7 @@ class _ReviewState extends State<Review> {
                         ],
                       ),
                       SizedBox(
-                        height: 10,
+                        height: 5,
                       ),
                       Text(
                         "Tap To rate your experience ",
@@ -278,7 +280,7 @@ class _ReviewState extends State<Review> {
                         ),
                       ),
                       SizedBox(
-                        height: 10,
+                        height: 5,
                       ),
                       RatingBar.builder(
                         initialRating: 1,
@@ -300,7 +302,7 @@ class _ReviewState extends State<Review> {
                         },
                       ),
                       SizedBox(
-                        height: 15,
+                        height: 10,
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -336,10 +338,14 @@ class _ReviewState extends State<Review> {
                                   onTap: () {
                                     setState(() {
                                       _activeTab = index;
-                                      negativeTagString +=
-                                          "#${filteredNegativeList[index].name} ";
-                                      _notLikeContoller.text =
-                                          negativeTagString;
+                                      if ((_notLikeContoller.text.split('#'))
+                                              .length <=
+                                          3) {
+                                        negativeTagString +=
+                                            "#${filteredNegativeList[index].name} ";
+                                        _notLikeContoller.text =
+                                            negativeTagString;
+                                      }
                                     });
                                   },
                                   child: AnimatedContainer(
@@ -380,7 +386,7 @@ class _ReviewState extends State<Review> {
                         ],
                       ),
                       SizedBox(
-                        height: 10,
+                        height: 5,
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,9 +422,13 @@ class _ReviewState extends State<Review> {
                                   onTap: () {
                                     setState(() {
                                       _activeTab2 = index;
-                                      positiveTagString +=
-                                          "#${filteredPositiveList[index].name} ";
-                                      _likeContoller.text = positiveTagString;
+                                      if ((_likeContoller.text.split('#'))
+                                              .length <=
+                                          3) {
+                                        positiveTagString +=
+                                            "#${filteredPositiveList[index].name} ";
+                                        _likeContoller.text = positiveTagString;
+                                      }
                                     });
                                   },
                                   child: AnimatedContainer(
@@ -459,7 +469,7 @@ class _ReviewState extends State<Review> {
                         ],
                       ),
                       SizedBox(
-                        height: 10,
+                        height: 5,
                       ),
                       Card(
                         elevation: 2.0,
@@ -648,7 +658,7 @@ class _ReviewState extends State<Review> {
                         ),
                       ),
                       SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       Form(
                           key: formKey,
@@ -697,6 +707,28 @@ class _ReviewState extends State<Review> {
         ),
       ),
     );
+  }
+
+  void checkNegativeTags(String value) {
+    if ((_notLikeContoller.text.split('#')).length == 2)
+      setState(() {
+        stopNeg = true;
+      });
+    else
+      setState(() {
+        stopNeg = false;
+      });
+  }
+
+  void checkPositiveTags(String value) {
+    if ((_likeContoller.text.split('#')).length == 2)
+      setState(() {
+        stopPos = true;
+      });
+    else
+      setState(() {
+        stopPos = false;
+      });
   }
 
   showImageChoices(BuildContext context) {
