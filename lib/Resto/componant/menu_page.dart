@@ -84,8 +84,9 @@ class _MenuPageState extends State<MenuPage> {
                   child: Text(
                 "Menu",
                 style: TextStyle(
+                  letterSpacing: 2,
                   fontWeight: FontWeight.w500,
-                  fontSize: 24.0,
+                  fontSize: 18.0,
                   color: Colors.white,
                 ),
               )),
@@ -96,7 +97,7 @@ class _MenuPageState extends State<MenuPage> {
                 child: Center(
                   child: Align(
                     alignment: Alignment.topRight,
-                    child: FlatButton(
+                    child: TextButton(
                         onPressed: () {
                           setState(() {
                             type = null;
@@ -201,10 +202,8 @@ class _MenuPageState extends State<MenuPage> {
                                     height: 10,
                                     decoration: BoxDecoration(
                                       color: _activeTab == index
-                                          ? Colors.grey.withOpacity(0.7)
-                                          : mainColor.withOpacity(
-                                              .2,
-                                            ),
+                                          ? Colors.grey.withOpacity(0.8)
+                                          : Colors.white,
                                       borderRadius: BorderRadius.circular(12.0),
                                     ),
                                     child: Center(
@@ -261,7 +260,6 @@ class _MenuPageState extends State<MenuPage> {
                                             itemCount: widget.data.length,
                                             itemBuilder: (BuildContext context,
                                                 int index) {
-                                              print("===>" + type);
                                               if (type ==
                                                   widget.data[index]["type"]
                                                       ["name"])

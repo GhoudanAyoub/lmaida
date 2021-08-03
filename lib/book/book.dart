@@ -22,7 +22,6 @@ class Book extends StatefulWidget with NavigationStates {
 class _BookState extends State<Book> {
   DocumentSnapshot user1;
   final String apiUrl = StringConst.URI_RESTAU1;
-  var fetchUser;
   int _activeTab = 0;
   String CatName = "";
 
@@ -43,9 +42,7 @@ class _BookState extends State<Book> {
     if (snap.data()["id"] == firebaseAuth.currentUser.uid) {
       user1 = snap;
     }
-    setState(() {
-      fetchUser = userLog();
-    });
+    userLog();
   }
 
   Future<List<dynamic>> userLog() async {
@@ -75,40 +72,6 @@ class _BookState extends State<Book> {
     var message = json.decode(response.body);
     List<dynamic> t = message[0]["bookings"];
     return t.reversed.toList();
-  }
-
-  Future<List<dynamic>> userLog2(id) async {
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/login';
-    var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
-    };
-    var response = await http.post(Uri.encodeFull(url),
-        headers: header, body: json.encode(data));
-    var message = jsonDecode(response.body);
-    return deleteBook(message["token"], id);
-  }
-
-  Future<List<dynamic>> deleteBook(Token, id) async {
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Authorization": "Bearer $Token",
-      "Content-Type": "application/json"
-    };
-    var result = await http
-        .post(Uri.encodeFull("${StringConst.URI_DELETE}/$id"), headers: header);
-    var res = json.decode(result.body);
-    if (res["message"] == "Successfully canceled") {
-      setState(() {
-        submitted = false;
-        fetchUser = userLog();
-      });
-    }
-    return json.decode(result.body);
   }
 
   bool submitted = false;
@@ -218,10 +181,8 @@ class _BookState extends State<Book> {
                                 height: 10,
                                 decoration: BoxDecoration(
                                   color: _activeTab == index
-                                      ? mainColor.withOpacity(0.7)
-                                      : mainColor.withOpacity(
-                                          .2,
-                                        ),
+                                      ? Colors.grey.withOpacity(0.8)
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 child: Center(
@@ -249,704 +210,124 @@ class _BookState extends State<Book> {
                       SizedBox(
                         height: 10,
                       ),
-                      fetchUser != null
-                          ? Container(
-                              height: SizeConfig.screenHeight - 180,
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: FutureBuilder<List<dynamic>>(
-                                future: userLog(),
-                                builder: (BuildContext context,
-                                    AsyncSnapshot snapshot) {
-                                  if (snapshot.data != null)
-                                    return ListView.builder(
-                                        padding: EdgeInsets.all(5),
-                                        shrinkWrap: true,
-                                        itemCount: snapshot.data.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          BookModel bookmodel =
-                                              BookModel.fromJson(
-                                                  snapshot.data[index]);
-                                          var color;
-                                          bookmodel.statut.contains("canceled")
-                                              ? color = primary
-                                              : bookmodel.statut
-                                                      .contains("accept")
-                                                  ? color = Colors.green
-                                                  : color =
-                                                      Colors.deepOrangeAccent;
-                                          if (snapshot.data != null &&
-                                              CatName == "")
-                                            return Padding(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  0, 5, 0, 5),
-                                              child: Container(
-                                                  child: Card(
-                                                elevation: 4.0,
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                child: Container(
-                                                  child: FutureBuilder(
-                                                    future: fetResto(
-                                                        bookmodel.iditem),
-                                                    builder:
-                                                        (context, snapshot) {
-                                                      if (snapshot.hasData) {
-                                                        RestoModel restoModel =
-                                                            RestoModel.fromJson(
-                                                                snapshot
-                                                                    .data[0]);
-                                                        return Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceAround,
-                                                          children: [
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Text(
-                                                                  "Your Book For ${restoModel.name} is ",
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                    fontSize:
-                                                                        15.0,
-                                                                    color: Colors
-                                                                        .black,
-                                                                  ),
-                                                                ),
-                                                                Text(
-                                                                  bookmodel
-                                                                      .statut,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                    fontSize:
-                                                                        15.0,
-                                                                    color:
-                                                                        color,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            SizedBox(
-                                                                height: 10),
-                                                            Container(
-                                                              height: 60.0,
-                                                              child: Align(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .center,
-                                                                child: Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .symmetric(
-                                                                      horizontal:
-                                                                          10.0),
-                                                                  child: Card(
-                                                                    shape: RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(15)),
-                                                                    color: Color(
-                                                                        0xFFF5F6F9),
-                                                                    child: Row(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .spaceAround,
-                                                                      children: <
-                                                                          Widget>[
-                                                                        buildCount(
-                                                                            bookmodel.dates,
-                                                                            Icons.calendar_today_sharp),
-                                                                        Padding(
-                                                                          padding:
-                                                                              const EdgeInsets.only(bottom: 5.0),
-                                                                          child:
-                                                                              Container(
-                                                                            height:
-                                                                                40.0,
-                                                                            width:
-                                                                                0.5,
-                                                                            color:
-                                                                                Colors.grey,
-                                                                          ),
-                                                                        ),
-                                                                        buildCount(
-                                                                            bookmodel.person.toString() +
-                                                                                " person(s)",
-                                                                            Icons.person_outline),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                                'Table booked under the name \n ${user1.data()["username"]}',
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  color: Colors
-                                                                      .black,
-                                                                )),
-                                                            SizedBox(height: 5),
-                                                            Text(
-                                                              '${user1.data()["email"]}',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .normal,
-                                                                fontSize: 14.0,
-                                                                color: Colors
-                                                                    .black,
-                                                              ),
-                                                            ),
-                                                            SizedBox(height: 5),
-                                                            Text(
-                                                              '${user1.data()["contact"]}',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .normal,
-                                                                fontSize: 14.0,
-                                                                color: Colors
-                                                                    .black,
-                                                              ),
-                                                            ),
-                                                            Container(
-                                                              width: 300,
-                                                              child: Text(
-                                                                bookmodel.offer !=
-                                                                        null
-                                                                    ? 'Your Special Offer : ${bookmodel.offer}'
-                                                                    : 'No Special Offer',
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  color: Colors
-                                                                      .black,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Container(
-                                                              width: 300,
-                                                              child: Text(
-                                                                bookmodel.specialrequest !=
-                                                                        ''
-                                                                    ? 'Your Special Request : ${bookmodel.specialrequest}'
-                                                                    : 'No Special Request',
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  color: Colors
-                                                                      .black,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            SizedBox(height: 5),
-                                                            bookmodel.statut
-                                                                    .contains(
-                                                                        "canceled")
-                                                                ? Container(
-                                                                    height: 0,
-                                                                  )
-                                                                : FlatButton(
-                                                                    shape: RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(20)),
-                                                                    color: Colors
-                                                                            .red[
-                                                                        900],
-                                                                    disabledColor:
-                                                                        Colors.grey[
-                                                                            400],
-                                                                    disabledTextColor:
-                                                                        Colors
-                                                                            .white60,
-                                                                    onPressed:
-                                                                        () {
-                                                                      submitted =
-                                                                          true;
-                                                                      userLog2(
-                                                                          bookmodel
-                                                                              .id);
-                                                                    },
-                                                                    child: submitted
-                                                                        ? SizedBox(
-                                                                            height:
-                                                                                15,
-                                                                            width:
-                                                                                15,
-                                                                            child:
-                                                                                CircularProgressIndicator(
-                                                                              strokeWidth: 2,
-                                                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                                                            ),
-                                                                          )
-                                                                        : Text(
-                                                                            "Delete Your Booking",
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontSize: 16,
-                                                                              color: Colors.white,
-                                                                            ),
-                                                                          ),
-                                                                  ),
-                                                            bookmodel.statut
-                                                                    .contains(
-                                                                        "accept")
-                                                                ? FlatButton(
-                                                                    shape: RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(20)),
-                                                                    color: Colors
-                                                                            .red[
-                                                                        900],
-                                                                    disabledColor:
-                                                                        Colors.grey[
-                                                                            400],
-                                                                    disabledTextColor:
-                                                                        Colors
-                                                                            .white60,
-                                                                    onPressed:
-                                                                        () {
-                                                                      submitted =
-                                                                          true;
-                                                                      Navigator.push(
-                                                                          context,
-                                                                          MaterialPageRoute(
-                                                                              builder: (context) => Review()));
-                                                                    },
-                                                                    child: submitted
-                                                                        ? SizedBox(
-                                                                            height:
-                                                                                15,
-                                                                            width:
-                                                                                15,
-                                                                            child:
-                                                                                CircularProgressIndicator(
-                                                                              strokeWidth: 2,
-                                                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                                                            ),
-                                                                          )
-                                                                        : Text(
-                                                                            "Review",
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontSize: 16,
-                                                                              color: Colors.white,
-                                                                            ),
-                                                                          ),
-                                                                  )
-                                                                : Container(
-                                                                    height: 0,
-                                                                  ),
-                                                          ],
-                                                        );
-                                                      } else {
-                                                        return Center(
-                                                            child: Text(
-                                                                "You Booked restaurant will appear here ",
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  color: Colors
-                                                                      .red[900],
-                                                                )));
-                                                      }
-                                                    },
-                                                  ),
-                                                ),
-                                              )),
-                                            );
-                                          else if (snapshot.data != null &&
-                                              bookmodel.statut
-                                                  .contains(CatName))
-                                            return Padding(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  0, 5, 0, 5),
-                                              child: Container(
-                                                  child: Card(
-                                                elevation: 4.0,
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                child: Container(
-                                                  child: FutureBuilder(
-                                                    future: fetResto(
-                                                        bookmodel.iditem),
-                                                    builder:
-                                                        (context, snapshot) {
-                                                      if (snapshot.hasData) {
-                                                        RestoModel restoModel =
-                                                            RestoModel.fromJson(
-                                                                snapshot
-                                                                    .data[0]);
-                                                        return Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceAround,
-                                                          children: [
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Text(
-                                                                  "Your Book For ${restoModel.name} is ",
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                    fontSize:
-                                                                        15.0,
-                                                                    color: Colors
-                                                                        .black,
-                                                                  ),
-                                                                ),
-                                                                Text(
-                                                                  bookmodel
-                                                                      .statut,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                    fontSize:
-                                                                        15.0,
-                                                                    color:
-                                                                        color,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            SizedBox(
-                                                                height: 10),
-                                                            Container(
-                                                              height: 60.0,
-                                                              child: Align(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .center,
-                                                                child: Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .symmetric(
-                                                                      horizontal:
-                                                                          10.0),
-                                                                  child: Card(
-                                                                    shape: RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(15)),
-                                                                    color: Color(
-                                                                        0xFFF5F6F9),
-                                                                    child: Row(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .spaceAround,
-                                                                      children: <
-                                                                          Widget>[
-                                                                        buildCount(
-                                                                            bookmodel.dates,
-                                                                            Icons.calendar_today_sharp),
-                                                                        Padding(
-                                                                          padding:
-                                                                              const EdgeInsets.only(bottom: 5.0),
-                                                                          child:
-                                                                              Container(
-                                                                            height:
-                                                                                40.0,
-                                                                            width:
-                                                                                0.5,
-                                                                            color:
-                                                                                Colors.grey,
-                                                                          ),
-                                                                        ),
-                                                                        buildCount(
-                                                                            bookmodel.person.toString() +
-                                                                                " person(s)",
-                                                                            Icons.person_outline),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                                'Table booked under the name \n ${user1.data()["username"]}',
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  color: Colors
-                                                                      .black,
-                                                                )),
-                                                            SizedBox(height: 5),
-                                                            Text(
-                                                              '${user1.data()["email"]}',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .normal,
-                                                                fontSize: 14.0,
-                                                                color: Colors
-                                                                    .black,
-                                                              ),
-                                                            ),
-                                                            SizedBox(height: 5),
-                                                            Text(
-                                                              '${user1.data()["contact"]}',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .normal,
-                                                                fontSize: 14.0,
-                                                                color: Colors
-                                                                    .black,
-                                                              ),
-                                                            ),
-                                                            Container(
-                                                              width: 300,
-                                                              child: Text(
-                                                                bookmodel.offer !=
-                                                                        null
-                                                                    ? 'Your Special Offer : ${bookmodel.offer}'
-                                                                    : 'No Special Offer',
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  color: Colors
-                                                                      .black,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Container(
-                                                              width: 300,
-                                                              child: Text(
-                                                                bookmodel.specialrequest !=
-                                                                        ''
-                                                                    ? 'Your Special Request : ${bookmodel.specialrequest}'
-                                                                    : 'No Special Request',
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  color: Colors
-                                                                      .black,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                                height: 10),
-                                                            bookmodel.statut
-                                                                    .contains(
-                                                                        "canceled")
-                                                                ? Container(
-                                                                    height: 0,
-                                                                  )
-                                                                : FlatButton(
-                                                                    shape: RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(20)),
-                                                                    color: Colors
-                                                                            .red[
-                                                                        900],
-                                                                    disabledColor:
-                                                                        Colors.grey[
-                                                                            400],
-                                                                    disabledTextColor:
-                                                                        Colors
-                                                                            .white60,
-                                                                    onPressed:
-                                                                        () {
-                                                                      submitted =
-                                                                          true;
-                                                                      userLog2(
-                                                                          bookmodel
-                                                                              .id);
-                                                                    },
-                                                                    child: Text(
-                                                                      "Delete Your Booking",
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            16,
-                                                                        color: Colors
-                                                                            .white,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                            bookmodel.statut
-                                                                    .contains(
-                                                                        "accept")
-                                                                ? FlatButton(
-                                                                    shape: RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(8)),
-                                                                    color: Colors
-                                                                            .red[
-                                                                        900],
-                                                                    disabledColor:
-                                                                        Colors.grey[
-                                                                            400],
-                                                                    disabledTextColor:
-                                                                        Colors
-                                                                            .white60,
-                                                                    onPressed:
-                                                                        () {
-                                                                      submitted =
-                                                                          true;
-                                                                      Navigator.push(
-                                                                          context,
-                                                                          MaterialPageRoute(
-                                                                              builder: (context) => Review(
-                                                                                    idbooking: bookmodel.id,
-                                                                                  )));
-                                                                    },
-                                                                    child: Text(
-                                                                      "Review",
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            16,
-                                                                        color: Colors
-                                                                            .white,
-                                                                      ),
-                                                                    ),
-                                                                  )
-                                                                : Container(
-                                                                    height: 0,
-                                                                  ),
-                                                          ],
-                                                        );
-                                                      } else {
-                                                        return Center(
-                                                            child: Text(
-                                                                "You Booked restaurant will appear here ",
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  color: Colors
-                                                                      .red[900],
-                                                                )));
-                                                      }
-                                                    },
-                                                  ),
-                                                ),
-                                              )),
-                                            );
-                                          else
-                                            return Container(
-                                              height: 0,
-                                            );
-                                        });
-                                  else {
-                                    return Center(
-                                        child: circularProgress(context));
-                                  }
-                                },
-                              ),
-                            )
-                          : Container(
-                              child: Center(
-                                  child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                      "You Booked restaurant will appear here... ",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: primary,
-                                      )),
-                                ],
-                              )),
-                            )
+                      Container(
+                        height: SizeConfig.screenHeight - 180,
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: FutureBuilder<List<dynamic>>(
+                          future: userLog(),
+                          builder:
+                              (BuildContext context, AsyncSnapshot snapshot) {
+                            if (snapshot.data != null)
+                              return ListView.builder(
+                                  padding: EdgeInsets.all(5),
+                                  shrinkWrap: true,
+                                  itemCount: snapshot.data.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    BookModel bookmodel = BookModel.fromJson(
+                                        snapshot.data[index]);
+                                    var color;
+                                    bookmodel.statut.contains("canceled")
+                                        ? color = primary
+                                        : bookmodel.statut.contains("accept")
+                                            ? color = Colors.green
+                                            : color = Colors.deepOrangeAccent;
+                                    if (snapshot.data != null && CatName == "")
+                                      return Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(0, 5, 0, 5),
+                                        child: Container(
+                                            child: Card(
+                                          elevation: 4.0,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Container(
+                                            child: FutureBuilder(
+                                              future:
+                                                  fetResto(bookmodel.iditem),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  RestoModel restoModel =
+                                                      RestoModel.fromJson(
+                                                          snapshot.data[0]);
+                                                  return OrderCard(
+                                                    restoModel: restoModel,
+                                                    bookmodel: bookmodel,
+                                                    color: color,
+                                                    user1: user1,
+                                                  );
+                                                } else {
+                                                  return Center(
+                                                      child: Text(
+                                                          "You Booked restaurant will appear here ",
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                            color:
+                                                                Colors.red[900],
+                                                          )));
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        )),
+                                      );
+                                    else if (snapshot.data != null &&
+                                        bookmodel.statut.contains(CatName))
+                                      return Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(0, 5, 0, 5),
+                                        child: Container(
+                                            child: Card(
+                                          elevation: 4.0,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Container(
+                                            child: FutureBuilder(
+                                              future:
+                                                  fetResto(bookmodel.iditem),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  RestoModel restoModel =
+                                                      RestoModel.fromJson(
+                                                          snapshot.data[0]);
+                                                  return OrderCard(
+                                                    restoModel: restoModel,
+                                                    bookmodel: bookmodel,
+                                                    color: color,
+                                                    user1: user1,
+                                                  );
+                                                } else {
+                                                  return Center(
+                                                      child: Text(
+                                                          "You Booked restaurant will appear here ",
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                            color:
+                                                                Colors.red[900],
+                                                          )));
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        )),
+                                      );
+                                    else
+                                      return Container(
+                                        height: 0,
+                                      );
+                                  });
+                            else {
+                              return Center(child: circularProgress(context));
+                            }
+                          },
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -956,6 +337,59 @@ class _BookState extends State<Book> {
         ),
       ),
     );
+  }
+}
+
+class OrderCard extends StatefulWidget {
+  final RestoModel restoModel;
+  final BookModel bookmodel;
+  final Color color;
+  final DocumentSnapshot user1;
+
+  const OrderCard(
+      {Key key, this.restoModel, this.bookmodel, this.color, this.user1})
+      : super(key: key);
+  @override
+  _OrderCardState createState() => _OrderCardState();
+}
+
+class _OrderCardState extends State<OrderCard> {
+  bool submitted = false;
+
+  Future<List<dynamic>> userLog2(id) async {
+    setState(() {
+      submitted = true;
+    });
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': firebaseAuth.currentUser.email,
+      'password': widget.user1.data()["password"],
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    return deleteBook(message["token"], id);
+  }
+
+  Future<List<dynamic>> deleteBook(Token, id) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var result = await http
+        .post(Uri.encodeFull("${StringConst.URI_DELETE}/$id"), headers: header);
+    var res = json.decode(result.body);
+    if (res["message"] == "Successfully canceled") {
+      setState(() {
+        submitted = false;
+      });
+    }
+    return json.decode(result.body);
   }
 
   buildCount(String label, final icons) {
@@ -975,6 +409,184 @@ class _BookState extends State<Book> {
               fontWeight: FontWeight.normal,
               fontFamily: 'Ubuntu-Regular'),
         )
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Your Book For ${widget.restoModel.name} is ",
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 15.0,
+                color: Colors.black,
+              ),
+            ),
+            Text(
+              widget.bookmodel.statut,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 15.0,
+                color: widget.color,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        Container(
+          height: 60.0,
+          child: Align(
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                color: Color(0xFFF5F6F9),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    buildCount(
+                        widget.bookmodel.dates, Icons.calendar_today_sharp),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 5.0),
+                      child: Container(
+                        height: 40.0,
+                        width: 0.5,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    buildCount(
+                        widget.bookmodel.person.toString() + " person(s)",
+                        Icons.person_outline),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Text(
+            'Table booked under the name \n ${widget.user1.data()["username"]}',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 14.0,
+              color: Colors.black,
+            )),
+        SizedBox(height: 5),
+        Text(
+          '${widget.user1.data()["contact"]}',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontWeight: FontWeight.normal,
+            fontSize: 14.0,
+            color: Colors.black,
+          ),
+        ),
+        Container(
+          width: 300,
+          child: Text(
+            widget.bookmodel.offer != null
+                ? 'Your Special Offer : ${widget.bookmodel.offer}'
+                : 'No Special Offer',
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 14.0,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        Container(
+          width: 300,
+          child: Text(
+            widget.bookmodel.specialrequest != ''
+                ? 'Your Special Request : ${widget.bookmodel.specialrequest}'
+                : 'No Special Request',
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 14.0,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        SizedBox(height: 5),
+        widget.bookmodel.statut.contains("canceled")
+            ? Container(
+                height: 0,
+              )
+            : FlatButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                color: Colors.red[900],
+                disabledColor: Colors.grey[400],
+                disabledTextColor: Colors.white60,
+                onPressed: () {
+                  submitted = true;
+                  userLog2(widget.bookmodel.id);
+                },
+                child: submitted
+                    ? SizedBox(
+                        height: 15,
+                        width: 15,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        "Delete Your Booking",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+        widget.bookmodel.statut.contains("accept")
+            ? FlatButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                color: Colors.red[900],
+                disabledColor: Colors.grey[400],
+                disabledTextColor: Colors.white60,
+                onPressed: () {
+                  submitted = true;
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Review()));
+                },
+                child: submitted
+                    ? SizedBox(
+                        height: 15,
+                        width: 15,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        "Review",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+              )
+            : Container(
+                height: 0,
+              ),
       ],
     );
   }
