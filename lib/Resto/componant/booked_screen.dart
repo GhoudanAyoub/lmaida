@@ -345,7 +345,6 @@ class _BookedScreenState extends State<BookedScreen> {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
-    print(message[0]["name"]);
     AddBook(Token, message[0]["id"], widget.restoModel.id,
         dropdownValue ?? widget.dropdownValue, widget.offer);
   }

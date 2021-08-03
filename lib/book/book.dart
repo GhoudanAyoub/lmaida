@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmaida/Reviews/review.dart';
@@ -24,6 +25,7 @@ class _BookState extends State<Book> {
   final String apiUrl = StringConst.URI_RESTAU1;
   int _activeTab = 0;
   String CatName = "";
+  String id;
 
   @override
   void initState() {
@@ -42,7 +44,9 @@ class _BookState extends State<Book> {
     if (snap.data()["id"] == firebaseAuth.currentUser.uid) {
       user1 = snap;
     }
-    userLog();
+    setState(() {
+      var f = userLog();
+    });
   }
 
   Future<List<dynamic>> userLog() async {
@@ -70,6 +74,9 @@ class _BookState extends State<Book> {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = json.decode(response.body);
+    setState(() {
+      id = message[0]['id'].toString();
+    });
     List<dynamic> t = message[0]["bookings"];
     return t.reversed.toList();
   }
@@ -217,7 +224,7 @@ class _BookState extends State<Book> {
                           future: userLog(),
                           builder:
                               (BuildContext context, AsyncSnapshot snapshot) {
-                            if (snapshot.data != null)
+                            if (snapshot.hasData)
                               return ListView.builder(
                                   padding: EdgeInsets.all(5),
                                   shrinkWrap: true,
@@ -256,6 +263,7 @@ class _BookState extends State<Book> {
                                                     bookmodel: bookmodel,
                                                     color: color,
                                                     user1: user1,
+                                                    id: id,
                                                   );
                                                 } else {
                                                   return Center(
@@ -299,6 +307,7 @@ class _BookState extends State<Book> {
                                                     bookmodel: bookmodel,
                                                     color: color,
                                                     user1: user1,
+                                                    id: id,
                                                   );
                                                 } else {
                                                   return Center(
@@ -345,9 +354,15 @@ class OrderCard extends StatefulWidget {
   final BookModel bookmodel;
   final Color color;
   final DocumentSnapshot user1;
+  final String id;
 
   const OrderCard(
-      {Key key, this.restoModel, this.bookmodel, this.color, this.user1})
+      {Key key,
+      this.restoModel,
+      this.bookmodel,
+      this.color,
+      this.user1,
+      this.id})
       : super(key: key);
   @override
   _OrderCardState createState() => _OrderCardState();
@@ -355,6 +370,7 @@ class OrderCard extends StatefulWidget {
 
 class _OrderCardState extends State<OrderCard> {
   bool submitted = false;
+  bool show = false;
 
   Future<List<dynamic>> userLog2(id) async {
     setState(() {
@@ -415,179 +431,278 @@ class _OrderCardState extends State<OrderCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Your Book For ${widget.restoModel.name} is ",
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 15.0,
-                color: Colors.black,
+    return Padding(
+      padding: EdgeInsets.all(15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Icon(CupertinoIcons.checkmark_seal_fill),
+              SizedBox(
+                width: 5,
               ),
-            ),
-            Text(
-              widget.bookmodel.statut,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 15.0,
-                color: widget.color,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        Container(
-          height: 60.0,
-          child: Align(
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
-                color: Color(0xFFF5F6F9),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    buildCount(
-                        widget.bookmodel.dates, Icons.calendar_today_sharp),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 5.0),
-                      child: Container(
-                        height: 40.0,
-                        width: 0.5,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    buildCount(
-                        widget.bookmodel.person.toString() + " person(s)",
-                        Icons.person_outline),
-                  ],
+              Text(
+                "Order No : ${widget.bookmodel.id}",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16.0,
+                  letterSpacing: 2,
+                  color: Colors.black,
                 ),
               ),
-            ),
+              Expanded(
+                  child: Align(
+                      alignment: Alignment.topRight,
+                      child: widget.bookmodel.statut.contains("accept")
+                          ? GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Review()));
+                              },
+                              child: Icon(
+                                  CupertinoIcons.square_favorites_alt_fill),
+                            )
+                          : Container(
+                              height: 0,
+                              width: 0,
+                            ))),
+              Expanded(
+                  child: Align(
+                      alignment: Alignment.topRight,
+                      child: widget.bookmodel.statut.contains("canceled")
+                          ? Container(
+                              height: 0,
+                            )
+                          : GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  submitted = true;
+                                });
+                                userLog2(widget.bookmodel.id);
+                              },
+                              child: submitted
+                                  ? circularProgress(context)
+                                  : Icon(CupertinoIcons.delete_simple),
+                            ))),
+            ],
           ),
-        ),
-        Text(
-            'Table booked under the name \n ${widget.user1.data()["username"]}',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.normal,
-              fontSize: 14.0,
-              color: Colors.black,
-            )),
-        SizedBox(height: 5),
-        Text(
-          '${widget.user1.data()["contact"]}',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontWeight: FontWeight.normal,
-            fontSize: 14.0,
-            color: Colors.black,
+          SizedBox(
+            height: 10,
           ),
-        ),
-        Container(
-          width: 300,
-          child: Text(
-            widget.bookmodel.offer != null
-                ? 'Your Special Offer : ${widget.bookmodel.offer}'
-                : 'No Special Offer',
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.normal,
-              fontSize: 14.0,
-              color: Colors.black,
-            ),
+          Divider(
+            color: Colors.grey.withOpacity(0.4),
+            height: 2,
           ),
-        ),
-        Container(
-          width: 300,
-          child: Text(
-            widget.bookmodel.specialrequest != ''
-                ? 'Your Special Request : ${widget.bookmodel.specialrequest}'
-                : 'No Special Request',
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.normal,
-              fontSize: 14.0,
-              color: Colors.black,
-            ),
+          SizedBox(
+            height: 10,
           ),
-        ),
-        SizedBox(height: 5),
-        widget.bookmodel.statut.contains("canceled")
-            ? Container(
-                height: 0,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Number of Person :",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 15.0,
+                  letterSpacing: 1,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                "${widget.bookmodel.person}",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15.0,
+                  color: Colors.orangeAccent,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Client Name :",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 15.0,
+                  letterSpacing: 1,
+                  color: Colors.black,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  "${widget.user1.data()["username"]}",
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15.0,
+                    color: Colors.orangeAccent,
+                  ),
+                ),
               )
-            : FlatButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                color: Colors.red[900],
-                disabledColor: Colors.grey[400],
-                disabledTextColor: Colors.white60,
-                onPressed: () {
-                  submitted = true;
-                  userLog2(widget.bookmodel.id);
-                },
-                child: submitted
-                    ? SizedBox(
-                        height: 15,
-                        width: 15,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : Text(
-                        "Delete Your Booking",
+            ],
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Client Contact :",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 15.0,
+                  letterSpacing: 1,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                "${widget.user1.data()["contact"]}",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15.0,
+                  color: Colors.orangeAccent,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Status :",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 15.0,
+                  letterSpacing: 1,
+                  color: Colors.black,
+                ),
+              ),
+              Chip(
+                label: Text(
+                  "${widget.bookmodel.statut}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15.0,
+                    color: widget.color,
+                  ),
+                ),
+                backgroundColor: widget.color.withOpacity(0.2),
+              )
+            ],
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Special Offer :",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 15.0,
+                  letterSpacing: 1,
+                  color: Colors.black,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  widget.bookmodel.offer != null
+                      ? '${widget.bookmodel.offer}'
+                      : 'No Special Offer',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 14.0,
+                    color: widget.bookmodel.offer != null
+                        ? Colors.black
+                        : Colors.grey,
+                  ),
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Special Request :",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 15.0,
+                  letterSpacing: 1,
+                  color: Colors.black,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  widget.bookmodel.specialrequest != '' &&
+                          widget.bookmodel.specialrequest != null
+                      ? '${widget.bookmodel.specialrequest}'
+                      : 'No Special Request',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 14.0,
+                    color: widget.bookmodel.specialrequest != '' &&
+                            widget.bookmodel.specialrequest != null
+                        ? Colors.black
+                        : Colors.grey,
+                  ),
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Booked On:",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 15.0,
+                  letterSpacing: 1,
+                  color: Colors.black,
+                ),
+              ),
+              Wrap(
+                children: widget.bookmodel.dates
+                    .split("/")
+                    .map(
+                      (e) => Text(
+                        "$e",
                         style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15.0,
+                          color: Colors.black,
                         ),
                       ),
-              ),
-        widget.bookmodel.statut.contains("accept")
-            ? FlatButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                color: Colors.red[900],
-                disabledColor: Colors.grey[400],
-                disabledTextColor: Colors.white60,
-                onPressed: () {
-                  submitted = true;
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Review()));
-                },
-                child: submitted
-                    ? SizedBox(
-                        height: 15,
-                        width: 15,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : Text(
-                        "Review",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
+                    )
+                    .toList(),
               )
-            : Container(
-                height: 0,
-              ),
-      ],
+            ],
+          ),
+          SizedBox(height: 10),
+        ],
+      ),
     );
   }
 }

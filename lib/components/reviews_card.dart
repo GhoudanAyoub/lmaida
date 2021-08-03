@@ -88,254 +88,14 @@ class _ReviewsCardState extends State<ReviewsCard> {
                       future: fetchDetailsRes,
                       builder: (context, snapshot) {
                         if (snapshot != null && snapshot.data != null) {
-                          List l = [];
-                          if (snapshot.data[0]["reviews"][0]['image1'] !=
-                              null) {
-                            l.add(snapshot.data[0]["reviews"][0]['image1']);
-                          }
-                          if (snapshot.data[0]["reviews"][0]['image2'] !=
-                              null) {
-                            l.add(snapshot.data[0]["reviews"][0]['image2']);
-                          }
-                          if (snapshot.data[0]["reviews"][0]['image3'] !=
-                              null) {
-                            l.add(snapshot.data[0]["reviews"][0]['image3']);
-                          }
                           return ListView.builder(
                             //new line
                             padding: EdgeInsets.all(5),
                             itemCount: widget.reviews.length,
                             itemBuilder: (context, index) {
-                              snap = snapshot.data[0]["reviews"][index];
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  ListTile(
-                                    contentPadding:
-                                        EdgeInsets.symmetric(horizontal: 0),
-                                    leading: Opacity(
-                                      opacity: 1.0,
-                                      child: Image.asset(
-                                        "assets/images/proim.png",
-                                        width: 50.0,
-                                      ),
-                                    ),
-                                    title: Text(
-                                      "${snapshot.data[0]["reviews"][index]["user"]["name"].toString()}",
-                                      style: TextStyle(
-                                          fontSize: 12.0, color: Colors.grey),
-                                    ),
-                                    subtitle: Text(
-                                      "${snapshot.data[0]["reviews"][index]["created_at"].toString()}",
-                                      style: TextStyle(
-                                          fontSize: 12.0, color: Colors.grey),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(5),
-                                    child: double.tryParse(snapshot.data[0]
-                                                    ["reviews"][index]
-                                                ['reviews']) !=
-                                            null
-                                        ? StarRating(
-                                            rating: double.parse(
-                                                snapshot.data[0]["reviews"]
-                                                    [index]['reviews']),
-                                            color: Colors.black,
-                                          )
-                                        : SizedBox(
-                                            height: 0,
-                                          ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 10),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: <Widget>[
-                                                Icon(
-                                                  Icons.thumb_up,
-                                                  color: Colors.green,
-                                                  size: 20,
-                                                ),
-                                                SizedBox(width: 5.0),
-                                                Text(
-                                                  "POSITIVE",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: Colors.green),
-                                                )
-                                              ],
-                                            ),
-                                            Container(
-                                              child: Wrap(
-                                                children: snap['positivtag']
-                                                    .toString()
-                                                    .split("#")
-                                                    .map((e) => e != ""
-                                                        ? Chip(
-                                                            label: Text(
-                                                                "#${e.capitalize()}"),
-                                                            elevation: 4,
-                                                          )
-                                                        : Container())
-                                                    .toList(),
-                                                spacing: 2,
-                                                alignment: WrapAlignment.start,
-                                              ),
-                                              width: 150,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 10),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: <Widget>[
-                                                Icon(
-                                                  Icons.thumb_down,
-                                                  color: primary,
-                                                  size: 20,
-                                                ),
-                                                SizedBox(width: 5.0),
-                                                Text(
-                                                  "NEGATIVE",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: primary),
-                                                )
-                                              ],
-                                            ),
-                                            Container(
-                                              child: Wrap(
-                                                children: snap['negativetag']
-                                                    .toString()
-                                                    .split("#")
-                                                    .map((e) => e != ""
-                                                        ? Chip(
-                                                            label: Text("#$e"),
-                                                            elevation: 4,
-                                                          )
-                                                        : Container())
-                                                    .toList(),
-                                                spacing: 2,
-                                                alignment: WrapAlignment.start,
-                                              ),
-                                              width: 150,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Divider(
-                                    color: Colors.grey.withOpacity(0.2),
-                                  ),
-                                  Card(
-                                    elevation: 1.0,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8)),
-                                    child: Container(
-                                      margin:
-                                          EdgeInsets.fromLTRB(20, 10, 10, 10),
-                                      width: SizeConfig.screenWidth - 50,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: [
-                                          Text(
-                                            "Picture From Community Members",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.normal,
-                                              fontSize: 14.0,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          Container(
-                                            height: 120,
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width,
-                                            child: ListView.builder(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                itemCount: l.length,
-                                                itemBuilder: (context, index) {
-                                                  if (l.length == 0) {
-                                                    return Container(
-                                                      child: Center(
-                                                        child: Text(
-                                                            "No Photos For the Moment "),
-                                                      ),
-                                                    );
-                                                  } else {
-                                                    return Container(
-                                                      margin: EdgeInsets.only(
-                                                          right: 1.0),
-                                                      decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          8))),
-                                                      child: GestureDetector(
-                                                          onTap: () {
-                                                            showpage(
-                                                                context,
-                                                                "https://lmaida.com/storage/reviews/" +
-                                                                        l[index] ??
-                                                                    "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg");
-                                                          },
-                                                          child:
-                                                              CachedNetworkImage(
-                                                            imageUrl: "https://lmaida.com/storage/reviews/" +
-                                                                    l[index] ??
-                                                                "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
-                                                            fit: BoxFit.cover,
-                                                            width: 100,
-                                                            fadeInDuration:
-                                                                Duration(
-                                                                    milliseconds:
-                                                                        500),
-                                                            fadeInCurve:
-                                                                Curves.easeIn,
-                                                            placeholder: (context,
-                                                                    progressText) =>
-                                                                Center(
-                                                                    child: circularProgress(
-                                                                        context)),
-                                                          )),
-                                                    );
-                                                  }
-                                                }),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
+                              List l = snapshot.data[0]["reviews"];
+                              snap = l.reversed.toList()[index];
+                              return card();
                             },
                           );
                         } else {
@@ -350,6 +110,212 @@ class _ReviewsCardState extends State<ReviewsCard> {
           ],
         ),
       ),
+    );
+  }
+
+  card() {
+    List l = [];
+    if (snap['image1'] != null) {
+      l.add(snap['image1']);
+    }
+    if (snap['image2'] != null) {
+      l.add(snap['image2']);
+    }
+    if (snap['image3'] != null) {
+      l.add(snap['image3']);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: 0),
+          leading: Opacity(
+            opacity: 1.0,
+            child: Image.asset(
+              "assets/images/proim.png",
+              width: 50.0,
+            ),
+          ),
+          title: Text(
+            "${snap["user"]["name"].toString()}",
+            style: TextStyle(fontSize: 12.0, color: Colors.grey),
+          ),
+          subtitle: Text(
+            "${snap["created_at"].toString()}",
+            style: TextStyle(fontSize: 12.0, color: Colors.grey),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(5),
+          child: double.tryParse(snap['reviews']) != null
+              ? StarRating(
+                  rating: double.parse(snap['reviews']),
+                  color: Colors.black,
+                )
+              : SizedBox(
+                  height: 0,
+                ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.thumb_up,
+                        color: Colors.green,
+                        size: 20,
+                      ),
+                      SizedBox(width: 5.0),
+                      Text(
+                        "POSITIVE",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400, color: Colors.green),
+                      )
+                    ],
+                  ),
+                  Container(
+                    child: Wrap(
+                      children: snap['positivtag']
+                          .toString()
+                          .split("#")
+                          .map((e) => e != ""
+                              ? Chip(
+                                  label: Text("#${e.capitalize()}"),
+                                  elevation: 4,
+                                )
+                              : Container())
+                          .toList(),
+                      spacing: 2,
+                      alignment: WrapAlignment.start,
+                    ),
+                    width: 150,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.thumb_down,
+                        color: primary,
+                        size: 20,
+                      ),
+                      SizedBox(width: 5.0),
+                      Text(
+                        "NEGATIVE",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w400, color: primary),
+                      )
+                    ],
+                  ),
+                  Container(
+                    child: Wrap(
+                      children: snap['negativetag']
+                          .toString()
+                          .split("#")
+                          .map((e) => e != ""
+                              ? Chip(
+                                  label: Text("#$e"),
+                                  elevation: 4,
+                                )
+                              : Container())
+                          .toList(),
+                      spacing: 2,
+                      alignment: WrapAlignment.start,
+                    ),
+                    width: 150,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Divider(
+          color: Colors.grey.withOpacity(0.2),
+        ),
+        Card(
+          elevation: 1.0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          child: Container(
+            margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+            width: SizeConfig.screenWidth - 50,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  "Picture From Community Members",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 14.0,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  height: 120,
+                  width: MediaQuery.of(context).size.width,
+                  child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: l.length,
+                      itemBuilder: (context, index) {
+                        if (l.length == 0) {
+                          return Container(
+                            child: Center(
+                              child: Text("No Photos For the Moment "),
+                            ),
+                          );
+                        } else {
+                          return Container(
+                            margin: EdgeInsets.only(right: 1.0),
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            child: GestureDetector(
+                                onTap: () {
+                                  showpage(
+                                      context,
+                                      "https://lmaida.com/storage/reviews/" +
+                                              l[index] ??
+                                          "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg");
+                                },
+                                child: CachedNetworkImage(
+                                  imageUrl: "https://lmaida.com/storage/reviews/" +
+                                          l[index] ??
+                                      "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
+                                  fit: BoxFit.cover,
+                                  width: 100,
+                                  fadeInDuration: Duration(milliseconds: 500),
+                                  fadeInCurve: Curves.easeIn,
+                                  placeholder: (context, progressText) =>
+                                      Center(child: circularProgress(context)),
+                                )),
+                          );
+                        }
+                      }),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
