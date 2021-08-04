@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -46,14 +45,14 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   getLastLocation() async {
-    await FirebaseMessaging().getToken().then((value) {
+    await FirebaseMessaging.instance.getToken().then((value) {
       setState(() {
         _token = value;
       });
     });
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    var lastPosition = await Geolocator.getLastKnownPosition();
+    await Geolocator.getLastKnownPosition();
   }
 
   void addError({String error}) {
@@ -154,17 +153,15 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Future addToken(Token, userid) async {
-    var dio = Dio();
-    var options = Options(validateStatus: (status) => true, headers: {
+    usersToken.doc(userid.toString()).set({"token": _token});
+    Map<String, String> header = {
       "Authorization": "Bearer $Token",
-    });
+    };
     var url = 'https://lmaida.com/api/token';
-    var formData = FormData.fromMap({
+    await http.post(Uri.encodeFull(url), headers: header, body: {
       'token': _token,
       'id': userid.toString(),
-    });
-    var response = await dio.post(url, data: formData, options: options);
-    usersToken.doc(userid.toString()).set({"token": _token});
+    }).then((value) => print("8855 ${value.body}"));
   }
 
   void emailExists() {

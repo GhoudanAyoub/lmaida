@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lmaida/Home/HomePage.dart';
 import 'package:lmaida/SignIn/sign_in_screen.dart';
 import 'package:lmaida/service/FirebaseService.dart';
 import 'package:lmaida/utils/constants.dart';
@@ -222,7 +223,8 @@ class _SideBarState extends State<SideBar>
               SimpleDialogOption(
                 onPressed: () {
                   FirebaseService().signOut();
-                  Navigator.pop(context);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => HomePage()));
                 },
                 child: Text(
                   'Log Out',
@@ -253,6 +255,8 @@ class _SideBarState extends State<SideBar>
               SimpleDialogOption(
                 onPressed: () {
                   Navigator.pop(context);
+                  isSidebarOpenedSink.add(false);
+                  _animationController.reverse();
                   Navigator.pushNamed(context, SignInScreen.routeName);
                 },
                 child: Text(

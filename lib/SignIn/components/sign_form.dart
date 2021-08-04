@@ -43,15 +43,16 @@ class _SignFormState extends State<SignForm> {
   }
 
   getLastLocation() async {
-    await FirebaseMessaging().getToken().then((value) {
+    await FirebaseMessaging.instance.getToken().then((value) {
       setState(() {
         _token = value;
       });
     });
+    print('8855 $_token');
 
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    var lastPosition = await Geolocator.getLastKnownPosition();
+    await Geolocator.getLastKnownPosition();
   }
 
   void addError({String error}) {
@@ -167,6 +168,7 @@ class _SignFormState extends State<SignForm> {
                   Token = await userLog(
                       email: _emailContoller.text,
                       password: _passwordController.text);
+
                   if (Token != null && success == null) {
                     var res = await firebaseAuth.createUserWithEmailAndPassword(
                         email: _emailContoller.text,
@@ -201,6 +203,12 @@ class _SignFormState extends State<SignForm> {
                         content: Text("You Don't Have Account Yet"),
                         duration: Duration(seconds: 2)));
                     Navigator.pushNamed(context, SignUpScreen.routeName);
+                  } else if (success != null && Token == null) {
+                    getId(Token).then((value) => addToken(Token, value));
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('Welcome Back'),
+                        duration: Duration(seconds: 2)));
                   } else {
                     addError(error: success);
                     submitted = false;
@@ -244,7 +252,7 @@ class _SignFormState extends State<SignForm> {
           print('Case ${errorType} is not yet implemented');
       }
     }
-    if (errorType != null) return errorType;
+    if (errorType != null) return null;
     if (result != null) return result.user.uid;
   }
 
@@ -289,6 +297,7 @@ class _SignFormState extends State<SignForm> {
   }
 
   Future addToken(Token, userid) async {
+    usersToken.doc(userid.toString()).set({"token": _token});
     Map<String, String> header = {
       "Authorization": "Bearer $Token",
     };
@@ -296,8 +305,7 @@ class _SignFormState extends State<SignForm> {
     await http.post(Uri.encodeFull(url), headers: header, body: {
       'token': _token,
       'id': userid.toString(),
-    });
-    usersToken.doc(userid.toString()).set({"token": _token});
+    }).then((value) => print("8855 ${value.body}"));
   }
 
   void showInSnackBar(String value) {
