@@ -1,16 +1,22 @@
+import 'package:geocoder/geocoder.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:lmaida/Resto/resto_page.dart';
-import 'package:lmaida/models/categorie_model.dart';
 import 'package:lmaida/service/remote_service.dart';
 
 class LmaidaController extends GetxController {
   var isLoading = true.obs;
-  var restList = [].obs;
+  var isLoadingLocation = true.obs;
+  var isLoadingCategories = true.obs;
+  var restList;
   var categoriesList = [].obs;
   var filtersList = [].obs;
   var locationList = [].obs;
   var userData = dynamic.obs;
-  var multiItem = [].obs;
+  var address;
+  var locationID = dynamic.obs;
+  List<MultiSelectDialogItem<int>> multiItem = [];
+  List<MultiSelectDialogItem<int>> locMultiItem = [];
 
   @override
   void onInit() {
@@ -21,33 +27,22 @@ class LmaidaController extends GetxController {
     super.onInit();
   }
 
-  /*void fetchRestaurants() async {
-    try {
-      isLoading(true);
-      List<RestoModel> videos = await RemoteService.fetRest(id);
-      if (videos != null) {
-        restList.value = videos;
-      }
-    } finally {
-      isLoading(false);
-    }
-  }*/
   void fetchCategories() async {
     try {
-      isLoading(true);
-      List<CategorieModel> cat = await RemoteService.fetchCat();
-      if (cat != null) {
-        categoriesList.value = cat;
+      isLoadingCategories(true);
+      var cats = await RemoteService.fetchCat();
+      if (cats != null) {
+        for (var cat in cats) categoriesList.add(cat);
       }
     } finally {
-      isLoading(false);
+      isLoadingCategories(false);
     }
   }
 
   void fetchFilters() async {
     try {
       isLoading(true);
-      var filters = await RemoteService.fetchCat();
+      var filters = await RemoteService.fetFilters();
       if (filters != null) {
         for (var filter in filters) {
           multiItem.add(MultiSelectDialogItem(filter["id"], filter["name"]));
@@ -60,13 +55,30 @@ class LmaidaController extends GetxController {
 
   void fetchLocations() async {
     try {
-      isLoading(true);
-      List<dynamic> location = await RemoteService.fetLocation();
-      if (location != null) {
-        locationList.value = location;
-      }
+      isLoadingLocation(true);
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      var loc = await RemoteService.fetLocation();
+
+      await Geocoder.local
+          .findAddressesFromCoordinates(
+              new Coordinates(position.latitude, position.longitude))
+          .then((value) async {
+        address = value;
+        if (loc != null) {
+          for (var location in loc) {
+            locMultiItem
+                .add(MultiSelectDialogItem(location["id"], location["name"]));
+
+            if (value.first.addressLine.contains(location["name"])) {
+              restList = await RemoteService.fetRest(location["id"]);
+              print('8855 $restList');
+            }
+          }
+        }
+      });
     } finally {
-      isLoading(false);
+      isLoadingLocation(false);
     }
   }
 }

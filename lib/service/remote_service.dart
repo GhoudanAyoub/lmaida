@@ -18,10 +18,7 @@ class RemoteService {
   }
 
   static Future<List<dynamic>> fetchCat() async {
-    Map<String, String> headers = {
-      "Content-type": "application/json",
-    };
-    var result = await http.get(StringConst.URI_CATEGORY, headers: headers);
+    var result = await http.get(StringConst.URI_CATEGORY);
     return json.decode(result.body);
   }
 
