@@ -40,6 +40,7 @@ class _HomePageState extends State<HomePage> {
 
     FirebaseMessaging.onMessageOpenedApp.listen((var message) {
       RemoteNotification notification = message.notification;
+
       var android = message.notification?.android;
       if (notification != null && android != null) {
         showDialog(

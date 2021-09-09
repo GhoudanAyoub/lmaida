@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class BookModel {
   int id;
   int iduser;
@@ -41,3 +43,6 @@ class BookModel {
     updated_at = json['updated_at'];
   }
 }
+
+List<BookModel> userModelFromJson(String str) =>
+    List<BookModel>.from(json.decode(str).map((x) => BookModel.fromJson(x)));

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class CategorieModel {
   int id;
   String name;
@@ -24,3 +26,6 @@ class CategorieModel {
     updated_at = json['updated_at'];
   }
 }
+
+List<CategorieModel> userModelFromJson(String str) => List<CategorieModel>.from(
+    json.decode(str).map((x) => CategorieModel.fromJson(x)));

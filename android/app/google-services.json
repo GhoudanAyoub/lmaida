@@ -29,6 +29,13 @@
             {
               "client_id": "350813235755-puvninu4m9ng3tgm6mciri7pcdou9g48.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "350813235755-roik5qp2g18t40n4iegs9cs1og9re712.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ghoudan.lmaida"
+              }
             }
           ]
         }

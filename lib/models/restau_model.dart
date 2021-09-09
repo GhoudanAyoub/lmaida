@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:lmaida/models/user.dart';
 
 import 'categorie_model.dart';
+
+List<RestoModel> restaurantsFromJson(String str) =>
+    List<RestoModel>.from(json.decode(str).map((x) => RestoModel.fromJson(x)));
 
 class RestoModel {
   int id;

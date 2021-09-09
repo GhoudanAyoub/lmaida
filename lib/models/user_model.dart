@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class UserModel {
   String username;
   String email;
@@ -25,3 +27,6 @@ class UserModel {
     return data;
   }
 }
+
+List<UserModel> userModelFromJson(String str) =>
+    List<UserModel>.from(json.decode(str).map((x) => UserModel.fromJson(x)));
