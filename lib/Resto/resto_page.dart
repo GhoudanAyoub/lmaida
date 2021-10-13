@@ -849,10 +849,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                                   address: restoModel.address,
                                                 );
                                             } else {
-                                              if (restoModel
-                                                      .special_offer.length !=
-                                                  0) if (Search !=
-                                                      null &&
+                                              if (Search != null &&
                                                   restoModel.name
                                                       .toLowerCase()
                                                       .contains(
@@ -952,11 +949,6 @@ class _RestaurantState extends State<RestaurantPage> {
                                                   distance: dis,
                                                   address: restoModel.address,
                                                 );
-                                              else {
-                                                return Container(
-                                                  width: 0,
-                                                );
-                                              }
                                             }
                                           }),
                                       onRefresh: () {
