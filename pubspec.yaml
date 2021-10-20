@@ -36,7 +36,7 @@ dependencies:
   firebase_auth:
   firebase_database: "any"
   cloud_firestore: ^0.14.2
-  firebase_storage: "any"
+  firebase_storage: ^5.1.0
   google_sign_in: "^4.5.1"
   cached_network_image:
   geocoder: ^0.2.1

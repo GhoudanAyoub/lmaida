@@ -560,7 +560,7 @@ class _BookedScreenState extends State<BookedScreen> {
                                           // value: _mySelection,
                                           child: Container(
                                               margin: EdgeInsets.only(left: 10),
-                                              width: 300,
+                                              width: 250,
                                               child: Text(
                                                 "-" +
                                                     e["name"] +

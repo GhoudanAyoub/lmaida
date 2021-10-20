@@ -34,7 +34,7 @@ class BookModel {
     iditem = json['iditem'];
     dates = json['dates'];
     person = json['person'];
-    offer = json['offer'];
+    offer = json['offre'];
     statut = json['statut'];
     restoModel = json['item'];
     user = json['user'];
