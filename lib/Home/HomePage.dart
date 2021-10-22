@@ -15,11 +15,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var _token;
+  // var _token;
   @override
   void initState() {
     super.initState();
-
     FirebaseMessaging.onMessage.listen((var message) async {
       RemoteNotification notification = message.notification;
       var android = message.notification?.android;
@@ -32,17 +31,17 @@ class _HomePageState extends State<HomePage> {
             icon: '@drawable/ic_launcher');
         var iOS = IOSNotificationDetails();
 
-        await FirebaseMessaging.instance.getToken().then((value) {
+        /* await FirebaseMessaging.instance.getToken().then((value) {
           setState(() {
             _token = value;
           });
-        });
-        if (message.messageId.contains(_token))
-          flutterLocalNotificationsPlugin.show(
-              notification.hashCode,
-              notification.title,
-              notification.body,
-              new NotificationDetails(android, iOS));
+        });*/
+
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            new NotificationDetails(android, iOS));
       }
     });
 
@@ -50,9 +49,7 @@ class _HomePageState extends State<HomePage> {
       RemoteNotification notification = message.notification;
 
       var android = message.notification?.android;
-      if (notification != null &&
-          android != null &&
-          message.messageId.contains(_token)) {
+      if (notification != null && android != null) {
         showDialog(
             context: context,
             builder: (_) {
