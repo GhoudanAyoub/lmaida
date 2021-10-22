@@ -39,7 +39,6 @@ class AuthService {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
-    print(message['name']);
     return message['name'];
   }
 
@@ -83,7 +82,7 @@ class AuthService {
         password: '$password',
       );
       Token = userLog(email: email, password: password);
-      print("===." + Token);
+
       if (Token != null) {
         UserViewModel().setToken(Token);
         result = Token;

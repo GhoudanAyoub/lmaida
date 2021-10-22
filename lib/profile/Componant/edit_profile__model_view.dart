@@ -43,7 +43,6 @@ class EditProfileViewModel extends ChangeNotifier {
   }
 
   setUsername(String val) {
-    print('SetUsername$val');
     username = val;
     notifyListeners();
   }
@@ -64,14 +63,12 @@ class EditProfileViewModel extends ChangeNotifier {
           image: image,
           email: email,
         );
-        print(success);
         if (success) {
           showInSnackBar('Update Done');
         }
       } catch (e) {
         loading = false;
         notifyListeners();
-        print(e);
       }
       loading = false;
       notifyListeners();

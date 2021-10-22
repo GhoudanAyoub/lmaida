@@ -117,7 +117,6 @@ class _SignUpFormState extends State<SignUpForm> {
                     password: _passwordController.text,
                     country: _countryContoller.text,
                   );
-                  print(success);
                   if (success != null) {
                     viewModel.setToken(success);
                     getId(success).then((value) => addToken(success, value));
@@ -128,7 +127,6 @@ class _SignUpFormState extends State<SignUpForm> {
                   }
                 }
               } catch (e) {
-                print(e);
                 var r = e.toString().split(']');
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(r[1]), duration: Duration(seconds: 2)));
@@ -161,7 +159,7 @@ class _SignUpFormState extends State<SignUpForm> {
     await http.post(Uri.encodeFull(url), headers: header, body: {
       'token': _token,
       'id': userid.toString(),
-    }).then((value) => print("8855 ${value.body}"));
+    });
   }
 
   void emailExists() {

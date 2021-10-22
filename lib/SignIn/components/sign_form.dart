@@ -48,7 +48,6 @@ class _SignFormState extends State<SignForm> {
         _token = value;
       });
     });
-    print('8855 $_token');
 
     position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
@@ -305,7 +304,7 @@ class _SignFormState extends State<SignForm> {
     await http.post(Uri.encodeFull(url), headers: header, body: {
       'token': _token,
       'id': userid.toString(),
-    }).then((value) => print("8855 ${value.body}"));
+    });
   }
 
   void showInSnackBar(String value) {

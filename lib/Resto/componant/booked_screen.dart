@@ -332,7 +332,6 @@ class _BookedScreenState extends State<BookedScreen> {
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
-    print(message["token"]);
     getPorf(message["token"]);
   }
 
@@ -364,13 +363,14 @@ class _BookedScreenState extends State<BookedScreen> {
               " / " +
               "${widget.selectedTimeTxt != null ? "${widget.selectedTimeTxt.hour} : ${widget.selectedTimeTxt.minute}" : "${selectedDate.hour} : ${selectedDate.minute}"}",
       'person': person != null ? int.parse(person) : 1,
-      'offre': widget.offer != null ? _selected : null,
+      'offre': widget.offer != null
+          ? "${widget.offer[int.parse(_selected) - 1]["description"]} Till ${widget.offer[int.parse(_selected) - 1]["date_to"]}"
+          : null,
       'specialrequest': Controller.text != null ? Controller.text : ""
     };
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
-    print(message);
     if (message["errors"] != null) {
       Fluttertoast.showToast(
           msg: message["errors"],

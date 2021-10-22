@@ -32,7 +32,6 @@ class UserViewModel extends ChangeNotifier {
         await usersRef.doc(firebaseAuth.currentUser.uid).get();
     if (snap.data()["id"] == firebaseAuth.currentUser.uid) {
       user1 = snap;
-      print('0');
     }
   }
 
@@ -49,7 +48,7 @@ class UserViewModel extends ChangeNotifier {
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
-    print('1');
+
     return getPorf(message["token"]);
   }
 
@@ -62,7 +61,7 @@ class UserViewModel extends ChangeNotifier {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = json.decode(response.body);
-    print('2');
+
     return message[0]["bookings"];
   }
 }

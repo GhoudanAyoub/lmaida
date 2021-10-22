@@ -72,7 +72,6 @@ class LmaidaController extends GetxController {
 
             if (value.first.addressLine.contains(location["name"])) {
               restList = await RemoteService.fetRest(location["id"]);
-              print('8855 $restList');
             }
           }
         }
