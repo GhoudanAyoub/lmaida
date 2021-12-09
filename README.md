@@ -64,7 +64,7 @@ Double check install instructions for both
      -  https://pub.dartlang.org/packages/cloud_firestore
 
  ## Design
-Designed provided by the client 
+Designe provided by the client 
 <h2 id="license">License</h2>
 
 <pre><code>  Copyright 2021  AyoubGHOUDAN
