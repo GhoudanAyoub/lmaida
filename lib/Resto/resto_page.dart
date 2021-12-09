@@ -664,7 +664,7 @@ class _RestaurantState extends State<RestaurantPage> {
                       if (lmaidaController.isLoadingLocation.value)
                         return Center(child: circularProgress(context));
                       else if (lmaidaController.restList == null &&
-                          fetRestoAdvanceResult == null)
+                          fetRestoAdvanceResult == null) {
                         return Container(
                             height: open ? 150 : 400,
                             padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -682,7 +682,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                 ),
                               ),
                             ));
-                      else
+                      } else
                         return Container(
                           margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
                           height: SizeConfig.screenHeight - 40,
