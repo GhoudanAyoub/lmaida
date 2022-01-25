@@ -54,11 +54,101 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
     return json.decode(result.body);
   }
 
+  Future<void> Unfollow(id) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': firebaseAuth.currentUser.email,
+      'password': user1.data()["password"],
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    sendUnFollowRequest(message["token"], id);
+  }
+
+  Future<void> follow(id) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': firebaseAuth.currentUser.email,
+      'password': user1.data()["password"],
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    sendFollowRequest(message["token"], id);
+  }
+
+  Future<void> sendFollowRequest(Token5, userid) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token5",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/addfollower';
+    var data = {'following_id': userid};
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+  }
+
+  Future<void> sendUnFollowRequest(Token5, userid) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token5",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/defollow';
+    var data = {'following_id': userid};
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+  }
+
+  Future<void> getFollowingList() async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': firebaseAuth.currentUser.email,
+      'password': user1.data()["password"],
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    getPorf(message["token"]);
+  }
+
+  Future getPorf(Token) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/profile';
+    var response = await http.post(Uri.encodeFull(url), headers: header);
+    var message = jsonDecode(response.body);
+    debugPrint(message);
+  }
+
+  bool checkFollow(idClient) {
+    getFollowingList();
+    return true;
+  }
+
   @override
   void initState() {
     //getUsers();
     fetchDetailsRes = fetDetails(widget.restoModel.id);
     getImages();
+    getFollowingList();
   }
 
   getUsers() async {
@@ -864,6 +954,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                     "${snapshot.data[0]["reviews"][0]["created_at"].toString()}",
                     style: TextStyle(fontSize: 12.0, color: Colors.grey),
                   ),
+                  trailing: setButtonType(snapshot),
                 ),
                 Padding(
                   padding: EdgeInsets.all(5),
@@ -1101,6 +1192,55 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
           );
         }
       },
+    );
+  }
+
+  setButtonType(snapshot) {
+    if (firebaseAuth.currentUser != null) {
+      /*
+      if (checkFollow(snapshot.data[0]["reviews"][0]["iduser"]))
+        return buildButton(
+            text: "Follow",
+            function: () {
+              follow(snapshot.data[0]["reviews"][0]["iduser"].toString());
+            });
+      else
+        return buildButton(
+            text: "UnFollow",
+            function: () {
+              Unfollow(snapshot.data[0]["reviews"][0]["iduser"].toString());
+            });*/
+    } else
+      return Container(
+        width: 0,
+        height: 0,
+      );
+  }
+
+  buildButton({String text, Function function}) {
+    return GestureDetector(
+      onTap: function,
+      child: Container(
+        height: 40.0,
+        width: 80.0,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5.0),
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Colors.red,
+              Colors.redAccent,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ),
+      ),
     );
   }
 

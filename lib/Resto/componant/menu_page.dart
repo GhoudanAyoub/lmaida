@@ -23,7 +23,7 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
-  final String apiUrl = StringConst.URI_RESTAU + 'all';
+  final String apiUrl = StringConst.URI_RESTAU1;
   String type;
 
   int _activeTab = 0;
@@ -113,6 +113,224 @@ class _MenuPageState extends State<MenuPage> {
                         )),
                   ),
                 )),
+            /* Container(
+                margin: EdgeInsets.fromLTRB(0, 80, 0, 20),
+                child: ListView.builder(
+                  itemCount: widget.data.length,
+                  itemBuilder: (context, index) {
+                    if (widget.data == null)
+                      return Stack(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.fromLTRB(10, 20, 10, 30),
+                            height: 60.0,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0),
+                                child: FlatButton(
+                                  padding: EdgeInsets.all(10),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15)),
+                                  color: Color(0xFFF5F6F9),
+                                  onPressed: () {},
+                                  child: FlatButton(
+                                    padding: EdgeInsets.all(10),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    color: Color(0xFFF5F6F9),
+                                    onPressed: () {},
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        buildCount("Starter"),
+                                        Divider(
+                                          height: 30,
+                                        ),
+                                        buildCount("Main Course"),
+                                        Divider(),
+                                        buildCount("Dessert"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              "This Restaurant Didn't Upload There Menu Yet",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        ],
+                      );
+                    if (widget.data.isNotEmpty) {
+                      return Stack(
+                        children: [
+                          Container(
+                            height: 50,
+                            padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (BuildContext context, int index) {
+                                return InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _activeTab = index;
+                                      type = widget.data[index]["type"]["name"];
+                                      // CatName = categories[index].name.toLowerCase();
+                                      //search(CatName);
+                                    });
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: Duration(milliseconds: 450),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 20.0,
+                                    ),
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color: _activeTab == index
+                                          ? Colors.grey.withOpacity(0.8)
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(12.0),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        widget.data[index]["type"]["name"],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: _activeTab == index
+                                              ? Colors.white
+                                              : kTextColor1,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              separatorBuilder:
+                                  (BuildContext context, int index) {
+                                return SizedBox(
+                                  width: 15.0,
+                                );
+                              },
+                              itemCount: widget.data.length,
+                            ),
+                          ),
+                          type == null
+                              ? Container(
+                                  margin: EdgeInsets.fromLTRB(0, 70, 0, 10),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0),
+                                        child: ListView.builder(
+                                            padding: EdgeInsets.all(10),
+                                            itemCount: widget.data.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              print(type);
+                                              return buildcontainer(
+                                                  widget.data[index]);
+                                            })),
+                                  ),
+                                )
+                              : Container(
+                                  margin: EdgeInsets.fromLTRB(0, 70, 0, 10),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0),
+                                        child: ListView.builder(
+                                            padding: EdgeInsets.all(10),
+                                            itemCount: widget.data.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              if (type ==
+                                                  widget.data[index]["type"]
+                                                      ["name"])
+                                                return buildcontainer(
+                                                    widget.data[index]);
+                                              else
+                                                return Container(
+                                                  width: 0.2,
+                                                );
+                                            })),
+                                  ))
+                        ],
+                      );
+                    } else {
+                      return Stack(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.fromLTRB(10, 20, 10, 30),
+                            height: 60.0,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0),
+                                child: FlatButton(
+                                  padding: EdgeInsets.all(10),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15)),
+                                  color: Color(0xFFF5F6F9),
+                                  onPressed: () {},
+                                  child: FlatButton(
+                                    padding: EdgeInsets.all(10),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    color: Color(0xFFF5F6F9),
+                                    onPressed: () {},
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        buildCount("Starter"),
+                                        Divider(
+                                          height: 30,
+                                        ),
+                                        buildCount("Main Course"),
+                                        Divider(),
+                                        buildCount("Dessert"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              "This Restaurant Didn't Upload There Menu Yet",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        ],
+                      );
+                    }
+                  },
+                )),*/
             Container(
               margin: EdgeInsets.fromLTRB(0, 80, 0, 20),
               child: FutureBuilder<List<dynamic>>(
@@ -242,7 +460,6 @@ class _MenuPageState extends State<MenuPage> {
                                             itemCount: widget.data.length,
                                             itemBuilder: (BuildContext context,
                                                 int index) {
-                                              print(type);
                                               return buildcontainer(
                                                   widget.data[index]);
                                             })),

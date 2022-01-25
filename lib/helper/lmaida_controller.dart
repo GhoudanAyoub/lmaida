@@ -17,7 +17,9 @@ class LmaidaController extends GetxController {
   var locationID = dynamic.obs;
   List<MultiSelectDialogItem<int>> multiItem = [];
   List<MultiSelectDialogItem<int>> locMultiItem = [];
-
+ /* final options = IOSOptions(accessibility: IOSAccessibility.first_unlock);
+  await storage.write(key: key, value: value, iOptions: options);
+*/
   @override
   void onInit() {
     fetchCategories();

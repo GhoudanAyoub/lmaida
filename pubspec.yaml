@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-
+  flutter_secure_storage:
   firebase_core: any
   firebase_messaging: 8.0.0-dev.9
   flutter_local_notifications: any
