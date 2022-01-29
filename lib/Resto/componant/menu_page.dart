@@ -1,12 +1,16 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
+import 'package:lmaida/utils/firebase.dart';
 
 class MenuPage extends StatefulWidget {
   final RestoModel restoModel;
@@ -23,13 +27,110 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
-  final String apiUrl = StringConst.URI_RESTAU1;
+  final String apiUrl = StringConst.URI_RESTAU + "all";
   String type;
+  var listPos = new List(100);
+  var listNeg = new List(100);
 
+  DocumentSnapshot user1;
   int _activeTab = 0;
   Future<List<dynamic>> fetResto(id) async {
     var result = await http.get("$apiUrl/$id");
     return json.decode(result.body);
+  }
+
+  @override
+  void initState() {
+    getUsers();
+    super.initState();
+  }
+
+  getUsers() async {
+    DocumentSnapshot snap =
+        await usersRef.doc(firebaseAuth.currentUser.uid).get();
+    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
+  }
+
+  Future<String> reviewMenu() async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': firebaseAuth.currentUser.email,
+      'password': user1.data()["password"],
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    return message["token"];
+  }
+
+  Future addPositiveReviewMenu(menuid) async {
+    String Token = await reviewMenu();
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/addreviewmenu';
+    var data = {'menu': menuid, 'review': 1};
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    if (message["errors"] != null) {
+      Fluttertoast.showToast(
+          msg: message["errors"],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      Fluttertoast.showToast(
+          msg: message["message"],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  Future addNegativeReviewMenu(menuid) async {
+    String Token = await reviewMenu();
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/addreviewmenu';
+    var data = {'menu': menuid, 'review': 0};
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    if (message["errors"] != null) {
+      Fluttertoast.showToast(
+          msg: message["errors"],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      Fluttertoast.showToast(
+          msg: message["message"],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
   }
 
   @override
@@ -115,6 +216,7 @@ class _MenuPageState extends State<MenuPage> {
                 )),
             /* Container(
                 margin: EdgeInsets.fromLTRB(0, 80, 0, 20),
+                height: 40,
                 child: ListView.builder(
                   itemCount: widget.data.length,
                   itemBuilder: (context, index) {
@@ -561,64 +663,120 @@ class _MenuPageState extends State<MenuPage> {
 
   buildcontainer(data) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
-      child: Container(
-          child: FittedBox(
-              child: Card(
-        elevation: 10.0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
         child: Container(
-          margin: EdgeInsets.fromLTRB(5, 5, 5, 5),
-          width: SizeConfig.screenWidth - 30,
-          child: ListTile(
-            onTap: () {
-              showpage(
-                  context,
-                  "https://lmaida.com/storage/menus/" + data["picture"] ??
-                      "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg");
-            },
-            leading: CircleAvatar(
-              radius: 35.0,
-              backgroundImage: NetworkImage(
-                "https://lmaida.com/storage/menus/" + data["picture"] ??
-                    "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
-              ),
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(
-                  data["name"],
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 20.0,
-                    color: Colors.black,
-                  ),
-                ),
-                Text(
-                  data["ingredients"],
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 14.0,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-            ),
-            trailing: Text(
-              data["price"].toString() + " MAD",
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 14.0,
-                color: primary,
-              ),
-            ),
-          ),
-        ),
-      ))),
-    );
+            child: FittedBox(
+                child: Card(
+                    elevation: 10.0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Container(
+                        margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                        width: SizeConfig.screenWidth - 30,
+                        height: 90,
+                        child: Stack(
+                          children: [
+                            Positioned(
+                                left: 0,
+                                right: 30,
+                                child: ListTile(
+                                  onTap: () {
+                                    showpage(
+                                        context,
+                                        "https://lmaida.com/storage/menus/" +
+                                                data["picture"] ??
+                                            "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg");
+                                  },
+                                  leading: CircleAvatar(
+                                    radius: 30.0,
+                                    backgroundImage: NetworkImage(
+                                      "https://lmaida.com/storage/menus/" +
+                                              data["picture"] ??
+                                          "https://media-cdn.tripadvisor.com/media/photo-s/12/47/f3/8c/oko-restaurant.jpg",
+                                    ),
+                                  ),
+                                  title: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Text(
+                                        data["name"],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 20.0,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      Text(
+                                        data["ingredients"],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 14.0,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: Text(
+                                    data["price"].toString() + " MAD",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14.0,
+                                      color: primary,
+                                    ),
+                                  ),
+                                )),
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  listPos.isNotEmpty &&
+                                          listPos[data["id"]] == true
+                                      ? Container(
+                                          height: 0,
+                                          width: 0,
+                                        )
+                                      : IconButton(
+                                          icon: const Icon(CupertinoIcons
+                                              .arrowtriangle_up_fill),
+                                          onPressed: () {
+                                            setState(() {
+                                              listPos[data["id"]] = true;
+                                            });
+                                            addPositiveReviewMenu(data["id"]);
+                                          }),
+                                  listNeg.isNotEmpty &&
+                                          listNeg[data["id"]] == true
+                                      ? Container(
+                                          height: 0,
+                                          width: 0,
+                                        )
+                                      : IconButton(
+                                          icon: const Icon(CupertinoIcons
+                                              .arrowtriangle_down_fill),
+                                          onPressed: () {
+                                            setState(() {
+                                              listNeg[data["id"]] = true;
+                                            });
+                                            addNegativeReviewMenu(data["id"]);
+                                          }),
+                                ],
+                              ),
+                            )
+                          ],
+                        ))))));
   }
+  /*
+  *
+  *
+
+  * */
 
   showpage(BuildContext parentContext, image) {
     return showDialog(

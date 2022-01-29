@@ -148,7 +148,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
     //getUsers();
     fetchDetailsRes = fetDetails(widget.restoModel.id);
     getImages();
-    getFollowingList();
+    //getFollowingList();
   }
 
   getUsers() async {
