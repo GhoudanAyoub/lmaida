@@ -1,14 +1,11 @@
-import 'dart:convert';
 import 'dart:math' show cos, sqrt, asin;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:lmaida/Home/Components/multiple_nutifier.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
@@ -17,14 +14,13 @@ import 'package:lmaida/components/custom_card.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/helper/lmaida_controller.dart';
 import 'package:lmaida/models/restau_model.dart';
+import 'package:lmaida/service/remote_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:provider/provider.dart';
 
 import 'componant/new_resto_details.dart';
-
-List<RestoModel> _restau = new List<RestoModel>();
 
 class RestaurantPage extends StatefulWidget with NavigationStates {
   final offers;
@@ -39,7 +35,6 @@ class _RestaurantState extends State<RestaurantPage> {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final String apiUrl = StringConst.URI_RESTAU + 'all';
   String dropdownValue = '2';
-  String FilterdropdownValue = "WIFI";
   var selectedDateTxt;
   var selectedTimeTxt;
   DateTime selectedDate = DateTime.now();
@@ -48,185 +43,24 @@ class _RestaurantState extends State<RestaurantPage> {
   String Search = "";
   ScrollController _controller;
   Position position;
-  String categ;
-  List<bool> checkList = [];
-  String restolenght;
   String catId;
   bool open = false;
   String _selected;
   bool show = true;
   Set<int> selectedValues, locSelectedValues, filterSelectedValues;
   var color;
-  dynamic Adv_Filter = false;
   var fetRestoAdvanceResult;
   var locationId;
-  String locationName = "", SpectName = "";
-  var addresses;
-  double reviewsData = 0.0;
-
-  Future<List<dynamic>> fetRestAdvance(location_id) async {
-    //lmaidaController.fetchAdvRest(location_id);
-    var result = await http.get(StringConst.URI_RESTAU_ADV +
-        "${selectedValues != null ? selectedValues.join(",") : "1"}/${catId != null ? catId : 14}/${location_id != null ? location_id : locationId}");
-    return json.decode(result.body);
-  }
-
-  Future<List<dynamic>> fetResto(id) async {
-    var result = await http.get("$apiUrl/$id");
-    return json.decode(result.body);
-  }
-
-  Future<List<dynamic>> fetSearch(name) async {
-    var result =
-        await http.get("${StringConst.URI_SEARCH}/${name != "" ? name : "r"}");
-    return json.decode(result.body);
-  }
+  String locationName = "", spectName = "";
 
   @override
   void initState() {
     color = Colors.black;
     _controller = ScrollController();
-    //getLastLocation();
+    fetRestoAdvanceResult = RemoteService.fetRest(22);
     super.initState();
   }
 
-  getLastLocation() async {
-    position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
-    await Geocoder.local
-        .findAddressesFromCoordinates(
-            new Coordinates(position.latitude, position.longitude))
-        .then((value) {
-      setState(() {
-        addresses = value;
-      });
-    });
-/*
-    for (var location in fetLocationResult) {
-      if (addresses.first.addressLine.contains(location["name"])) {
-        setState(() {
-          show = false;
-          fetRestoAdvanceResult = fetResto(location["id"]);
-          locationId = location["id"];
-        });
-      }
-    }*/
-  }
-
-  void _showMultiSelect(BuildContext context) async {
-    selectedValues = await showDialog<Set<int>>(
-      context: context,
-      builder: (BuildContext context) {
-        return MultiSelectDialog(
-          items: lmaidaController.multiItem,
-          initialSelectedValues: [
-            1,
-          ].toSet(),
-        );
-      },
-    );
-    setState(() {
-      SpectName = selectedValues.join(",");
-    });
-  }
-
-  void _showLocMultiSelect(BuildContext context) async {
-    locSelectedValues = await showDialog<Set<int>>(
-      context: context,
-      builder: (BuildContext context) {
-        return MultiSelectDialog(
-          items: lmaidaController.locMultiItem,
-          initialSelectedValues: null,
-        );
-      },
-    );
-    setState(() {
-      locationName = locSelectedValues.join(",");
-    });
-  }
-
-  _showMultipleChoiceDialog(BuildContext context) => showDialog(
-      context: context,
-      builder: (context) {
-        final _multipleNotifier = Provider.of<MultipleNotifier>(context);
-        return AlertDialog(
-          title: Text('Select Category'),
-          content: SingleChildScrollView(
-            child: Container(
-              width: double.infinity,
-              child: Obx(() {
-                if (lmaidaController.isLoadingCategories.value)
-                  return linearProgress(context);
-                else
-                  return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: lmaidaController.categoriesList
-                          .map((e) => CheckboxListTile(
-                                title: Row(
-                                  children: <Widget>[
-                                    e["picture"] != null
-                                        ? CachedNetworkImage(
-                                            imageUrl:
-                                                "https://lmaida.com/storage/categories/" +
-                                                    e["picture"],
-                                            fit: BoxFit.cover,
-                                            width: 20,
-                                            fadeInDuration:
-                                                Duration(milliseconds: 500),
-                                            fadeInCurve: Curves.easeIn,
-                                            placeholder:
-                                                (context, progressText) =>
-                                                    Container(
-                                                        width: 20,
-                                                        child: circularProgress(
-                                                            context)),
-                                          )
-                                        : Icon(Icons.dinner_dining,
-                                            size: 20, color: Colors.black87),
-                                    Container(
-                                        margin: EdgeInsets.only(left: 5),
-                                        width: 100,
-                                        child: Text(
-                                          e["name"],
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        )),
-                                  ],
-                                ),
-                                onChanged: (value) {
-                                  value
-                                      ? _multipleNotifier.addItem(e["name"])
-                                      : _multipleNotifier.removeItem(e["name"]);
-
-                                  value
-                                      ? setState(() {
-                                          _selected = e["name"];
-                                          catId = e["id"].toString();
-                                        })
-                                      : setState(() {
-                                          _selected = null;
-                                          catId = null;
-                                        });
-                                },
-                                value: _multipleNotifier.isHaveItem(e["name"]),
-                              ))
-                          .toList());
-              }),
-            ),
-          ),
-          actions: [
-            FlatButton(
-              child: Text('Yes'),
-              onPressed: () => Navigator.of(context).pop(),
-            )
-          ],
-        );
-      });
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -475,7 +309,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                                     child: Text(
                                                       selectedValues == null
                                                           ? 'Choose'
-                                                          : SpectName,
+                                                          : spectName,
                                                       style: TextStyle(
                                                         fontSize: 12,
                                                         color: Colors.black,
@@ -617,8 +451,12 @@ class _RestaurantState extends State<RestaurantPage> {
                                           setState(() {
                                             show = false;
                                             open = false;
-                                            fetRestoAdvanceResult = fetRestAdvance(
-                                                "${locSelectedValues != null ? locSelectedValues.join(",") : null}");
+                                            fetRestoAdvanceResult =
+                                                RemoteService.fetRestAdvance(
+                                                    "${locSelectedValues != null ? locSelectedValues.join(",") : null}",
+                                                    selectedValues,
+                                                    catId,
+                                                    locationId);
                                           });
                                         },
                                         child: Text('APPLY',
@@ -910,7 +748,7 @@ class _RestaurantState extends State<RestaurantPage> {
                                           }
                                         }),
                                     onRefresh: () {
-                                      return getLastLocation();
+                                      return null;
                                     });
                               } else {
                                 return Center(child: circularProgress(context));
@@ -1014,6 +852,120 @@ class _RestaurantState extends State<RestaurantPage> {
     );
   }
 
+  void _showMultiSelect(BuildContext context) async {
+    selectedValues = await showDialog<Set<int>>(
+      context: context,
+      builder: (BuildContext context) {
+        return MultiSelectDialog(
+          items: lmaidaController.multiItem,
+          initialSelectedValues: [
+            1,
+          ].toSet(),
+        );
+      },
+    );
+    setState(() {
+      spectName = selectedValues.join(",");
+    });
+  }
+
+  void _showLocMultiSelect(BuildContext context) async {
+    locSelectedValues = await showDialog<Set<int>>(
+      context: context,
+      builder: (BuildContext context) {
+        return MultiSelectDialog(
+          items: lmaidaController.locMultiItem,
+          initialSelectedValues: null,
+        );
+      },
+    );
+    setState(() {
+      locationName = locSelectedValues.join(",");
+    });
+  }
+
+  _showMultipleChoiceDialog(BuildContext context) => showDialog(
+      context: context,
+      builder: (context) {
+        final _multipleNotifier = Provider.of<MultipleNotifier>(context);
+        return AlertDialog(
+          title: Text('Select Category'),
+          content: SingleChildScrollView(
+            child: Container(
+              width: double.infinity,
+              child: Obx(() {
+                if (lmaidaController.isLoadingCategories.value)
+                  return linearProgress(context);
+                else
+                  return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: lmaidaController.categoriesList
+                          .map((e) => CheckboxListTile(
+                                title: Row(
+                                  children: <Widget>[
+                                    e["picture"] != null
+                                        ? CachedNetworkImage(
+                                            imageUrl:
+                                                "https://lmaida.com/storage/categories/" +
+                                                    e["picture"],
+                                            fit: BoxFit.cover,
+                                            width: 20,
+                                            fadeInDuration:
+                                                Duration(milliseconds: 500),
+                                            fadeInCurve: Curves.easeIn,
+                                            placeholder:
+                                                (context, progressText) =>
+                                                    Container(
+                                                        width: 20,
+                                                        child: circularProgress(
+                                                            context)),
+                                          )
+                                        : Icon(Icons.dinner_dining,
+                                            size: 20, color: Colors.black87),
+                                    Container(
+                                        margin: EdgeInsets.only(left: 5),
+                                        width: 100,
+                                        child: Text(
+                                          e["name"],
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        )),
+                                  ],
+                                ),
+                                onChanged: (value) {
+                                  value
+                                      ? _multipleNotifier.addItem(e["name"])
+                                      : _multipleNotifier.removeItem(e["name"]);
+
+                                  value
+                                      ? setState(() {
+                                          _selected = e["name"];
+                                          catId = e["id"].toString();
+                                        })
+                                      : setState(() {
+                                          _selected = null;
+                                          catId = null;
+                                        });
+                                },
+                                value: _multipleNotifier.isHaveItem(e["name"]),
+                              ))
+                          .toList());
+              }),
+            ),
+          ),
+          actions: [
+            FlatButton(
+              child: Text('Yes'),
+              onPressed: () => Navigator.of(context).pop(),
+            )
+          ],
+        );
+      });
+
   double calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
     var c = cos;
@@ -1101,7 +1053,6 @@ class _RestaurantState extends State<RestaurantPage> {
                 shape: CircleBorder(),
                 heroTag: name,
                 onPressed: () {
-                  onPressed;
                   setState(() {
                     catId = id;
                     color = primary;
@@ -1147,7 +1098,8 @@ class _RestaurantState extends State<RestaurantPage> {
                 onChanged: (value) {
                   setState(() {
                     Search = value;
-                    fetRestoAdvanceResult = fetSearch(searchController.text);
+                    fetRestoAdvanceResult =
+                        RemoteService.fetSearch(searchController.text);
                     print(Search);
                   });
                 },

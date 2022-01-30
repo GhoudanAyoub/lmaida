@@ -40,7 +40,7 @@ class RemoteService {
     return json.decode(result.body);
   }
 
-  static Future getProfileData(user1) async {
+  static Future<String> getToken(user1) async {
     Map<String, String> header = {
       "Accept": "application/json",
       "Content-Type": "application/json"
@@ -53,13 +53,14 @@ class RemoteService {
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
-    getProfile(message["token"]);
+    return message["token"];
   }
 
-  static Future getProfile(token) async {
+  static Future getProfile(user1) async {
+    String Token = await getToken(user1);
     Map<String, String> header = {
       "Accept": "application/json",
-      "Authorization": "Bearer $token",
+      "Authorization": "Bearer $Token",
       "Content-Type": "application/json"
     };
     var url = 'https://lmaida.com/api/profile';
