@@ -53,6 +53,8 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   var following = new List(200);
   var unFollowing = new List(200);
 
+  String MyID;
+
   Future<List<dynamic>> fetDetails(id) async {
     var result = await http.get("https://lmaida.com/api/resturant/$id");
     return json.decode(result.body);
@@ -132,7 +134,18 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
     var message = jsonDecode(response.body);
     setState(() {
       followingList = message[0]["following"];
+      MyID = message[0]["id"].toString();
     });
+  }
+
+  checkFollowingList(clientId) {
+    if (followingList != null)
+      for (var follower in followingList) {
+        if (follower != null &&
+            follower["pivot"]["following_id"].toString() == clientId.toString())
+          return true;
+      }
+    return false;
   }
 
   @override
@@ -1184,7 +1197,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
 
   setButtonType(snapshot) {
     if (firebaseAuth.currentUser != null) {
-      if (followingList.contains(snapshot.data[0]["reviews"][0]["iduser"]))
+      if (checkFollowingList(snapshot.data[0]["reviews"][0]["iduser"]))
         return unFollowing[snapshot.data[0]["reviews"][0]["iduser"]] == true
             ? requestSent()
             : buildButton(

@@ -75,6 +75,16 @@ class _ReviewsCardState extends State<ReviewsCard> {
     });
   }
 
+  checkFollowingList(clientId) {
+    if (widget.followingList != null)
+      for (var follower in widget.followingList) {
+        if (follower != null &&
+            follower["pivot"]["following_id"].toString() == clientId.toString())
+          return true;
+      }
+    return false;
+  }
+
   @override
   void initState() {
     fetchDetailsRes = fetDetails(widget.restoModel.id);
@@ -397,7 +407,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
 
   setButtonType(snapshot) {
     if (firebaseAuth.currentUser != null) {
-      if (widget.followingList.contains(snapshot["iduser"]))
+      if (checkFollowingList(snapshot["iduser"]))
         return unFollowing[snapshot["iduser"]] == true
             ? requestSent()
             : buildButton(
