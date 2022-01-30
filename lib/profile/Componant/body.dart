@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:http/http.dart' as http;
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/user.dart';
@@ -23,15 +27,50 @@ class _BodyState extends State<Body> {
   DocumentSnapshot user1;
   List<DocumentSnapshot> filteredUsers = [];
   bool loading = true;
+  var following = new List(200);
+  var followers = new List(200);
 
   String currentUid() {
     return firebaseAuth.currentUser.uid;
   }
 
+  Future<String> getToken() async {
+    var u = await getUsers();
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': firebaseAuth.currentUser.email,
+      'password': u.data()["password"],
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var message = jsonDecode(response.body);
+    return message["token"];
+  }
+
+  Future getPorf() async {
+    String Token = await getToken();
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $Token",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/profile';
+    var response = await http.post(Uri.encodeFull(url), headers: header);
+    var message = jsonDecode(response.body);
+    log(message.toString());
+    setState(() {
+      following = message[0]["following"];
+      followers = message[0]["followers"];
+    });
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
-    getUsers();
+    getPorf();
   }
 
   getUsers() async {
@@ -41,6 +80,7 @@ class _BodyState extends State<Body> {
     setState(() {
       loading = false;
     });
+    return user1;
   }
 
   @override
@@ -208,6 +248,40 @@ class _BodyState extends State<Body> {
                               ),
                             ),
                           ),
+                          SizedBox(height: 10.0),
+                          Container(
+                            height: 60.0,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0),
+                                child: FlatButton(
+                                  padding: EdgeInsets.all(10),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15)),
+                                  color: Color(0xFFF5F6F9),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: <Widget>[
+                                      following != null &&
+                                              following.length != 200
+                                          ? buildCount(
+                                              "FOLLOWING ", following.length)
+                                          : buildCount("FOLLOWING", 0),
+                                      followers != null &&
+                                              followers.length != 200
+                                          ? buildCount(
+                                              "FOLLOWERS", followers.length)
+                                          : buildCount("FOLLOWERS", 0),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10.0),
                           buildForm(viewModel, context),
                           SizedBox(height: 20.0),
                         ],
@@ -219,6 +293,28 @@ class _BodyState extends State<Body> {
         child: circularProgress(context),
       );
     }
+  }
+
+  buildCount(String label, int count) {
+    return Column(
+      children: <Widget>[
+        Text(
+          count.toString(),
+          style: TextStyle(
+              fontSize: 14.0,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Ubuntu-Regular'),
+        ),
+        SizedBox(height: 3.0),
+        Text(
+          label,
+          style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              fontFamily: 'Ubuntu-Regular'),
+        )
+      ],
+    );
   }
 
   buildForm(EditProfileViewModel viewModel, BuildContext context) {
