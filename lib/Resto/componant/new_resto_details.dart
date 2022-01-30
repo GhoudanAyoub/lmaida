@@ -48,13 +48,28 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   String finaPosTag = "";
   double reviewsData = 0.0;
   List<CachedNetworkImage> images = [];
+  var followingList = new List(200);
+  String Token;
+  var following = new List(200);
+  var unFollowing = new List(200);
 
   Future<List<dynamic>> fetDetails(id) async {
     var result = await http.get("https://lmaida.com/api/resturant/$id");
     return json.decode(result.body);
   }
 
-  Future<void> Unfollow(id) async {
+  Future<DocumentSnapshot> getUsers() async {
+    DocumentSnapshot snap =
+        await usersRef.doc(firebaseAuth.currentUser.uid).get();
+    if (snap.data()["id"] == firebaseAuth.currentUser.uid)
+      setState(() {
+        user1 = snap;
+      });
+    return user1;
+  }
+
+  Future<String> getToken() async {
+    var u = await getUsers();
     Map<String, String> header = {
       "Accept": "application/json",
       "Content-Type": "application/json"
@@ -62,71 +77,51 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
     var url = 'https://lmaida.com/api/login';
     var data = {
       'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
+      'password': u.data()["password"],
     };
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
-    sendUnFollowRequest(message["token"], id);
+    setState(() {
+      Token = message["token"];
+    });
+    return message["token"];
   }
 
-  Future<void> follow(id) async {
+  Future<void> sendFollowRequest(userid) async {
+    String Token = await getToken();
     Map<String, String> header = {
       "Accept": "application/json",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/login';
-    var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
-    };
-    var response = await http.post(Uri.encodeFull(url),
-        headers: header, body: json.encode(data));
-    var message = jsonDecode(response.body);
-    sendFollowRequest(message["token"], id);
-  }
-
-  Future<void> sendFollowRequest(Token5, userid) async {
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Authorization": "Bearer $Token5",
+      "Authorization": "Bearer $Token",
       "Content-Type": "application/json"
     };
     var url = 'https://lmaida.com/api/addfollower';
     var data = {'following_id': userid};
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
+    setState(() {
+      following[int.parse(userid)] = true;
+    });
   }
 
-  Future<void> sendUnFollowRequest(Token5, userid) async {
+  Future<void> sendUnFollowRequest(userid) async {
+    String Token = await getToken();
     Map<String, String> header = {
       "Accept": "application/json",
-      "Authorization": "Bearer $Token5",
+      "Authorization": "Bearer $Token",
       "Content-Type": "application/json"
     };
     var url = 'https://lmaida.com/api/defollow';
     var data = {'following_id': userid};
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
+    setState(() {
+      unFollowing[int.parse(userid)] = true;
+    });
   }
 
-  Future<void> getFollowingList() async {
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/login';
-    var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
-    };
-    var response = await http.post(Uri.encodeFull(url),
-        headers: header, body: json.encode(data));
-    var message = jsonDecode(response.body);
-    getPorf(message["token"]);
-  }
-
-  Future getPorf(Token) async {
+  Future getPorf() async {
+    String Token = await getToken();
     Map<String, String> header = {
       "Accept": "application/json",
       "Authorization": "Bearer $Token",
@@ -135,26 +130,16 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
-    debugPrint(message);
-  }
-
-  bool checkFollow(idClient) {
-    getFollowingList();
-    return true;
+    setState(() {
+      followingList = message[0]["following"];
+    });
   }
 
   @override
   void initState() {
-    //getUsers();
+    getPorf();
     fetchDetailsRes = fetDetails(widget.restoModel.id);
     getImages();
-    //getFollowingList();
-  }
-
-  getUsers() async {
-    DocumentSnapshot snap =
-        await usersRef.doc(firebaseAuth.currentUser.uid).get();
-    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
   }
 
   @override
@@ -1152,6 +1137,8 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
                                     builder: (context) => ReviewsCard(
                                           restoModel: widget.restoModel,
                                           reviews: snapshot.data[0]["reviews"],
+                                          Token: Token,
+                                          followingList: followingList,
                                         )),
                               )
                             },
@@ -1197,19 +1184,24 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
 
   setButtonType(snapshot) {
     if (firebaseAuth.currentUser != null) {
-      /*
-      if (checkFollow(snapshot.data[0]["reviews"][0]["iduser"]))
-        return buildButton(
-            text: "Follow",
-            function: () {
-              follow(snapshot.data[0]["reviews"][0]["iduser"].toString());
-            });
+      if (followingList.contains(snapshot.data[0]["reviews"][0]["iduser"]))
+        return unFollowing[snapshot.data[0]["reviews"][0]["iduser"]] == true
+            ? requestSent()
+            : buildButton(
+                text: "UnFollow",
+                function: () {
+                  sendUnFollowRequest(
+                      snapshot.data[0]["reviews"][0]["iduser"].toString());
+                });
       else
-        return buildButton(
-            text: "UnFollow",
-            function: () {
-              Unfollow(snapshot.data[0]["reviews"][0]["iduser"].toString());
-            });*/
+        return following[snapshot.data[0]["reviews"][0]["iduser"]] == true
+            ? requestSent()
+            : buildButton(
+                text: "Follow",
+                function: () {
+                  sendFollowRequest(
+                      snapshot.data[0]["reviews"][0]["iduser"].toString());
+                });
     } else
       return Container(
         width: 0,
@@ -1311,5 +1303,31 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
         placeholder: (context, progressText) =>
             Center(child: circularProgress(context)),
       ));
+  }
+
+  requestSent() {
+    return GestureDetector(
+      child: Container(
+        height: 40.0,
+        width: 100.0,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5.0),
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Colors.grey,
+              Colors.grey,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Text(
+            "Processing",
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ),
+      ),
+    );
   }
 }

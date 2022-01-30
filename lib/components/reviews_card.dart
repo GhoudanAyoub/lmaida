@@ -8,14 +8,23 @@ import 'package:lmaida/models/restau_model.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/extansion.dart';
+import 'package:lmaida/utils/firebase.dart';
 
 import 'indicators.dart';
 
 class ReviewsCard extends StatefulWidget {
   final reviews;
   final RestoModel restoModel;
+  final String Token;
+  final followingList;
 
-  const ReviewsCard({Key key, this.reviews, this.restoModel}) : super(key: key);
+  const ReviewsCard(
+      {Key key,
+      this.reviews,
+      this.restoModel,
+      @required this.Token,
+      this.followingList})
+      : super(key: key);
   @override
   _ReviewsCardState createState() => _ReviewsCardState();
 }
@@ -27,10 +36,43 @@ class _ReviewsCardState extends State<ReviewsCard> {
   String posT, negT;
   var negTL, posTL;
   var snap;
+  var following = new List(200);
+  var unFollowing = new List(200);
+
   Future<List<dynamic>> fetDetails(id) async {
     var result = await http.get("https://lmaida.com/api/resturant/$id");
     List<dynamic> t = json.decode(result.body);
     return t.reversed.toList();
+  }
+
+  Future<void> sendFollowRequest(userid) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer ${widget.Token}",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/addfollower';
+    var data = {'following_id': userid};
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    setState(() {
+      following[int.parse(userid)] = true;
+    });
+  }
+
+  Future<void> sendUnFollowRequest(userid) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Authorization": "Bearer  ${widget.Token}",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/defollow';
+    var data = {'following_id': userid};
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    setState(() {
+      unFollowing[int.parse(userid)] = true;
+    });
   }
 
   @override
@@ -145,6 +187,7 @@ class _ReviewsCardState extends State<ReviewsCard> {
             "${snap["created_at"].toString()}",
             style: TextStyle(fontSize: 12.0, color: Colors.grey),
           ),
+          trailing: setButtonType(snap),
         ),
         Padding(
           padding: EdgeInsets.all(5),
@@ -350,5 +393,83 @@ class _ReviewsCardState extends State<ReviewsCard> {
                 ],
               ));
         });
+  }
+
+  setButtonType(snapshot) {
+    if (firebaseAuth.currentUser != null) {
+      if (widget.followingList.contains(snapshot["iduser"]))
+        return unFollowing[snapshot["iduser"]] == true
+            ? requestSent()
+            : buildButton(
+                text: "UnFollow",
+                function: () {
+                  sendUnFollowRequest(snapshot["iduser"].toString());
+                });
+      else
+        return following[snapshot["iduser"]] == true
+            ? requestSent()
+            : buildButton(
+                text: "Follow",
+                function: () {
+                  sendFollowRequest(snapshot["iduser"].toString());
+                });
+    } else
+      return Container(
+        width: 0,
+        height: 0,
+      );
+  }
+
+  buildButton({String text, Function function}) {
+    return GestureDetector(
+      onTap: function,
+      child: Container(
+        height: 40.0,
+        width: 80.0,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5.0),
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Colors.red,
+              Colors.redAccent,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ),
+      ),
+    );
+  }
+
+  requestSent() {
+    return GestureDetector(
+      child: Container(
+        height: 40.0,
+        width: 100.0,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5.0),
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Colors.grey,
+              Colors.grey,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Text(
+            "Processing",
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ),
+      ),
+    );
   }
 }
