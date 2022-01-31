@@ -13,6 +13,7 @@ import 'package:lmaida/components/rater.dart';
 import 'package:lmaida/components/reting%20star.dart';
 import 'package:lmaida/components/reviews_card.dart';
 import 'package:lmaida/models/restau_model.dart';
+import 'package:lmaida/service/remote_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/extansion.dart';
@@ -54,11 +55,6 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   var unFollowing = new List(200);
 
   String MyID;
-
-  Future<List<dynamic>> fetDetails(id) async {
-    var result = await http.get("https://lmaida.com/api/resturant/$id");
-    return json.decode(result.body);
-  }
 
   Future<DocumentSnapshot> getUsers() async {
     DocumentSnapshot snap =
@@ -151,7 +147,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   @override
   void initState() {
     getPorf();
-    fetchDetailsRes = fetDetails(widget.restoModel.id);
+    fetchDetailsRes = RemoteService.fetDetails(widget.restoModel.id);
     getImages();
   }
 

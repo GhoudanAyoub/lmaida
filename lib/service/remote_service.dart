@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/firebase.dart';
@@ -40,7 +41,20 @@ class RemoteService {
     return json.decode(result.body);
   }
 
-  static Future<String> getToken(user1) async {
+  static Future<List<dynamic>> fetDetails(id) async {
+    var result = await http.get("https://lmaida.com/api/resturant/$id");
+    return json.decode(result.body);
+  }
+
+  static Future<DocumentSnapshot> getUsers() async {
+    DocumentSnapshot snap =
+        await usersRef.doc(firebaseAuth.currentUser.uid).get();
+    if (snap.data()["id"] == firebaseAuth.currentUser.uid) return snap;
+    return null;
+  }
+
+  static Future<String> getToken() async {
+    var u = await getUsers();
     Map<String, String> header = {
       "Accept": "application/json",
       "Content-Type": "application/json"
@@ -48,7 +62,7 @@ class RemoteService {
     var url = 'https://lmaida.com/api/login';
     var data = {
       'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
+      'password': u.data()["password"],
     };
     var response = await http.post(Uri.encodeFull(url),
         headers: header, body: json.encode(data));
@@ -56,8 +70,8 @@ class RemoteService {
     return message["token"];
   }
 
-  static Future getProfile(user1) async {
-    String Token = await getToken(user1);
+  static Future<dynamic> getProfile() async {
+    String Token = await getToken();
     Map<String, String> header = {
       "Accept": "application/json",
       "Authorization": "Bearer $Token",
@@ -66,5 +80,6 @@ class RemoteService {
     var url = 'https://lmaida.com/api/profile';
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
+    return message[0];
   }
 }
