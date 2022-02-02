@@ -70,6 +70,7 @@ class RemoteService {
     return message["token"];
   }
 
+
   static Future<dynamic> getProfile() async {
     String Token = await getToken();
     Map<String, String> header = {
