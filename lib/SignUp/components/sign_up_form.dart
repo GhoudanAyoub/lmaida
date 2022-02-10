@@ -7,7 +7,7 @@ import 'package:lmaida/components/form_error2.dart';
 import 'package:lmaida/profile/user_view_model.dart';
 import 'package:lmaida/service/remote_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
-import 'package:lmaida/utils/constantsutils/firebase.dart';
+import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/theme.dart';
 import 'package:provider/provider.dart';
 
