@@ -44,7 +44,6 @@ class BookedScreen extends StatefulWidget with NavigationStates {
 
 class _BookedScreenState extends State<BookedScreen> {
   TextEditingController Controller = TextEditingController();
-  final String apiUrl = StringConst.URI_RESTAU + 'all';
   String dropdownValue;
   var selectedDateTxt;
   var selectedTimeTxt;

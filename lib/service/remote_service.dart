@@ -43,7 +43,7 @@ class RemoteService {
   }
 
   static Future<List<dynamic>> fetDetails(id) async {
-    var result = await http.get("https://lmaida.com/api/resturant/$id");
+    var result = await http.get(StringConst.URI_RESTAU1 + id);
     return json.decode(result.body);
   }
 
@@ -60,12 +60,11 @@ class RemoteService {
       "Accept": "application/json",
       "Content-Type": "application/json"
     };
-    var url = 'https://lmaida.com/api/login';
     var data = {
       'email': firebaseAuth.currentUser.email,
       'password': u.data()["password"],
     };
-    var response = await http.post(Uri.encodeFull(url),
+    var response = await http.post(Uri.encodeFull(StringConst.URI_LOGIN),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
     return message["token"];
@@ -78,8 +77,8 @@ class RemoteService {
       "Authorization": "Bearer $Token",
       "Content-Type": "application/json"
     };
-    var url = 'https://lmaida.com/api/profile';
-    var response = await http.post(Uri.encodeFull(url), headers: header);
+    var response = await http.post(Uri.encodeFull(StringConst.URI_PROFILE),
+        headers: header);
     var message = jsonDecode(response.body);
     return message[0];
   }
@@ -89,12 +88,11 @@ class RemoteService {
       "Accept": "application/json",
       "Content-Type": "application/json"
     };
-    var url = 'https://lmaida.com/api/login';
     var data = {
       'email': email,
       'password': password,
     };
-    var response = await http.post(Uri.encodeFull(url),
+    var response = await http.post(Uri.encodeFull(StringConst.URI_LOGIN),
         headers: header, body: json.encode(data));
     var res = jsonDecode(response.body);
     return res['token'];
@@ -106,8 +104,8 @@ class RemoteService {
     Map<String, String> header = {
       "Authorization": "Bearer $Token",
     };
-    var url = 'https://lmaida.com/api/token';
-    await http.post(Uri.encodeFull(url), headers: header, body: {
+    await http
+        .post(Uri.encodeFull(StringConst.URI_TOKEN), headers: header, body: {
       'token': _token,
       'id': userid.toString(),
     });
@@ -156,7 +154,7 @@ class RemoteService {
       'password': password,
       'phone_number': country
     };
-    var response = await http.post(Uri.encodeFull(url),
+    var response = await http.post(Uri.encodeFull(StringConst.URI_REGISTER),
         headers: header, body: json.encode(data));
     var message = jsonDecode(response.body);
     return message["token"];

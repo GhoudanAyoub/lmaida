@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,7 +9,9 @@ import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/user.dart';
 import 'package:lmaida/profile/Componant/edit_profile__model_view.dart';
+import 'package:lmaida/service/remote_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
+import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/utils/validation.dart';
@@ -30,38 +31,16 @@ class _BodyState extends State<Body> {
   var following = new List(200);
   var followers = new List(200);
 
-  String currentUid() {
-    return firebaseAuth.currentUser.uid;
-  }
-
-  Future<String> getToken() async {
-    var u = await getUsers();
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/login';
-    var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': u.data()["password"],
-    };
-    var response = await http.post(Uri.encodeFull(url),
-        headers: header, body: json.encode(data));
-    var message = jsonDecode(response.body);
-    return message["token"];
-  }
-
   Future getPorf() async {
-    String Token = await getToken();
+    String Token = await RemoteService.getToken();
     Map<String, String> header = {
       "Accept": "application/json",
       "Authorization": "Bearer $Token",
       "Content-Type": "application/json"
     };
-    var url = 'https://lmaida.com/api/profile';
-    var response = await http.post(Uri.encodeFull(url), headers: header);
+    var response = await http.post(Uri.encodeFull(StringConst.URI_PROFILE),
+        headers: header);
     var message = jsonDecode(response.body);
-    log(message.toString());
     setState(() {
       following = message[0]["following"];
       followers = message[0]["followers"];
@@ -71,16 +50,6 @@ class _BodyState extends State<Body> {
   @override
   void initState() {
     getPorf();
-  }
-
-  getUsers() async {
-    DocumentSnapshot snap =
-        await usersRef.doc(firebaseAuth.currentUser.uid).get();
-    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
-    setState(() {
-      loading = false;
-    });
-    return user1;
   }
 
   @override
