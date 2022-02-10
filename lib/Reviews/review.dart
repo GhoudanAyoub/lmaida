@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +14,10 @@ import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/components/text_form_builder.dart';
 import 'package:lmaida/models/category.dart';
+import 'package:lmaida/service/remote_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
-import 'package:lmaida/utils/firebase.dart';
 import 'package:lmaida/utils/validation.dart';
 
 import '../Reviews/costumimage.dart';
@@ -32,7 +31,6 @@ class Review extends StatefulWidget with NavigationStates {
 }
 
 class _ReviewState extends State<Review> {
-  DocumentSnapshot user1;
   final picker = ImagePicker();
   double ratingG = 1;
   TextEditingController _reviewContoller = TextEditingController();
@@ -117,92 +115,9 @@ class _ReviewState extends State<Review> {
     }
   }
 
-  getUsers() async {
-    DocumentSnapshot snap =
-        await usersRef.doc(firebaseAuth.currentUser.uid).get();
-    if (snap.data()["id"] == firebaseAuth.currentUser.uid) {
-      user1 = snap;
-    }
-  }
-
-  Future<dynamic> userLog(context) async {
-    setState(() {
-      sending = true;
-    });
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/login';
-    var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
-    };
-    var response = await http.post(Uri.encodeFull(url),
-        headers: header, body: json.encode(data));
-    var message = jsonDecode(response.body);
-    return getPorf(message["token"], context);
-  }
-
-  Future getPorf(Token, context) async {
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Authorization": "Bearer $Token",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/profile';
-    var response = await http.post(Uri.encodeFull(url), headers: header);
-    var message = jsonDecode(response.body);
-    AddReviews(Token, message[0]["id"], context);
-  }
-
-  Future AddReviews(Token, userid, context) async {
-    var dio = Dio();
-    var options = Options(validateStatus: (status) => true,
-        //followRedirects: false,
-        headers: {
-          "Authorization": "Bearer $Token",
-        });
-    var url = 'https://lmaida.com/api/review';
-    FormState form = formKey.currentState;
-    if (!form.validate()) {
-      showInSnackBar('Please fix the errors in red before submitting.');
-    } else {
-      var formData = FormData.fromMap({
-        'idbooking':
-            widget.idbooking != null ? widget.idbooking.toString() : "1",
-        'iduser': userid.toString(),
-        'reviews': ratingG.toString(),
-        'texts': _reviewContoller.text,
-        'positivtag': positiveTagString,
-        'negativetag': negativeTagString,
-        'image1':
-            await MultipartFile.fromFile(mediaUrl.path, filename: 'upload.jpg'),
-        'image2': await MultipartFile.fromFile(mediaUrl2.path,
-            filename: 'upload2.jpg'),
-        'image3': await MultipartFile.fromFile(mediaUrl3.path,
-            filename: 'upload3.jpg'),
-      });
-      var response = await dio.post(url, data: formData, options: options);
-      Fluttertoast.showToast(
-          msg: response.data['message'].toString(),
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0);
-      setState(() {
-        sending = false;
-      });
-      Navigator.pop(context);
-    }
-  }
-
   @override
   void initState() {
     getData();
-    getUsers();
     super.initState();
   }
 
@@ -689,7 +604,7 @@ class _ReviewState extends State<Review> {
                                   heroTag: 'Add Review',
                                   mini: true,
                                   onPressed: () {
-                                    userLog(context);
+                                    AddReviews(context);
                                   },
                                   backgroundColor: primary,
                                   child: Icon(Icons.arrow_forward_ios,
@@ -995,6 +910,53 @@ class _ReviewState extends State<Review> {
       });
     } catch (e) {
       showInSnackBar('Cancelled');
+    }
+  }
+
+  Future AddReviews(context) async {
+    setState(() {
+      sending = true;
+    });
+    var dio = Dio();
+    var Token = await RemoteService
+        .getToken(); //await secureStorage.read(key: "Token");
+    var userid = await RemoteService.getProfile();
+    var options = Options(validateStatus: (status) => true, headers: {
+      "Authorization": "Bearer $Token",
+    });
+    var url = 'https://lmaida.com/api/review';
+    FormState form = formKey.currentState;
+    if (!form.validate()) {
+      showInSnackBar('Please fix the errors in red before submitting.');
+    } else {
+      var formData = FormData.fromMap({
+        'idbooking':
+            widget.idbooking != null ? widget.idbooking.toString() : "1",
+        'iduser': userid["id"].toString(),
+        'reviews': ratingG.toString(),
+        'texts': _reviewContoller.text,
+        'positivtag': positiveTagString,
+        'negativetag': negativeTagString,
+        'image1':
+            await MultipartFile.fromFile(mediaUrl.path, filename: 'upload.jpg'),
+        'image2': await MultipartFile.fromFile(mediaUrl2.path,
+            filename: 'upload2.jpg'),
+        'image3': await MultipartFile.fromFile(mediaUrl3.path,
+            filename: 'upload3.jpg'),
+      });
+      var response = await dio.post(url, data: formData, options: options);
+      Fluttertoast.showToast(
+          msg: response.data['message'].toString(),
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      setState(() {
+        sending = false;
+      });
+      Navigator.pop(context);
     }
   }
 
