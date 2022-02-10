@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -7,7 +6,6 @@ import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/form_error.dart';
 import 'package:lmaida/helper/keyboard.dart';
-import 'package:lmaida/service/auth_service.dart';
 import 'package:lmaida/service/remote_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
@@ -26,7 +24,6 @@ class _SignFormState extends State<SignForm> {
   TextEditingController _passwordController = TextEditingController();
   bool remember = false;
   final List<String> errors = [];
-  AuthService auth = AuthService();
 
   var submitted = false;
   var buttonText = "Continue";
@@ -151,7 +148,6 @@ class _SignFormState extends State<SignForm> {
             text: buttonText,
             submitted: submitted,
             press: () async {
-              AuthService auth = AuthService();
               if (_formKey.currentState.validate()) {
                 submitted = true;
                 KeyboardUtil.hideKeyboard(context);
@@ -159,7 +155,7 @@ class _SignFormState extends State<SignForm> {
                 var Token;
                 var cc;
                 try {
-                  success = await loginUser(
+                  success = await RemoteService.loginUser(
                       email: _emailContoller.text,
                       password: _passwordController.text);
                   Token = await RemoteService.userLog(
@@ -217,8 +213,8 @@ class _SignFormState extends State<SignForm> {
                   submitted = false;
                   addError(error: success);
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content:
-                          Text("${auth.handleFirebaseAuthError(e.toString())}"),
+                      content: Text(
+                          "${RemoteService.handleFirebaseAuthError(e.toString())}"),
                       duration: Duration(seconds: 2)));
                 }
               }
@@ -227,33 +223,6 @@ class _SignFormState extends State<SignForm> {
         ],
       ),
     );
-  }
-
-  Future loginUser({String email, String password}) async {
-    UserCredential result;
-    var errorType;
-    try {
-      result = await firebaseAuth.signInWithEmailAndPassword(
-        email: '$email',
-        password: '$password',
-      );
-    } catch (e) {
-      switch (e) {
-        case 'There is no user record corresponding to this identifier. The user may have been deleted.':
-          errorType = "No Account For This Email";
-          break;
-        case 'The password is invalid or the user does not have a password.':
-          errorType = "Password Invalid";
-          break;
-        case 'A network error (interrupted connection or unreachable host) has occurred.':
-          errorType = "Connection Error";
-          break;
-        default:
-          print('Case ${errorType} is not yet implemented');
-      }
-    }
-    if (errorType != null) return null;
-    if (result != null) return result.user.uid;
   }
 
   void showInSnackBar(String value) {

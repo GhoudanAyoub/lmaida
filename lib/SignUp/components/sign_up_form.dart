@@ -1,17 +1,13 @@
-import 'dart:convert';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/form_error2.dart';
 import 'package:lmaida/profile/user_view_model.dart';
-import 'package:lmaida/service/auth_service.dart';
+import 'package:lmaida/service/remote_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
-import 'package:lmaida/utils/constants.dart';
-import 'package:lmaida/utils/firebase.dart';
+import 'package:lmaida/utils/constantsutils/firebase.dart';
 import 'package:lmaida/utils/theme.dart';
 import 'package:provider/provider.dart';
 
@@ -32,7 +28,6 @@ class _SignUpFormState extends State<SignUpForm> {
   String password;
   String conform_password;
   bool remember = false;
-  AuthService authService = AuthService();
   final List<String> errors = [];
 
   Position position;
@@ -111,7 +106,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text('Please Wait...'),
                       duration: Duration(seconds: 2)));
-                  String success = await authService.createUser(
+                  String success = await RemoteService.createUser(
                     name: _namentoller.text,
                     email: _emailContoller.text,
                     password: _passwordController.text,
@@ -119,7 +114,8 @@ class _SignUpFormState extends State<SignUpForm> {
                   );
                   if (success != null) {
                     viewModel.setToken(success);
-                    getId(success).then((value) => addToken(success, value));
+                    RemoteService.getProfile().then((value) =>
+                        RemoteService.addToken(success, value['id'], _token));
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text('Congratulation Your Account Created'),
@@ -136,30 +132,6 @@ class _SignUpFormState extends State<SignUpForm> {
         ],
       ),
     );
-  }
-
-  Future<dynamic> getId(Token) async {
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Authorization": "Bearer $Token",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/profile';
-    var response = await http.post(Uri.encodeFull(url), headers: header);
-    var message = jsonDecode(response.body);
-    return message[0]['id'];
-  }
-
-  Future addToken(Token, userid) async {
-    usersToken.doc(userid.toString()).set({"token": _token});
-    Map<String, String> header = {
-      "Authorization": "Bearer $Token",
-    };
-    var url = 'https://lmaida.com/api/token';
-    await http.post(Uri.encodeFull(url), headers: header, body: {
-      'token': _token,
-      'id': userid.toString(),
-    });
   }
 
   void emailExists() {
