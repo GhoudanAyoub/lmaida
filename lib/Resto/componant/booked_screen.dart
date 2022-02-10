@@ -362,7 +362,7 @@ class _BookedScreenState extends State<BookedScreen> {
               " / " +
               "${widget.selectedTimeTxt != null ? "${widget.selectedTimeTxt.hour} : ${widget.selectedTimeTxt.minute}" : "${selectedDate.hour} : ${selectedDate.minute}"}",
       'person': person != null ? int.parse(person) : 1,
-      'offre': widget.offer != null
+      'offre': widget.offer != null && state
           ? "${widget.offer[int.parse(_selected) - 1]["description"]} Till ${widget.offer[int.parse(_selected) - 1]["date_to"]}"
           : null,
       'specialrequest': Controller.text != null ? Controller.text : ""

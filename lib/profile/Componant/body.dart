@@ -44,12 +44,20 @@ class _BodyState extends State<Body> {
     setState(() {
       following = message[0]["following"];
       followers = message[0]["followers"];
+      loading = false;
     });
   }
 
   @override
   void initState() {
     getPorf();
+    getUsers();
+  }
+
+  Future getUsers() async {
+    DocumentSnapshot snap =
+        await usersRef.doc(firebaseAuth.currentUser.uid).get();
+    if (snap.data()["id"] == firebaseAuth.currentUser.uid) user1 = snap;
   }
 
   @override

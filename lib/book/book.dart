@@ -32,7 +32,13 @@ class _BookState extends State<Book> {
     super.initState();
   }
 
+  Future fetResto(id) async {
+    var result = await http.get("${StringConst.URI_RESTAU1}$id");
+    return json.decode(result.body);
+  }
+
   Future<List<dynamic>> getPorf() async {
+    user1 = await RemoteService.getUsers();
     var Token = await RemoteService.getToken();
     Map<String, String> header = {
       "Accept": "application/json",
@@ -204,8 +210,8 @@ class _BookState extends State<Book> {
                                                   BorderRadius.circular(10)),
                                           child: Container(
                                             child: FutureBuilder(
-                                              future: RemoteService.fetDetails(
-                                                  bookmodel.iditem),
+                                              future:
+                                                  fetResto(bookmodel.iditem),
                                               builder: (context, snapshot) {
                                                 if (snapshot.hasData) {
                                                   RestoModel restoModel =
@@ -248,8 +254,8 @@ class _BookState extends State<Book> {
                                                   BorderRadius.circular(10)),
                                           child: Container(
                                             child: FutureBuilder(
-                                              future: RemoteService.fetDetails(
-                                                  bookmodel.iditem),
+                                              future:
+                                                  fetResto(bookmodel.iditem),
                                               builder: (context, snapshot) {
                                                 if (snapshot.hasData) {
                                                   RestoModel restoModel =

@@ -42,8 +42,8 @@ class RemoteService {
     return json.decode(result.body);
   }
 
-  static Future<List<dynamic>> fetDetails(id) async {
-    var result = await http.get(StringConst.URI_RESTAU1 + id);
+  static Future fetDetails(id) async {
+    var result = await http.get(StringConst.URI_RESTAU1 + "$id");
     return json.decode(result.body);
   }
 

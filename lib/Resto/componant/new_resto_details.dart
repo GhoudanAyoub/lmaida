@@ -13,8 +13,8 @@ import 'package:lmaida/components/rater.dart';
 import 'package:lmaida/components/reting%20star.dart';
 import 'package:lmaida/components/reviews_card.dart';
 import 'package:lmaida/models/restau_model.dart';
-import 'package:lmaida/service/remote_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
+import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/extansion.dart';
 import 'package:lmaida/utils/firebase.dart';
@@ -118,6 +118,11 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
     });
   }
 
+  static Future<List<dynamic>> fetDetails(id) async {
+    var result = await http.get(StringConst.URI_RESTAU1 + "$id");
+    return json.decode(result.body);
+  }
+
   Future getPorf() async {
     String Token = await getToken();
     Map<String, String> header = {
@@ -147,7 +152,7 @@ class _NewRestoDetailsState extends State<NewRestoDetails> {
   @override
   void initState() {
     getPorf();
-    fetchDetailsRes = RemoteService.fetDetails(widget.restoModel.id);
+    fetchDetailsRes = fetDetails(widget.restoModel.id);
     getImages();
   }
 
