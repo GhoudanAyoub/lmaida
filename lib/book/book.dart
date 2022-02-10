@@ -8,12 +8,11 @@ import 'package:lmaida/Reviews/review.dart';
 import 'package:lmaida/bloc.navigation_bloc/navigation_bloc.dart';
 import 'package:lmaida/components/indicators.dart';
 import 'package:lmaida/models/book_model.dart';
-import 'package:lmaida/models/category.dart';
 import 'package:lmaida/models/restau_model.dart';
+import 'package:lmaida/service/remote_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/StringConst.dart';
 import 'package:lmaida/utils/constants.dart';
-import 'package:lmaida/utils/firebase.dart';
 
 class Book extends StatefulWidget with NavigationStates {
   @override
@@ -29,43 +28,12 @@ class _BookState extends State<Book> {
 
   @override
   void initState() {
-    getUsers();
+    getPorf();
     super.initState();
   }
 
-  Future fetResto(id) async {
-    var result = await http.get("${StringConst.URI_RESTAU1}$id");
-    return json.decode(result.body);
-  }
-
-  getUsers() async {
-    DocumentSnapshot snap =
-        await usersRef.doc(firebaseAuth.currentUser.uid).get();
-    if (snap.data()["id"] == firebaseAuth.currentUser.uid) {
-      user1 = snap;
-    }
-    setState(() {
-      var f = userLog();
-    });
-  }
-
-  Future<List<dynamic>> userLog() async {
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/login';
-    var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': user1.data()["password"],
-    };
-    var response = await http.post(Uri.encodeFull(url),
-        headers: header, body: json.encode(data));
-    var message = jsonDecode(response.body);
-    return getPorf(message["token"]);
-  }
-
-  Future<List<dynamic>> getPorf(Token) async {
+  Future<List<dynamic>> getPorf() async {
+    var Token = await RemoteService.getToken();
     Map<String, String> header = {
       "Accept": "application/json",
       "Authorization": "Bearer $Token",
@@ -82,21 +50,6 @@ class _BookState extends State<Book> {
   }
 
   bool submitted = false;
-  static final List<Category> categories = [
-    Category(
-      id: 1,
-      name: "Accept",
-    ),
-    Category(
-      id: 2,
-      name: "Pending",
-    ),
-    Category(
-      id: 3,
-      name: "Canceled",
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -221,7 +174,7 @@ class _BookState extends State<Book> {
                         height: SizeConfig.screenHeight - 180,
                         padding: EdgeInsets.symmetric(horizontal: 10),
                         child: FutureBuilder<List<dynamic>>(
-                          future: userLog(),
+                          future: getPorf(),
                           builder:
                               (BuildContext context, AsyncSnapshot snapshot) {
                             if (snapshot.hasData)
@@ -251,8 +204,8 @@ class _BookState extends State<Book> {
                                                   BorderRadius.circular(10)),
                                           child: Container(
                                             child: FutureBuilder(
-                                              future:
-                                                  fetResto(bookmodel.iditem),
+                                              future: RemoteService.fetDetails(
+                                                  bookmodel.iditem),
                                               builder: (context, snapshot) {
                                                 if (snapshot.hasData) {
                                                   RestoModel restoModel =
@@ -295,8 +248,8 @@ class _BookState extends State<Book> {
                                                   BorderRadius.circular(10)),
                                           child: Container(
                                             child: FutureBuilder(
-                                              future:
-                                                  fetResto(bookmodel.iditem),
+                                              future: RemoteService.fetDetails(
+                                                  bookmodel.iditem),
                                               builder: (context, snapshot) {
                                                 if (snapshot.hasData) {
                                                   RestoModel restoModel =
@@ -372,40 +325,22 @@ class _OrderCardState extends State<OrderCard> {
   bool submitted = false;
   bool show = false;
 
-  Future<List<dynamic>> userLog2(id) async {
-    setState(() {
-      submitted = true;
-    });
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/login';
-    var data = {
-      'email': firebaseAuth.currentUser.email,
-      'password': widget.user1.data()["password"],
-    };
-    var response = await http.post(Uri.encodeFull(url),
-        headers: header, body: json.encode(data));
-    var message = jsonDecode(response.body);
-    return deleteBook(message["token"], id);
-  }
-
-  Future<List<dynamic>> deleteBook(Token, id) async {
+  Future deleteBook() async {
+    var Token = await RemoteService.getToken();
     Map<String, String> header = {
       "Accept": "application/json",
       "Authorization": "Bearer $Token",
       "Content-Type": "application/json"
     };
-    var result = await http
-        .post(Uri.encodeFull("${StringConst.URI_DELETE}/$id"), headers: header);
+    var result = await http.post(
+        Uri.encodeFull("${StringConst.URI_DELETE}/${widget.bookmodel.id}"),
+        headers: header);
     var res = json.decode(result.body);
     if (res["message"] == "Successfully canceled") {
       setState(() {
         submitted = false;
       });
     }
-    return json.decode(result.body);
   }
 
   buildCount(String label, final icons) {
@@ -479,11 +414,11 @@ class _OrderCardState extends State<OrderCard> {
                               height: 0,
                             )
                           : GestureDetector(
-                              onTap: () {
+                              onTap: () async {
                                 setState(() {
                                   submitted = true;
                                 });
-                                userLog2(widget.bookmodel.id);
+                                await deleteBook();
                               },
                               child: submitted
                                   ? circularProgress(context)

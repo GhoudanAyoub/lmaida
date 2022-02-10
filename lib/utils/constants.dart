@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:lmaida/models/category.dart';
 
 import 'SizeConfig.dart';
 
+final List<Category> categories = [
+  Category(
+    id: 1,
+    name: "Accept",
+  ),
+  Category(
+    id: 2,
+    name: "Pending",
+  ),
+  Category(
+    id: 3,
+    name: "Canceled",
+  ),
+];
 const Color kTextColor1 = Color.fromRGBO(168, 158, 146, 1);
 const tabLinkStyle = TextStyle(fontWeight: FontWeight.w500);
 const Color primaryColor = Color(0xffBA002E);
