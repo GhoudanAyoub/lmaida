@@ -70,7 +70,6 @@ class RemoteService {
     return message["token"];
   }
 
-
   static Future<dynamic> getProfile() async {
     String Token = await getToken();
     Map<String, String> header = {
@@ -82,5 +81,34 @@ class RemoteService {
     var response = await http.post(Uri.encodeFull(url), headers: header);
     var message = jsonDecode(response.body);
     return message[0];
+  }
+
+  static Future userLog({String email, String password}) async {
+    Map<String, String> header = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+    var url = 'https://lmaida.com/api/login';
+    var data = {
+      'email': email,
+      'password': password,
+    };
+    var response = await http.post(Uri.encodeFull(url),
+        headers: header, body: json.encode(data));
+    var res = jsonDecode(response.body);
+    await secureStorage.write(key: "Token", value: res['token']);
+    return res['token'];
+  }
+
+  static Future addToken(Token, userid, _token) async {
+    usersToken.doc(userid.toString()).set({"token": _token});
+    Map<String, String> header = {
+      "Authorization": "Bearer $Token",
+    };
+    var url = 'https://lmaida.com/api/token';
+    await http.post(Uri.encodeFull(url), headers: header, body: {
+      'token': _token,
+      'id': userid.toString(),
+    });
   }
 }

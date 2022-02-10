@@ -1,16 +1,14 @@
-import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 import 'package:lmaida/SignUp/sign_up_screen.dart';
 import 'package:lmaida/components/custom_surfix_icon.dart';
 import 'package:lmaida/components/default_button.dart';
 import 'package:lmaida/components/form_error.dart';
 import 'package:lmaida/helper/keyboard.dart';
 import 'package:lmaida/service/auth_service.dart';
+import 'package:lmaida/service/remote_service.dart';
 import 'package:lmaida/utils/SizeConfig.dart';
 import 'package:lmaida/utils/constants.dart';
 import 'package:lmaida/utils/firebase.dart';
@@ -164,7 +162,7 @@ class _SignFormState extends State<SignForm> {
                   success = await loginUser(
                       email: _emailContoller.text,
                       password: _passwordController.text);
-                  Token = await userLog(
+                  Token = await RemoteService.userLog(
                       email: _emailContoller.text,
                       password: _passwordController.text);
 
@@ -172,10 +170,10 @@ class _SignFormState extends State<SignForm> {
                     var res = await firebaseAuth.createUserWithEmailAndPassword(
                         email: _emailContoller.text,
                         password: _passwordController.text);
-                    cc = await getPorf(Token);
+                    cc = await RemoteService.getProfile();
                     try {
                       await usersRef.doc(firebaseAuth.currentUser.uid).set({
-                        'username': cc,
+                        'username': cc['name'],
                         'email': _emailContoller.text,
                         'id': firebaseAuth.currentUser.uid,
                         'contact': "",
@@ -185,14 +183,16 @@ class _SignFormState extends State<SignForm> {
                     } catch (e) {
                       print(e);
                     }
-                    getId(Token).then((value) => addToken(Token, value));
+                    RemoteService.getProfile().then((value) =>
+                        RemoteService.addToken(Token, value['id'], _token));
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text('Welcome Back'),
                       duration: Duration(seconds: 2),
                     ));
                   } else if (success != null && Token != null) {
-                    getId(Token).then((value) => addToken(Token, value));
+                    RemoteService.getProfile().then((value) =>
+                        RemoteService.addToken(Token, value['id'], _token));
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text('Welcome Back'),
@@ -203,7 +203,8 @@ class _SignFormState extends State<SignForm> {
                         duration: Duration(seconds: 2)));
                     Navigator.pushNamed(context, SignUpScreen.routeName);
                   } else if (success != null && Token == null) {
-                    getId(Token).then((value) => addToken(Token, value));
+                    RemoteService.getProfile().then((value) =>
+                        RemoteService.addToken(Token, value['id'], _token));
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text('Welcome Back'),
@@ -253,58 +254,6 @@ class _SignFormState extends State<SignForm> {
     }
     if (errorType != null) return null;
     if (result != null) return result.user.uid;
-  }
-
-  Future userLog({String email, String password}) async {
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/login';
-    var data = {
-      'email': email,
-      'password': password,
-    };
-    var response = await http.post(Uri.encodeFull(url),
-        headers: header, body: json.encode(data));
-    var res = jsonDecode(response.body);
-    return res['token'];
-  }
-
-  Future<dynamic> getPorf(Token) async {
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Authorization": "Bearer $Token",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/profile';
-    var response = await http.post(Uri.encodeFull(url), headers: header);
-    var message = jsonDecode(response.body);
-    return message[0]['name'];
-  }
-
-  Future<dynamic> getId(Token) async {
-    Map<String, String> header = {
-      "Accept": "application/json",
-      "Authorization": "Bearer $Token",
-      "Content-Type": "application/json"
-    };
-    var url = 'https://lmaida.com/api/profile';
-    var response = await http.post(Uri.encodeFull(url), headers: header);
-    var message = jsonDecode(response.body);
-    return message[0]['id'];
-  }
-
-  Future addToken(Token, userid) async {
-    usersToken.doc(userid.toString()).set({"token": _token});
-    Map<String, String> header = {
-      "Authorization": "Bearer $Token",
-    };
-    var url = 'https://lmaida.com/api/token';
-    await http.post(Uri.encodeFull(url), headers: header, body: {
-      'token': _token,
-      'id': userid.toString(),
-    });
   }
 
   void showInSnackBar(String value) {
